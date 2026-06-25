@@ -6,27 +6,24 @@
 <title>TMT — 취향 공유 보드 (블라인드 리뷰)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600;700;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0b0c;
     --txt:#f4f1ec;
     --muted:#9a958d;
-    --red:#ec1c2e;          /* Rolling Stone red */
+    --red:#ec1c2e;
     --red-dark:#a50f1c;
     --red-soft:#ff3a48;
     --glass:rgba(255,255,255,.055);
-    --glass-2:rgba(255,255,255,.1);
     --stroke:rgba(255,255,255,.14);
-    --display:"Oswald","Zen Kaku Gothic New",sans-serif;
-    --jp:"Zen Kaku Gothic New","Apple SD Gothic Neo",sans-serif;
+    --display:"Oswald",sans-serif;
     --sans:"Archivo","Apple SD Gothic Neo","Pretendard",sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{-webkit-font-smoothing:antialiased}
   body{font-family:var(--sans);color:var(--txt);background:var(--bg);line-height:1.55;min-height:100vh;overflow-x:hidden;position:relative}
 
-  /* subtle red/mono mesh background */
   .bg-blobs{position:fixed;inset:0;z-index:-2;overflow:hidden;filter:blur(80px)}
   .blob{position:absolute;border-radius:50%;mix-blend-mode:screen}
   .b1{width:48vw;height:48vw;background:radial-gradient(circle,#ec1c2e,transparent 70%);opacity:.5;top:-12vw;left:-10vw;animation:float1 20s ease-in-out infinite}
@@ -44,58 +41,42 @@
   a{color:inherit;text-decoration:none}
   .ico{display:inline-block;vertical-align:middle}
 
-  /* ---- top bar ---- */
-  .topbar{position:sticky;top:0;z-index:100;margin:14px;border-radius:16px;padding:0}
+  .topbar{position:sticky;top:0;z-index:100;margin:14px;border-radius:16px}
   .topbar .wrap{max-width:1180px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
   .brand{display:flex;align-items:center;gap:12px}
   .lips{width:44px;height:auto;transform:rotate(-6deg);filter:drop-shadow(0 4px 10px rgba(236,28,46,.55))}
   .brand .logo{font-family:var(--display);font-weight:700;font-size:32px;line-height:.8;letter-spacing:.01em;text-transform:uppercase}
   .brand .logo .t2{color:var(--red)}
-  .brand .sub{font-family:var(--jp);font-weight:700;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.02em}
+  .brand .sub{font-weight:700;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.02em}
   .btn-share{font-weight:700;font-size:13px;padding:11px 20px;border-radius:10px;color:#fff;background:var(--red);box-shadow:0 8px 22px rgba(236,28,46,.4);transition:transform .2s,background .2s}
   .btn-share:hover{transform:translateY(-2px);background:var(--red-soft)}
 
-  /* ---- board head ---- */
   .board-head{max-width:1180px;margin:34px auto 0;padding:0 24px}
   .board-head .kicker{display:inline-block;font-family:var(--display);font-weight:600;letter-spacing:.28em;font-size:12px;color:var(--red);border-left:3px solid var(--red);padding-left:10px;text-transform:uppercase}
   .board-head h1{font-family:var(--display);font-weight:700;font-size:64px;line-height:.94;letter-spacing:.005em;margin-top:12px;text-transform:uppercase}
   .board-head h1 em{font-style:normal;color:var(--red)}
-  .board-head p{font-family:var(--jp);font-weight:700;color:var(--muted);font-size:15px;margin-top:12px}
+  .board-head p{font-weight:600;color:var(--muted);font-size:15px;margin-top:12px}
   .rule-note{display:inline-flex;align-items:center;gap:10px;margin-top:18px;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600}
   .rule-note .ico{color:var(--red)}
   .rule-note b{color:var(--red);font-weight:800}
 
   /* ---- grid ---- */
   .grid{max-width:1180px;margin:26px auto 60px;padding:0 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-  .cover{perspective:900px;cursor:pointer;opacity:0;transform:translateY(24px);animation:rise .6s forwards}
+  .cover{perspective:680px;cursor:pointer;opacity:0;transform:translateY(24px);animation:rise .6s forwards}
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
-  .cover-inner{position:relative;border-radius:14px;overflow:hidden;transform-style:preserve-3d;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s;border:1px solid var(--stroke);box-shadow:0 10px 30px rgba(0,0,0,.45)}
-  .cover:hover .cover-inner{box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 1px var(--red)}
-  .cover .art{aspect-ratio:1/1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
-  .cover .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.6))}
-  .cover .art .txtwrap{position:relative;z-index:2;transform:translateZ(40px)}
-  .cover .a-title{font-family:var(--display);font-weight:700;font-size:23px;line-height:.96;text-transform:uppercase;text-shadow:0 4px 14px rgba(0,0,0,.5)}
-  .cover .a-artist{font-size:11px;font-weight:600;opacity:.85;margin-top:5px}
-  .cover .badge{position:absolute;top:12px;right:12px;z-index:3;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(11,11,12,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);transform:translateZ(50px)}
+  .cover-inner{position:relative;border-radius:14px;overflow:hidden;transform-style:preserve-3d;will-change:transform;transition:transform .5s cubic-bezier(.2,.8,.25,1),box-shadow .4s;border:1px solid var(--stroke);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  .cover .art{aspect-ratio:1/1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;transform-style:preserve-3d}
+  .art-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0) scale(1.06);transition:transform .5s cubic-bezier(.2,.8,.25,1)}
+  .cover:hover .art-img{transform:translateZ(-30px) scale(1.18)}
+  .art .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.72));transform:translateZ(10px)}
+  .cover .txtwrap{position:relative;z-index:2;transform:translateZ(70px)}
+  .cover .a-title{font-family:var(--display);font-weight:700;font-size:23px;line-height:.96;text-transform:uppercase;text-shadow:0 6px 20px rgba(0,0,0,.7)}
+  .cover .a-artist{font-size:11px;font-weight:600;opacity:.9;margin-top:5px;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+  .cover .badge{position:absolute;top:12px;right:12px;z-index:3;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(11,11,12,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.28);transform:translateZ(90px)}
   .cover.done .badge{background:var(--red);border-color:transparent;box-shadow:0 0 16px rgba(236,28,46,.65)}
-  .cover .ribbon{position:absolute;top:13px;left:13px;z-index:3;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.12em;padding:4px 10px;border-radius:4px;background:var(--red);color:#fff;transform:translateZ(50px);box-shadow:0 6px 16px rgba(236,28,46,.5)}
-  /* glare */
-  .glare{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:14px;opacity:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.3),transparent 45%);transition:opacity .2s}
+  .cover .ribbon{position:absolute;top:13px;left:13px;z-index:3;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.12em;padding:4px 10px;border-radius:4px;background:var(--red);color:#fff;transform:translateZ(90px);box-shadow:0 6px 16px rgba(236,28,46,.5)}
+  .glare{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:14px;opacity:0;transform:translateZ(100px);background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.4),transparent 42%);transition:opacity .2s}
   .cover:hover .glare{opacity:1}
-
-  /* generated cover art — red / mono editorial */
-  .art1{background:radial-gradient(circle at 30% 25%,#ff5a4a,#ec1c2e 45%,#2a0608)}
-  .art2{background:linear-gradient(135deg,#2a2a2e,#0c0c0e)}
-  .art2 .deco{position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 16px,rgba(255,255,255,.07) 16px 18px)}
-  .art3{background:conic-gradient(from 200deg at 60% 40%,#ec1c2e,#f4f1ec,#1a1a1c,#ec1c2e)}
-  .art4{background:linear-gradient(180deg,#f4f1ec,#9a958d);color:#111}
-  .art4 .deco{position:absolute;left:50%;top:42%;width:46%;height:46%;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(236,28,46,.85),transparent 72%)}
-  .art4 .a-title{color:#111;text-shadow:none}.art4 .a-artist{color:#333}
-  .art5{background:linear-gradient(135deg,#ec1c2e,#5a0a12)}
-  .art6{background:linear-gradient(160deg,#16161a,#33333a)}
-  .art6 .deco{position:absolute;inset:20%;border:2px solid var(--red);border-radius:50%;box-shadow:0 0 30px rgba(236,28,46,.55)}
-  .art7{background:linear-gradient(135deg,#ff5a4a,#7a0c16)}
-  .art8{background:radial-gradient(circle at 70% 70%,#d9d4cc,#5a5650 55%,#1a1a1c)}
 
   /* ---- modal ---- */
   .overlay{position:fixed;inset:0;background:rgba(6,5,6,.6);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:22px}
@@ -103,12 +84,12 @@
   @keyframes fade{from{opacity:0}to{opacity:1}}
   .modal{width:min(940px,100%);max-height:90vh;border-radius:18px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;animation:pop .3s cubic-bezier(.2,.8,.2,1)}
   @keyframes pop{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:none;opacity:1}}
-  .modal .m-art{position:relative;min-height:440px}
-  .modal .m-art .art{position:absolute;inset:0}
-  .modal .m-art .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.55))}
+  .modal .m-art{position:relative;min-height:440px;overflow:hidden}
+  .m-art .m-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .m-art .m-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.6))}
   .modal .m-art .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:26px}
-  .modal .m-art .a-title{font-family:var(--display);font-weight:700;font-size:40px;line-height:.94;text-transform:uppercase;text-shadow:0 4px 16px rgba(0,0,0,.6)}
-  .modal .m-art .a-artist{font-size:13px;font-weight:600;margin-top:7px;opacity:.92}
+  .modal .m-art .a-title{font-family:var(--display);font-weight:700;font-size:40px;line-height:.94;text-transform:uppercase;text-shadow:0 4px 16px rgba(0,0,0,.7)}
+  .modal .m-art .a-artist{font-size:13px;font-weight:600;margin-top:7px;opacity:.92;text-shadow:0 2px 8px rgba(0,0,0,.7)}
   .modal .m-side{display:flex;flex-direction:column;max-height:90vh;background:rgba(16,15,16,.62);backdrop-filter:blur(24px) saturate(130%);border-left:1px solid var(--stroke)}
   .m-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--stroke)}
   .m-head .ava{width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35)}
@@ -117,7 +98,7 @@
   .m-head .x{margin-left:auto;cursor:pointer;line-height:1;background:rgba(255,255,255,.07);border:1px solid var(--stroke);color:var(--txt);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .2s}
   .m-head .x:hover{background:var(--red)}
   .m-meta{padding:13px 18px;border-bottom:1px solid var(--stroke);display:flex;gap:7px;flex-wrap:wrap}
-  .m-meta .tag{font-family:var(--jp);font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;background:rgba(236,28,46,.14);border:1px solid rgba(236,28,46,.4);color:#ff8a8f}
+  .m-meta .tag{font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;background:rgba(236,28,46,.14);border:1px solid rgba(236,28,46,.4);color:#ff8a8f}
   .score{padding:16px 18px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--stroke)}
   .score .big{font-family:var(--display);font-weight:700;font-size:46px;line-height:.9}
   .score .big.lit{color:var(--red)}
@@ -173,7 +154,6 @@
   <div class="bg-blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
   <div class="grain"></div>
 
-  <!-- inline SVG icon defs -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
@@ -183,7 +163,6 @@
       <path d="M6 6l12 12M18 6L6 18"/></symbol>
   </svg>
 
-  <!-- top bar -->
   <div class="topbar glass"><div class="wrap">
     <a class="brand" href="#">
       <svg class="lips" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" aria-label="TMT">
@@ -198,22 +177,19 @@
     <a class="btn-share" href="#">+ 앨범 올리기</a>
   </div></div>
 
-  <!-- board head -->
   <div class="board-head">
     <span class="kicker">Music · Taste · Community</span>
     <h1>Album <em>Board</em></h1>
-    <p>커버만 보고 들어와. 들어봤으면 별점이랑 한 줄 평을 남겨. 趣味を見せて。</p>
+    <p>커버만 보고 들어와. 들어봤으면 별점이랑 한 줄 평을 남겨.</p>
     <div class="rule-note glass"><svg class="ico" width="16" height="16"><use href="#i-lock"/></svg>
       <span>규칙 : <b>내 평점·평론을 남겨야</b> 다른 사람 의견이 열려요</span></div>
   </div>
 
-  <!-- grid -->
   <div class="grid" id="grid"></div>
 
-  <!-- modal -->
   <div class="overlay" id="overlay">
     <div class="modal glass" id="modal">
-      <div class="m-art" id="mArt"><div class="art"></div><div class="cap"><div class="a-title" id="mTitle"></div><div class="a-artist" id="mArtist"></div></div></div>
+      <div class="m-art" id="mArt"><img class="m-img" id="mImg" alt="" /><div class="m-shade"></div><div class="cap"><div class="a-title" id="mTitle"></div><div class="a-artist" id="mArtist"></div></div></div>
       <div class="m-side">
         <div class="m-head">
           <div class="ava" id="mAva"></div>
@@ -246,54 +222,54 @@
 const stars = n => "★★★★★☆☆☆☆☆".slice(5-n,10-n);
 const ICON_LOCK = '<svg width="15" height="15"><use href="#i-lock"/></svg>';
 const ICON_CHECK = '<svg width="16" height="16"><use href="#i-check"/></svg>';
+const img = seed => `https://picsum.photos/seed/${seed}/600/600`;
 
 const ALBUMS = [
-  { id:1, title:"Neon Onsen", artist:"마요네즈 클럽", art:"art1", owner:"vinyl_kid", ava:"#ec1c2e",
+  { id:1, title:"Neon Onsen", artist:"마요네즈 클럽", seed:"tmt-neon-onsen", owner:"vinyl_kid", ava:"#ec1c2e",
     tags:["#시티팝","#멜로우","#1983"], hot:true,
     reviews:[
       {name:"nori_film", ava:"#f4f1ec", stars:5, text:"여름밤 드라이브에 이거 하나면 끝. A면 3번째 곡 미쳤다.", when:"2일 전"},
       {name:"retro_mina", ava:"#ff5a4a", stars:4, text:"보컬 톤이 딱 그 시절 느낌. 베이스라인이 살짝 아쉬움.", when:"4일 전"},
       {name:"shibuya_03", ava:"#9a958d", stars:5, text:"커버만 보고 샀는데 인생앨범 됨.", when:"1주 전"},
     ]},
-  { id:2, title:"Midnight Vending", artist:"자판기 세대", art:"art2", owner:"jihan_gi", ava:"#9a958d",
+  { id:2, title:"Midnight Vending", artist:"자판기 세대", seed:"tmt-midnight-vending", owner:"jihan_gi", ava:"#9a958d",
     tags:["#앰비언트","#로파이","#심야"],
     reviews:[
       {name:"midnight_snack", ava:"#ec1c2e", stars:4, text:"새벽 작업용으로 최고. 집중 잘 됨.", when:"3일 전"},
       {name:"ova_archive", ava:"#f4f1ec", stars:3, text:"분위기는 좋은데 후반부가 늘어진다.", when:"5일 전"},
     ]},
-  { id:3, title:"Sugar Static", artist:"Pink Noise Dept.", art:"art3", owner:"retro_mina", ava:"#ff5a4a",
+  { id:3, title:"Sugar Static", artist:"Pink Noise Dept.", seed:"tmt-sugar-static", owner:"retro_mina", ava:"#ff5a4a",
     tags:["#드림팝","#슈게이즈","#노이즈"], hot:true,
     reviews:[
       {name:"vinyl_kid", ava:"#ec1c2e", stars:5, text:"리버브에 그냥 녹아버림. 헤드폰 필수.", when:"1일 전"},
       {name:"portra_summer", ava:"#f4f1ec", stars:5, text:"올해의 발견. 두 번째 트랙 반복재생 중.", when:"6일 전"},
       {name:"kissaten_jun", ava:"#9a958d", stars:4, text:"좋은데 살짝 과한 느낌도. 그래도 추천.", when:"1주 전"},
     ]},
-  { id:4, title:"Green Tape", artist:"고엔지 라디오", art:"art4", owner:"furugi_lover", ava:"#9a958d",
+  { id:4, title:"Green Tape", artist:"고엔지 라디오", seed:"tmt-green-tape", owner:"furugi_lover", ava:"#9a958d",
     tags:["#포크","#어쿠스틱","#카세트"],
     reviews:[ {name:"nori_film", ava:"#ec1c2e", stars:4, text:"비 오는 날 듣기 딱.", when:"2일 전"} ]},
-  { id:5, title:"Golden Hour 17", artist:"마츠리 보이즈", art:"art5", owner:"portra_summer", ava:"#ec1c2e",
+  { id:5, title:"Golden Hour 17", artist:"마츠리 보이즈", seed:"tmt-golden-hour", owner:"portra_summer", ava:"#ec1c2e",
     tags:["#펑크","#디스코","#그루브"], hot:true,
     reviews:[
       {name:"midnight_snack", ava:"#f4f1ec", stars:5, text:"이거 틀면 방이 클럽 됨. 진짜.", when:"1일 전"},
       {name:"shibuya_03", ava:"#9a958d", stars:4, text:"신스 사운드가 찰지다.", when:"3일 전"},
     ]},
-  { id:6, title:"Red Circle", artist:"日の出", art:"art6", owner:"ova_archive", ava:"#f4f1ec",
-    tags:["#실험","#포스트락","#インスト"],
+  { id:6, title:"Red Circle", artist:"선라이즈 클럽", seed:"tmt-red-circle", owner:"ova_archive", ava:"#f4f1ec",
+    tags:["#실험","#포스트락","#인스트루멘탈"],
     reviews:[
       {name:"vinyl_kid", ava:"#ec1c2e", stars:3, text:"호불호 갈릴 듯. 난 좋았음.", when:"4일 전"},
       {name:"retro_mina", ava:"#ff5a4a", stars:4, text:"마지막 트랙이 다 했다.", when:"1주 전"},
     ]},
-  { id:7, title:"Cherry Mama", artist:"스낵바 8석", art:"art7", owner:"midnight_snack", ava:"#ff5a4a",
-    tags:["#엔카","#쇼와","#무드"],
-    reviews:[ {name:"kissaten_jun", ava:"#9a958d", stars:5, text:"마마상이 틀어줄 것 같은 그 노래들.", when:"2일 전"} ]},
-  { id:8, title:"Aqua Signal", artist:"심해 통신", art:"art8", owner:"shibuya_03", ava:"#9a958d",
+  { id:7, title:"Cherry Mama", artist:"스낵바 8석", seed:"tmt-cherry-mama", owner:"midnight_snack", ava:"#ff5a4a",
+    tags:["#발라드","#레트로","#무드"],
+    reviews:[ {name:"kissaten_jun", ava:"#9a958d", stars:5, text:"마마가 틀어줄 것 같은 그 노래들.", when:"2일 전"} ]},
+  { id:8, title:"Aqua Signal", artist:"심해 통신", seed:"tmt-aqua-signal", owner:"shibuya_03", ava:"#9a958d",
     tags:["#테크노","#딥하우스","#미니멀"], hot:true,
     reviews:[
       {name:"portra_summer", ava:"#ec1c2e", stars:4, text:"러닝할 때 BPM 딱 맞음.", when:"1일 전"},
       {name:"jihan_gi", ava:"#f4f1ec", stars:5, text:"베이스 깔리는 순간 소름.", when:"5일 전"},
     ]},
 ];
-const decoArts = {art2:1,art4:1,art6:1};
 const state = {}; // id -> {stars,text}
 
 const grid = document.getElementById('grid');
@@ -305,8 +281,9 @@ ALBUMS.forEach((al,i)=>{
       ${al.hot?'<div class="ribbon">HOT</div>':''}
       <div class="badge">${state[al.id]?ICON_CHECK:ICON_LOCK}</div>
       <div class="glare"></div>
-      <div class="art ${al.art}">
-        ${decoArts[al.art]?'<div class="deco"></div>':''}
+      <div class="art">
+        <img class="art-img" src="${img(al.seed)}" alt="" loading="lazy"/>
+        <div class="shade"></div>
         <div class="txtwrap"><div class="a-title">${al.title}</div><div class="a-artist">${al.artist}</div></div>
       </div>
     </div>`;
@@ -315,19 +292,25 @@ ALBUMS.forEach((al,i)=>{
   grid.appendChild(c);
 });
 
-// 3D tilt + glare follow cursor
+// enhanced 3D tilt: snappy follow, dynamic shadow, glare
 function attachTilt(card){
   const inner = card.querySelector('.cover-inner');
   const glare = card.querySelector('.glare');
+  card.addEventListener('mouseenter',()=>{ inner.style.transition='box-shadow .3s'; });
   card.addEventListener('mousemove',e=>{
     const r = card.getBoundingClientRect();
     const px = (e.clientX-r.left)/r.width, py = (e.clientY-r.top)/r.height;
-    const rx = (.5-py)*16, ry = (px-.5)*18;
-    inner.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(1.04)`;
+    const rx = (.5-py)*26, ry = (px-.5)*30;          // stronger rotation
+    inner.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(1.06)`;
+    const sx = (px-.5)*-40, sy = (py-.5)*-40;         // shadow opposite to tilt
+    inner.style.boxShadow = `${sx}px ${sy+30}px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(236,28,46,.85)`;
     glare.style.setProperty('--mx',(px*100)+'%');
     glare.style.setProperty('--my',(py*100)+'%');
   });
-  card.addEventListener('mouseleave',()=>{ inner.style.transform=''; });
+  card.addEventListener('mouseleave',()=>{
+    inner.style.transition='transform .5s cubic-bezier(.2,.8,.25,1),box-shadow .5s';
+    inner.style.transform=''; inner.style.boxShadow='';
+  });
 }
 
 const overlay = document.getElementById('overlay');
@@ -336,9 +319,7 @@ let current=null, pendingStars=0;
 function openModal(id){
   const al = ALBUMS.find(a=>a.id===id);
   current=al; pendingStars=0;
-  const artEl = document.querySelector('#mArt .art');
-  artEl.className = 'art '+al.art;
-  artEl.innerHTML = decoArts[al.art]?'<div class="deco"></div>':'';
+  document.getElementById('mImg').src = img(al.seed);
   document.getElementById('mTitle').textContent = al.title;
   document.getElementById('mArtist').textContent = al.artist;
   document.getElementById('mAva').style.background = al.ava;
