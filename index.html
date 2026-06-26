@@ -59,8 +59,8 @@
   .chip:not(.on):hover{color:var(--txt);border-color:#3a3a3c}
 
   /* grid */
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-bottom:30px}
-  .card{cursor:pointer;perspective:900px;animation:rise .5s backwards}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding-bottom:30px}
+  .card{cursor:pointer;perspective:900px;min-width:0;animation:rise .5s backwards}
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   .frame{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#141416;transform-style:preserve-3d;
     box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.07);
@@ -210,7 +210,7 @@
   .done-note svg{stroke:var(--txt)}
 
   @media (max-width:820px){
-    .grid{grid-template-columns:repeat(2,1fr)}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .modal{grid-template-columns:1fr;max-height:92vh;overflow-y:auto}
     .m-art{min-height:300px;padding:32px}
     .m-side{border-left:none;border-top:1px solid var(--line)}
@@ -252,10 +252,10 @@
 
   <div class="wrap">
     <div class="sec-head">
-      <div class="t">이번 주 보드</div>
+      <div class="t" id="boardTitle">이번 주 보드</div>
       <div class="chips" id="chips">
-        <button class="chip on" data-sort="popular">인기순</button>
-        <button class="chip" data-sort="new">막 올라온</button>
+        <button class="chip" data-sort="popular">인기순</button>
+        <button class="chip on" data-sort="new">막 올라온</button>
         <button class="chip" data-sort="top">평점 높은</button>
       </div>
     </div>
@@ -325,19 +325,6 @@ const ART=u=>(u||'').replace('100x100bb','1200x1200bb');
 const norm=s=>(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const fmtDur=ms=>{ const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000); return m+':'+String(s).padStart(2,'0'); };
 
-/* curated seeds — only the *selection* is fixed; every field (cover, tracks, featuring,
-   genre, year) is fetched live from iTunes at runtime. */
-const SEEDS=[
-  {artist:"The Weeknd",album:"Dawn FM"},
-  {artist:"Arctic Monkeys",album:"AM"},
-  {artist:"Daft Punk",album:"Random Access Memories"},
-  {artist:"Kendrick Lamar",album:"DAMN."},
-  {artist:"Tyler, The Creator",album:"CHROMAKOPIA"},
-  {artist:"Tame Impala",album:"The Slow Rush"},
-  {artist:"Radiohead",album:"In Rainbows"},
-  {artist:"Mac Miller",album:"The Divine Feminine"},
-];
-
 /* deterministic pseudo-community reviews (iTunes has no reviews) */
 const RTEXT=["커버만 보고 들었는데 인생앨범 됐다.","밤에 혼자 듣기 좋은 질감. 오래 남는다.","처음부터 끝까지 군더더기 없는 완성도.","취향 타지만 매력은 확실하다.","사운드 레이어링이 빽빽해서 들을수록 좋아짐.","분위기는 좋은데 후반부가 살짝 늘어진다.","헤드폰으로 들어야 진가가 나온다.","드라이브할 때 틀면 분위기 싹 바뀐다.","두 번째 트랙부터 계속 반복재생 중.","올해의 발견. 계속 돌려듣게 된다.","가사 한 줄 한 줄이 박힌다.","그루브가 끈적하다. 베이스 라인 최고.","잔잔한데 속은 단단한 앨범.","처음엔 별로였는데 들을수록 빠져든다.","무드가 확실해서 늦은 밤에 딱."];
 const RNAME=["vinyl_kid","nori_film","retro_mina","shibuya_03","midnight_snack","ova_archive","portra_summer","kissaten_jun","jihan_gi","furugi_lover","analog_heart","crate_digger"];
@@ -369,47 +356,69 @@ function avg(al){ const all=al.reviews.concat(state[al.id]?[state[al.id]]:[]); r
 function baseAvg(al){ return al.reviews.reduce((x,r)=>x+r.stars,0)/al.reviews.length; }
 
 /* ============ board load ============ */
-let ALBUMS=[]; let sortMode='popular'; const trackCache={}; const cardEls={};
+let ALBUMS=[]; let sortMode='new'; const trackCache={};
+let cardEls={}; const albumIndex={}; let displayed=[]; let searchMode=false;
 const grid=document.getElementById('grid');
 
 function skeletons(n){ grid.innerHTML=''; for(let i=0;i<n;i++){ const d=document.createElement('div'); d.innerHTML=`<div class="skel"></div><div class="skel-line"></div><div class="skel-line s2"></div>`; grid.appendChild(d); } }
 function show(id,on){ document.getElementById(id).classList.toggle('show',on); }
 
-async function fetchAlbum(seed){
+/* visitor region from browser locale (e.g. ko-KR -> kr), fallback us */
+function regionCode(){
+  const langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||'en-US'];
+  for(const l of langs){ const m=/[-_]([A-Za-z]{2})$/.exec(l||''); if(m) return m[1].toLowerCase(); }
+  return 'us';
+}
+let REGION='us';
+
+/* map one iTunes RSS topalbums entry -> album object */
+function rssToAlbum(e,i){
   try{
-    const data=await jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(seed.artist+' '+seed.album)}&entity=album&limit=12&country=US`);
-    const want=norm(seed.album); const rs=data.results||[];
-    let hit=rs.find(r=>norm(r.collectionName)===want)
-        || rs.find(r=>norm(r.collectionName).includes(want)&&r.trackCount>=6&&!/remix|b-side|single|- ep|instrumental|live|commentary|karaoke/i.test(r.collectionName))
-        || rs[0];
-    if(!hit) return null;
-    const id=hit.collectionId, year=(hit.releaseDate||'').slice(0,4), genre=hit.primaryGenreName||'';
-    return { id, title:hit.collectionName, artist:hit.artistName, cover:ART(hit.artworkUrl100),
-      genre, year, trackCount:hit.trackCount,
+    const id=+e.id.attributes['im:id'];
+    const imgs=e['im:image']; const raw=imgs[imgs.length-1].label;
+    const cover=raw.replace(/\/\d+x\d+bb\./,'/1200x1200bb.');
+    const genre=(e.category&&e.category.attributes.label)||'';
+    const released=(e['im:releaseDate']&&e['im:releaseDate'].label)||'';
+    const year=released.slice(0,4);
+    return { id, title:e['im:name'].label, artist:e['im:artist'].label, cover, genre, year, released, chartRank:i,
       tags:['#'+genre.replace(/[\/&]/g,' ').trim().replace(/\s+/g,''), year?'#'+year:null].filter(Boolean),
-      reviews:genReviews(id), owner:genOwner(id) };
+      reviews:genReviews(id), owner:genOwner(id), hot:false };
+  }catch(err){ return null; }
+}
+async function fetchChart(region){
+  try{
+    // RSS feed supports CORS (Access-Control-Allow-Origin: *) but not JSONP (nosniff) → use fetch
+    const res=await fetch(`https://itunes.apple.com/${region}/rss/topalbums/limit=60/json`);
+    if(!res.ok) return null;
+    const data=await res.json();
+    const entries=(data.feed&&data.feed.entry)||[];
+    return entries.map((e,i)=>rssToAlbum(e,i)).filter(Boolean);
   }catch(e){ return null; }
 }
 
 async function loadBoard(){
-  show('emptyState',false); show('errorState',false);
-  skeletons(SEEDS.length);
-  const res=await Promise.all(SEEDS.map(fetchAlbum));
-  ALBUMS=res.filter(Boolean);
-  if(!ALBUMS.length){ grid.innerHTML=''; show('errorState',true); return; }
-  // mark hot: top 3 by base average
-  const ranked=[...ALBUMS].sort((a,b)=>baseAvg(b)-baseAvg(a));
-  const hot=new Set(ranked.slice(0,3).map(a=>a.id));
+  show('emptyState',false); show('errorState',false); searchMode=false;
+  document.getElementById('chips').style.display='';
+  skeletons(8);
+  REGION=regionCode();
+  let list=await fetchChart(REGION);
+  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); }
+  if(!list||!list.length){ grid.innerHTML=''; show('errorState',true); return; }
+  // 8 newest by release date (localized chart)
+  list.sort((a,b)=>(b.released||'').localeCompare(a.released||''));
+  ALBUMS=list.slice(0,8);
+  // HOT = top 3 by chart rank among the chosen
+  const hot=new Set([...ALBUMS].sort((a,b)=>a.chartRank-b.chartRank).slice(0,3).map(a=>a.id));
   ALBUMS.forEach(a=>a.hot=hot.has(a.id));
-  buildCards();
-  applySort();
+  showBoard();
 }
 
-function buildCards(){
-  grid.innerHTML='';
-  ALBUMS.forEach((al,i)=>{
+function renderCards(list){
+  cardEls={}; grid.innerHTML='';
+  list.forEach((al,i)=>{
+    albumIndex[al.id]=al;
     const c=document.createElement('div');
-    c.className='card'; c.dataset.id=al.id; c.style.animationDelay=(i*55)+'ms';
+    c.className='card'; c.dataset.id=al.id; c.style.animationDelay=Math.min(i,12)*45+'ms';
     c.innerHTML=`
       <div class="frame">
         <img src="${al.cover}" alt="${escapeHtml(al.title)} 커버" loading="lazy"/>
@@ -427,7 +436,10 @@ function buildCards(){
     grid.appendChild(c);
     renderCardRate(al);
   });
+  displayed=list;
+  setRanks();
 }
+function setRanks(){ displayed.forEach((al,i)=>{ const c=cardEls[al.id]; if(c) c.querySelector('.rank').textContent=i+1; }); }
 
 function renderCardRate(al){
   const slot=cardEls[al.id].querySelector('.rateslot');
@@ -445,13 +457,25 @@ function renderCardRate(al){
   }
 }
 
-function applySort(){
+function sortedBoard(){
   let arr=[...ALBUMS];
-  if(sortMode==='new') arr.sort((a,b)=>(b.year||'').localeCompare(a.year||''));
+  if(sortMode==='new') arr.sort((a,b)=>(b.released||'').localeCompare(a.released||''));
   else if(sortMode==='top') arr.sort((a,b)=>parseFloat(avg(b))-parseFloat(avg(a)));
-  else arr.sort((a,b)=>(b.reviews.length+ (state[b.id]?1:0)) - (a.reviews.length+(state[a.id]?1:0)) || baseAvg(b)-baseAvg(a));
-  arr.forEach((al,i)=>{ const c=cardEls[al.id]; grid.appendChild(c); c.querySelector('.rank').textContent=i+1; });
-  applySearch();
+  else arr.sort((a,b)=>(a.chartRank||0)-(b.chartRank||0)); // 인기순 = 차트 순위
+  return arr;
+}
+function showBoard(){
+  searchMode=false;
+  document.getElementById('boardTitle').textContent=`${REGION.toUpperCase()} 최신 인기 앨범`;
+  document.getElementById('chips').style.display='';
+  document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.sort===sortMode));
+  show('emptyState',false); show('errorState',false);
+  renderCards(sortedBoard());
+}
+function reorderBoard(){
+  const arr=sortedBoard();
+  arr.forEach((al,i)=>{ const c=cardEls[al.id]; if(c) grid.appendChild(c); });
+  displayed=arr; setRanks();
 }
 
 /* tilt */
@@ -471,31 +495,46 @@ function attachTilt(card){
 document.getElementById('chips').addEventListener('click',e=>{
   const b=e.target.closest('.chip'); if(!b) return;
   document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));
-  sortMode=b.dataset.sort; applySort();
+  sortMode=b.dataset.sort; if(!searchMode) reorderBoard();
 });
 
-/* search */
+/* search — live against the iTunes catalog */
 const searchInput=document.getElementById('searchInput');
-searchInput.addEventListener('input',applySearch);
-searchInput.addEventListener('keydown',e=>{ if(e.key==='Escape'){ searchInput.value=''; applySearch(); searchInput.blur(); }});
-function applySearch(){
-  const q=searchInput.value.trim().toLowerCase();
-  let shown=0;
-  ALBUMS.forEach(al=>{
-    const c=cardEls[al.id]; if(!c) return;
-    const hay=(al.title+' '+al.artist+' '+al.tags.join(' ')+' '+al.genre).toLowerCase();
-    const match=!q||hay.includes(q);
-    c.style.display=match?'':'none'; if(match) shown++;
-  });
-  document.getElementById('emptyQ').textContent='“'+searchInput.value.trim()+'”';
-  show('emptyState', !!q && shown===0 && ALBUMS.length>0);
+let searchTimer=null;
+searchInput.addEventListener('input',()=>{ clearTimeout(searchTimer); const q=searchInput.value.trim(); searchTimer=setTimeout(()=>runSearch(q),350); });
+searchInput.addEventListener('keydown',e=>{ if(e.key==='Escape'){ searchInput.value=''; clearTimeout(searchTimer); searchInput.blur(); showBoard(); }});
+function toAlbum(r){
+  if(!r||!r.collectionId) return null;
+  const id=r.collectionId, year=(r.releaseDate||'').slice(0,4), genre=r.primaryGenreName||'';
+  return { id, title:r.collectionName, artist:r.artistName, cover:ART(r.artworkUrl100), genre, year, released:r.releaseDate||'',
+    chartRank:0, trackCount:r.trackCount,
+    tags:['#'+genre.replace(/[\/&]/g,' ').trim().replace(/\s+/g,''), year?'#'+year:null].filter(Boolean),
+    reviews:genReviews(id), owner:genOwner(id), hot:false };
+}
+async function runSearch(q){
+  if(!q){ showBoard(); return; }
+  searchMode=true;
+  document.getElementById('chips').style.display='none';
+  document.getElementById('boardTitle').textContent='검색 결과';
+  show('emptyState',false); show('errorState',false);
+  skeletons(8);
+  try{
+    const data=await jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=album&limit=24&country=${REGION}`);
+    if(searchInput.value.trim()!==q) return; // stale response
+    const seen={}, list=[];
+    (data.results||[]).forEach(r=>{ if(r.collectionId&&!seen[r.collectionId]){ seen[r.collectionId]=1; const a=toAlbum(r); if(a) list.push(a); } });
+    if(searchInput.value.trim()!==q) return;
+    if(!list.length){ grid.innerHTML=''; document.getElementById('emptyQ').textContent='“'+q+'”'; show('emptyState',true); document.getElementById('boardTitle').textContent='검색 결과'; return; }
+    document.getElementById('boardTitle').textContent=`검색 결과 · ${list.length}`;
+    renderCards(list);
+  }catch(e){ if(searchInput.value.trim()===q){ grid.innerHTML=''; show('errorState',true); } }
 }
 
 /* ============ modal ============ */
 const overlay=document.getElementById('overlay');
 let current=null, pendingStars=0;
 function openModal(id){
-  const al=ALBUMS.find(a=>String(a.id)===String(id)); if(!al) return;
+  const al=albumIndex[id]||ALBUMS.find(a=>String(a.id)===String(id)); if(!al) return;
   current=al; pendingStars=0;
   document.getElementById('mImg').src=al.cover;
   document.getElementById('mAmbient').style.backgroundImage=`url("${al.cover}")`;
@@ -575,7 +614,7 @@ document.getElementById('mSubmit').addEventListener('click',()=>{
   if(pendingStars===0||textEl.value.trim().length<10) return;
   state[current.id]={stars:pendingStars,text:textEl.value.trim()}; persist();
   renderCardRate(current); renderModal();
-  if(sortMode!=='new') applySort();
+  if(!searchMode) reorderBoard();
 });
 document.getElementById('closeBtn').addEventListener('click',closeModal);
 overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
