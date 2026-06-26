@@ -377,6 +377,31 @@
     *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
     .card:hover .frame img,.rec:hover .rc img{transform:none}
   }
+
+  /* auth */
+  .btn-auth{background:none;color:var(--txt);border:1px solid var(--line2);border-radius:980px;padding:8px 15px;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;white-space:nowrap}
+  .btn-auth:hover{border-color:#4a4a4e;background:rgba(255,255,255,.05)}
+  .btn-auth.signed{display:inline-flex;align-items:center;gap:7px}
+  .btn-auth .who{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .auth-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.66);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .auth-overlay.open{display:flex}
+  .auth-box{position:relative;width:100%;max-width:380px;background:var(--surface-2);border:1px solid var(--line2);border-radius:18px;padding:30px 26px 26px;box-shadow:0 24px 64px rgba(0,0,0,.6);animation:rise .3s backwards}
+  .auth-box h3{font-size:21px;font-weight:600;letter-spacing:-.02em}
+  .auth-box p{font-size:13.5px;color:var(--muted2);margin:10px 0 20px;line-height:1.55}
+  .auth-box input{width:100%;border:1px solid var(--line2);background:var(--surface-1);color:var(--txt);font-family:inherit;font-size:15px;border-radius:11px;padding:13px 14px;transition:border-color .2s}
+  .auth-box input:focus{border-color:#4a4a4e}
+  .auth-btn{width:100%;margin-top:14px;background:var(--pill);color:#000;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
+  .auth-btn:hover{opacity:.85}
+  .auth-btn:disabled{opacity:.5;cursor:default}
+  .auth-msg{font-size:12.5px;color:var(--muted2);margin-top:12px;min-height:16px;line-height:1.45}
+  .auth-msg.ok{color:#7ed492}.auth-msg.err{color:#ff6b6b}
+  .auth-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.06);color:var(--muted2);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .auth-x:hover{background:rgba(255,255,255,.12);color:var(--txt)}
+  .auth-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:180px;background:var(--surface-2);border:1px solid var(--line2);border-radius:13px;padding:7px;box-shadow:0 18px 44px rgba(0,0,0,.6);display:none;z-index:200}
+  .auth-menu.show{display:block}
+  .auth-menu .mi{font-size:13px;color:var(--muted2);padding:9px 11px;border-radius:8px;cursor:pointer}
+  .auth-menu .mi:hover{background:rgba(255,255,255,.06);color:var(--txt)}
+  .auth-menu .mi-email{font-size:11.5px;color:var(--muted);padding:6px 11px 9px;border-bottom:1px solid var(--line);margin-bottom:4px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -414,6 +439,13 @@
         <div class="recent" id="recentBox"></div>
       </div>
       <button class="btn-add" id="btnAdd">+ 앨범 올리기</button>
+      <div style="position:relative">
+        <button class="btn-auth" id="btnAuth">로그인</button>
+        <div class="auth-menu" id="authMenu">
+          <div class="mi-email" id="authMenuEmail"></div>
+          <div class="mi" id="authLogout">로그아웃</div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -535,6 +567,28 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- auth modal -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-box" role="dialog" aria-modal="true">
+      <button class="auth-x" id="authClose" aria-label="닫기">×</button>
+      <div id="authLogin">
+        <h3>로그인</h3>
+        <p>이메일로 <b>매직 링크</b>를 보내드려요. 메일의 링크를 누르면 이 페이지로 돌아와 자동 로그인됩니다.</p>
+        <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+        <button class="auth-btn" id="authSend">매직 링크 받기</button>
+        <div class="auth-msg" id="authMsg"></div>
+      </div>
+      <div id="authNick" hidden>
+        <h3>닉네임 설정</h3>
+        <p>리뷰에 표시될 이름이에요. 한 번 정하면 모든 리뷰에 사용됩니다. (1~24자)</p>
+        <input type="text" id="authNickInput" placeholder="예: vinyl_kid" maxlength="24" autocomplete="off" />
+        <button class="auth-btn" id="authNickSave">시작하기</button>
+        <div class="auth-msg" id="authNickMsg"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* ===================== iTunes data (JSONP for search/lookup, fetch+CORS for RSS) ===================== */
 let jsonpId=0;
@@ -566,6 +620,148 @@ function setPrefs(p){ save(PREFS,p); }
 let guess=load(GUESS,{hit:0,total:0});
 let streak=load(STREAK,{last:'',count:0});
 let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
+
+/* ===================== Supabase (auth + shared reviews) ===================== */
+const SUPA_URL='https://ctyktludgsbnzqrxviyz.supabase.co';
+const SUPA_KEY='sb_publishable_DKpYErSKF4W_VKQIrkDfIQ_D28dywqc';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+let session=null, myProfile=null;          // myProfile = { id, nickname }
+const myUid=()=>myProfile?myProfile.id:null;
+
+function relTime(iso){
+  const t=new Date(iso).getTime(); const diff=Date.now()-t;
+  const min=Math.floor(diff/60000), hr=Math.floor(min/60), day=Math.floor(hr/24);
+  if(min<1) return '방금'; if(hr<1) return min+'분 전'; if(day<1) return hr+'시간 전';
+  if(day<7) return day+'일 전'; if(day<30) return Math.floor(day/7)+'주 전';
+  return Math.floor(day/30)+'개월 전';
+}
+
+/* auth modal control */
+const authOverlay=document.getElementById('authOverlay');
+function openAuth(){
+  if(session && !myProfile) showAuthStep('nick'); else showAuthStep('login');
+  authOverlay.classList.add('open');
+  setTimeout(()=>{ const el=document.getElementById(session&&!myProfile?'authNickInput':'authEmail'); if(el) el.focus(); },50);
+}
+function closeAuth(){ authOverlay.classList.remove('open'); }
+function showAuthStep(step){
+  document.getElementById('authLogin').hidden = step!=='login';
+  document.getElementById('authNick').hidden  = step!=='nick';
+}
+document.getElementById('authClose').addEventListener('click',closeAuth);
+authOverlay.addEventListener('click',e=>{ if(e.target===authOverlay) closeAuth(); });
+
+/* send magic link */
+document.getElementById('authSend').addEventListener('click',async()=>{
+  const email=document.getElementById('authEmail').value.trim();
+  const msg=document.getElementById('authMsg');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.className='auth-msg err'; msg.textContent='올바른 이메일을 입력해주세요.'; return; }
+  const btn=document.getElementById('authSend'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='전송 중…';
+  const {error}=await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href } });
+  btn.disabled=false;
+  if(error){ msg.className='auth-msg err'; msg.textContent='전송 실패: '+error.message; }
+  else { msg.className='auth-msg ok'; msg.textContent='메일을 확인하세요! 링크를 누르면 이 페이지로 돌아와 자동 로그인됩니다.'; }
+});
+document.getElementById('authEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('authSend').click(); });
+
+/* save nickname (creates the profile row) */
+document.getElementById('authNickSave').addEventListener('click',async()=>{
+  const nick=document.getElementById('authNickInput').value.trim();
+  const msg=document.getElementById('authNickMsg');
+  if(nick.length<1||nick.length>24){ msg.className='auth-msg err'; msg.textContent='닉네임은 1~24자로 입력해주세요.'; return; }
+  if(!session){ msg.className='auth-msg err'; msg.textContent='세션이 만료되었어요. 다시 로그인해주세요.'; return; }
+  const btn=document.getElementById('authNickSave'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='저장 중…';
+  const {data,error}=await sb.from('profiles').insert({ id:session.user.id, nickname:nick }).select('id,nickname').single();
+  btn.disabled=false;
+  if(error){ msg.className='auth-msg err'; msg.textContent='저장 실패: '+error.message; return; }
+  myProfile=data; closeAuth(); renderAuthUI(); showToast('환영해요, '+nick+' 님!');
+  await syncMyReviews();
+  if(current) loadReviewsUI(current);
+});
+document.getElementById('authNickInput').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('authNickSave').click(); });
+
+/* nav button + menu */
+const authMenu=document.getElementById('authMenu');
+document.getElementById('btnAuth').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!session){ openAuth(); return; }
+  if(!myProfile){ openAuth(); return; }
+  authMenu.classList.toggle('show');
+});
+document.getElementById('authLogout').addEventListener('click',async()=>{
+  authMenu.classList.remove('show');
+  await sb.auth.signOut();
+  showToast('로그아웃했어요');
+});
+document.addEventListener('click',()=>authMenu.classList.remove('show'));
+
+function renderAuthUI(){
+  const btn=document.getElementById('btnAuth');
+  if(myProfile){
+    btn.classList.add('signed');
+    btn.innerHTML=`<span class="who">${escapeHtml(myProfile.nickname)}</span>`;
+    document.getElementById('authMenuEmail').textContent=(session&&session.user&&session.user.email)||'';
+  } else if(session){
+    btn.classList.remove('signed'); btn.textContent='닉네임 설정';
+  } else {
+    btn.classList.remove('signed'); btn.textContent='로그인';
+  }
+}
+
+/* react to auth changes (initial session + magic-link return + logout) */
+sb.auth.onAuthStateChange(async (_event, sess)=>{
+  session=sess;
+  if(sess){
+    const {data}=await sb.from('profiles').select('id,nickname').eq('id',sess.user.id).maybeSingle();
+    myProfile=data||null;
+    renderAuthUI();
+    if(!myProfile){ openAuth(); }      // logged in but no nickname yet
+    else { await syncMyReviews(); if(current) loadReviewsUI(current); }
+  } else {
+    myProfile=null; renderAuthUI();
+  }
+});
+
+/* pull the signed-in user's own reviews from DB into local state (cross-device) */
+async function syncMyReviews(){
+  if(!myProfile) return;
+  const {data,error}=await sb.from('reviews').select('collection_id,stars,text,created_at').eq('user_id',myProfile.id);
+  if(error||!data) return;
+  data.forEach(r=>{ state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
+  persist();
+  try{ renderLevel(); }catch(e){}
+  if(viewMode==='mine'){ try{ showMine(); }catch(e){} }
+}
+
+/* fetch shared reviews for one album and merge into the in-memory album object */
+async function loadReviewsUI(al){
+  let rows=null;
+  try{
+    const res=await sb.from('reviews')
+      .select('user_id,stars,text,created_at,profiles(nickname)')
+      .eq('collection_id', al.id).order('created_at',{ascending:false});
+    rows=res.data;
+  }catch(e){ rows=null; }
+  if(!current || current.id!==al.id) return;
+  if(rows && rows.length){
+    const mine=myUid();
+    al.reviews = rows.filter(r=>r.user_id!==mine).map(r=>({
+      name:(r.profiles&&r.profiles.nickname)||'익명', stars:r.stars, text:r.text, when:relTime(r.created_at)
+    }));
+    const myRow=mine?rows.find(r=>r.user_id===mine):null;
+    if(myRow){ state[al.id]={ stars:myRow.stars, text:myRow.text, ts:new Date(myRow.created_at).getTime() }; persist(); }
+    al._dbReal=true;
+  } else {
+    al._dbReal=false;   // no shared reviews yet -> keep the genReviews seed already on al.reviews
+  }
+  if(current && current.id===al.id){ renderModal(false); updateOwnerLine(al); }
+  renderCardRate(al);
+}
+function updateOwnerLine(al){
+  const el=document.getElementById('mOwner'); if(!el) return;
+  const n=al.reviews.length+(state[al.id]?1:0);
+  el.textContent = al._dbReal ? `${n}명이 평가` : `${al.owner} 님이 올림 · ${n}명 평가`;
+}
 
 const GENRES=[{id:18,ko:'힙합'},{id:14,ko:'팝'},{id:21,ko:'록'},{id:15,ko:'R&B / 소울'},{id:20,ko:'얼터너티브'},{id:7,ko:'일렉트로닉'},{id:17,ko:'댄스'},{id:11,ko:'재즈'},{id:51,ko:'K-팝'},{id:6,ko:'컨트리'}];
 const MOODS=['신나는','차분한','감성적인','몽환적인','강렬한','집중되는','설레는','쓸쓸한'];
@@ -971,7 +1167,7 @@ function openModal(id, fromHistory){
   document.getElementById('mArtist').textContent=[al.artist,al.genre,al.year].filter(Boolean).join(' · ');
   document.getElementById('mOwner').textContent=`${al.owner} 님이 올림 · ${al.reviews.length+(state[al.id]?1:0)}명 평가`;
   document.getElementById('mTags').innerHTML=al.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('');
-  renderModal(false); loadTracksUI(al); updateNavBtns();
+  renderModal(false); loadTracksUI(al); loadReviewsUI(al); updateNavBtns();
   overlay.classList.add('open'); document.body.style.overflow='hidden';
   document.getElementById('closeBtn').focus();
   if(!fromHistory){ try{ history.pushState({album:al.id},'', '#album='+al.id); }catch(e){} }
@@ -1049,16 +1245,30 @@ function renderModal(animate){
   }
 }
 function startEdit(){ editing=true; renderModal(false); document.getElementById('mText').focus(); }
-function deleteReview(){ delete state[current.id]; persist(); editing=false; renderModal(false); renderCardRate(current); renderLevel(); if(viewMode==='mine') showMine(); else if(!searchMode) reorderBoard(); showToast('평가를 삭제했어요'); }
+async function deleteReview(){
+  const al=current;
+  if(myProfile){ const {error}=await sb.from('reviews').delete().eq('collection_id',al.id).eq('user_id',myProfile.id); if(error){ showToast('삭제 실패: '+error.message); return; } }
+  delete state[al.id]; persist(); editing=false;
+  if(current&&current.id===al.id){ loadReviewsUI(al); renderModal(false); }
+  renderCardRate(al); renderLevel(); if(viewMode==='mine') showMine(); else if(!searchMode) reorderBoard(); showToast('평가를 삭제했어요');
+}
 
 document.querySelectorAll('#mStars button').forEach(btn=>btn.addEventListener('click',()=>{ pendingStars=+btn.dataset.v; document.querySelectorAll('#mStars button').forEach(b=>{ b.classList.toggle('on',+b.dataset.v<=pendingStars); b.setAttribute('aria-checked',+b.dataset.v<=pendingStars); }); validate(); }));
 const textEl=document.getElementById('mText');
 textEl.addEventListener('input',validate);
 function validate(){ const ok=pendingStars>0&&textEl.value.trim().length>=10; document.getElementById('mSubmit').disabled=!ok; document.getElementById('mSubmit').textContent=editing?'수정 완료':'잠금 해제'; document.getElementById('mHint').textContent=ok?'준비 완료! 잠금을 해제해보세요':(pendingStars===0?'먼저 별점을 선택해주세요':`평론 ${Math.max(0,10-textEl.value.trim().length)}자 더 (최소 10자)`); }
 
-document.getElementById('mSubmit').addEventListener('click',()=>{
+document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(pendingStars===0||textEl.value.trim().length<10) return;
-  const al=current; const wasEditing=editing;
+  if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
+  const al=current; const wasEditing=editing; const text=textEl.value.trim();
+  const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
+  // save to shared DB first
+  const {error}=await sb.from('reviews').upsert(
+    { collection_id:al.id, user_id:myProfile.id, stars:pendingStars, text },
+    { onConflict:'collection_id,user_id' });
+  submitBtn.disabled=false;
+  if(error){ showToast('저장 실패: '+error.message); return; }
   // prediction game (only on first rating)
   let predLine='';
   if(!wasEditing){
@@ -1067,7 +1277,8 @@ document.getElementById('mSubmit').addEventListener('click',()=>{
     predLine = hit ? `🎯 예측 적중! 커뮤니티 평균 ${community.toFixed(1)}` : (pendingStars>community ? `커뮤니티 평균 ${community.toFixed(1)} — 남들은 좀 더 짰어` : `커뮤니티 평균 ${community.toFixed(1)} — 남들은 더 후했어`);
   }
   const prevN=Object.keys(state).length; const prevLv=levelInfo(prevN).name;
-  state[al.id]={stars:pendingStars,text:textEl.value.trim(),ts:Date.now()}; persist();
+  state[al.id]={stars:pendingStars,text:text,ts:Date.now()}; persist();
+  loadReviewsUI(al);   // refresh shared reviews from DB (async)
   editing=false;
   if(!wasEditing){ bumpStreak(); }
   renderLevel(); checkNewBadges();
@@ -1204,7 +1415,7 @@ document.getElementById('resetPrefs').addEventListener('click',()=>{
 /* ===================== init ===================== */
 (async function boot(){
   REGION=regionCode();
-  buildOnb(); renderLevel();
+  buildOnb(); renderLevel(); renderAuthUI();
   await ensureRegion();
   const hash=location.hash.match(/#album=(\d+)/);
   if(getPrefs()){ await loadBoard(); }
