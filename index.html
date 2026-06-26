@@ -774,7 +774,7 @@ function buildOnb(){
   document.getElementById('onbStart').addEventListener('click',finishOnb);
 }
 function setCardImg(el,cover){ if(!el||!cover) return; const im=new Image();
-  im.onload=()=>{ el.style.backgroundImage=`url("${cover}")`; }; im.src=cover; }
+  im.onload=()=>{ el.style.backgroundImage=`url("${cover}")`; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.style.backgroundRepeat='no-repeat'; }; im.src=cover; }
 async function applyGenreImages(){
   const cards=[...document.querySelectorAll('#onbGenres .oc')];
   await Promise.all(GENRES.map(async(g,i)=>{
