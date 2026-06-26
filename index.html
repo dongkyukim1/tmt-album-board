@@ -4,65 +4,99 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>TMT — Album Board (블라인드 리뷰)</title>
-<meta name="description" content="커버만 보고 들어와. 별점과 한 줄 평을 남겨야 다른 사람 의견이 열리는 블라인드 음악 리뷰 보드. 앨범 데이터는 Apple iTunes에서 실시간으로." />
+<meta name="description" content="커버만 보고 들어와. 별점과 한 줄 평을 남겨야 다른 사람 의견이 열리는 블라인드 음악 리뷰 보드. 앨범·미리듣기·차트는 Apple iTunes에서 실시간으로." />
+<meta name="theme-color" content="#000000" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='13' fill='none' stroke='%23333'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='21' font-weight='700' fill='%23fff' text-anchor='middle'%3ETMT%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='21' font-weight='700' fill='%23fff' text-anchor='middle'%3ETMT%3C/text%3E%3C/svg%3E" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TMT — Album Board" />
+<meta property="og:description" content="커버만 보고 들어와. 별점과 한 줄 평을 남겨야 다른 사람 의견이 열린다." />
+<meta property="og:url" content="https://dongkyukim1.github.io/tmt-album-board/" />
+<meta name="twitter:card" content="summary" />
 <style>
   :root{
     --bg:#000000; --txt:#f5f5f7; --muted:#86868b; --muted2:#a1a1a6;
     --line:#1d1d1f; --line2:#2a2a2c; --pill:#f5f5f7;
+    --surface-1:#0a0a0c; --surface-2:#141416; --surface-3:#1b1b1e;
+    --ring:0 0 0 2px rgba(255,255,255,.75);
     --sans:-apple-system,'SF Pro Display','SF Pro Text',system-ui,'Pretendard','Apple SD Gothic Neo',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   body{font-family:var(--sans);color:var(--txt);background:var(--bg);line-height:1.5;min-height:100vh;
-    background-image:radial-gradient(120% 60% at 50% -10%,rgba(60,60,66,.45),transparent 60%);background-attachment:fixed}
+    background-image:radial-gradient(120% 60% at 50% -8%,rgba(64,64,72,.5),transparent 60%);background-attachment:fixed}
+  /* film grain + vignette overlay */
+  body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit}
   ::selection{background:rgba(255,255,255,.18)}
+  :focus{outline:none}
+  button:focus-visible,input:focus-visible,a:focus-visible,[role="button"]:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--ring)}
+  .nav,.modal,.onb{position:relative;z-index:2}
 
   /* nav */
-  .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
-    padding:16px 30px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.6);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
-  .nav .left{display:flex;align-items:center;gap:30px}
-  .nav .logo{font-weight:700;font-size:16px;letter-spacing:.18em}
-  .nav nav{display:flex;gap:22px;font-size:13px;color:var(--muted)}
-  .nav nav a{transition:color .2s}
+  .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:14px 28px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.62);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
+  .nav .left{display:flex;align-items:center;gap:28px;min-width:0}
+  .nav .logo{font-weight:700;font-size:16px;letter-spacing:.18em;color:var(--txt)}
+  .nav nav{display:flex;gap:20px;font-size:13px;color:var(--muted)}
+  .nav nav a{transition:color .2s;cursor:pointer;border-radius:6px}
   .nav nav a.on{color:var(--txt);font-weight:500}
   .nav nav a:hover{color:var(--txt)}
-  .nav .right{display:flex;align-items:center;gap:14px}
-  .search{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:980px;
-    background:rgba(255,255,255,.05);padding:0 12px;transition:border-color .2s,background .2s}
+  .nav .right{display:flex;align-items:center;gap:12px}
+  /* level widget */
+  .levelw{display:flex;align-items:center;gap:9px;padding:5px 12px;border:1px solid var(--line2);border-radius:980px;background:rgba(255,255,255,.04);cursor:pointer;transition:border-color .2s}
+  .levelw:hover{border-color:#3a3a3c}
+  .levelw .lvl-name{font-size:12px;font-weight:600;white-space:nowrap}
+  .levelw .lvl-bar{width:46px;height:4px;border-radius:2px;background:#2a2a2c;overflow:hidden}
+  .levelw .lvl-bar i{display:block;height:100%;width:0;background:var(--pill);transition:width .5s cubic-bezier(.2,.8,.25,1)}
+  .levelw .streak{font-size:12px;color:#ffb24d;white-space:nowrap}
+  .levelw .streak b{color:#ffce80}
+  @media (max-width:720px){.levelw .lvl-bar{display:none}}
+  @media (max-width:560px){.nav nav{display:none}}
+  .search{position:relative;display:flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:980px;background:rgba(255,255,255,.05);padding:0 8px 0 12px;transition:border-color .2s,background .2s}
   .search:focus-within{border-color:#4a4a4e;background:rgba(255,255,255,.08)}
   .search-ico{color:var(--muted);display:flex}
   .search-input{width:170px;border:none;background:none;color:var(--txt);font-size:13px;font-family:inherit;padding:9px 2px}
-  .search-input:focus{outline:none}
   .search-input::placeholder{color:var(--muted)}
-  @media (max-width:560px){.search-input{width:108px}}
-  .btn-add{background:var(--pill);color:#000;border:none;border-radius:980px;padding:9px 17px;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .2s,transform .2s}
+  .search-clear{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .search-clear:hover{color:var(--txt);background:rgba(255,255,255,.1)}
+  @media (max-width:560px){.search-input{width:104px}}
+  .recent{position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:var(--surface-2);border:1px solid var(--line2);border-radius:14px;padding:10px;box-shadow:0 18px 44px rgba(0,0,0,.6);display:none;z-index:120}
+  .recent.show{display:block}
+  .recent .rl{font-size:11px;color:var(--muted);padding:2px 6px 8px}
+  .recent .rchip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted2);border:1px solid var(--line2);border-radius:980px;padding:6px 12px;margin:3px;cursor:pointer}
+  .recent .rchip:hover{color:var(--txt);border-color:#4a4a4e}
+  .btn-add{background:var(--pill);color:#000;border:none;border-radius:980px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .2s,transform .2s;white-space:nowrap}
   .btn-add:hover{opacity:.85;transform:translateY(-1px)}
 
   /* hero */
   .wrap{max-width:1180px;margin:0 auto;padding:0 30px}
-  .hero{text-align:center;padding:64px 30px 30px}
+  .hero{text-align:center;padding:60px 30px 26px}
   .hero .kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-  .hero h1{font-size:60px;line-height:1.0;font-weight:600;letter-spacing:-.03em;margin:14px 0 0;
+  .hero h1{font-size:58px;line-height:1.0;font-weight:600;letter-spacing:-.03em;margin:14px 0 0;
     background:linear-gradient(180deg,#ffffff,#c7c7cc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .hero p{font-size:17px;color:var(--muted2);margin:16px auto 0;max-width:460px;line-height:1.5}
-  .rule{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:7px 15px;border:1px solid var(--line2);border-radius:980px;font-size:12.5px;color:var(--muted2)}
+  .rule{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:7px 15px;border:1px solid var(--line2);border-radius:980px;font-size:12.5px;color:var(--muted2)}
   .rule svg{stroke:var(--muted)}
 
-  /* section header */
-  .sec-head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 20px;gap:16px;flex-wrap:wrap}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;padding:12px 0 20px;gap:16px;flex-wrap:wrap}
   .sec-head .t{font-size:20px;font-weight:600;letter-spacing:-.015em}
   .chips{display:flex;gap:8px}
   .chip{font-size:12.5px;color:var(--muted2);border:1px solid var(--line2);border-radius:980px;padding:6px 13px;cursor:pointer;transition:all .2s;background:none}
   .chip.on{background:var(--pill);color:#000;border-color:var(--pill);font-weight:500}
   .chip:not(.on):hover{color:var(--txt);border-color:#3a3a3c}
 
+  /* stars (fractional) */
+  .stars5{position:relative;display:inline-block;font-size:11px;letter-spacing:1.5px;line-height:1;color:rgba(255,255,255,.2);white-space:nowrap}
+  .stars5 .s-fg{position:absolute;left:0;top:0;width:0;overflow:hidden;color:var(--txt)}
+
   /* grid */
-  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding-bottom:30px}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding-bottom:24px}
   .card{cursor:pointer;perspective:900px;min-width:0;animation:rise .5s backwards}
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-  .frame{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#141416;transform-style:preserve-3d;
+  .frame{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--surface-2);transform-style:preserve-3d;
     box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.07);
     transition:transform .5s cubic-bezier(.2,.8,.25,1),box-shadow .45s;will-change:transform}
   .frame img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.8,.25,1)}
@@ -73,60 +107,105 @@
   .frame .glare{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;mix-blend-mode:overlay;
     background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.5),transparent 45%)}
   .card:hover .frame .glare{opacity:1}
-  .frame .play{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;
-    transform:translate(-50%,-50%) scale(.8);opacity:0;transition:opacity .3s,transform .3s;
-    background:rgba(255,255,255,.16);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.35);
-    display:flex;align-items:center;justify-content:center;color:#fff}
-  .card:hover .frame .play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .play{position:absolute;left:12px;bottom:12px;width:42px;height:42px;border-radius:50%;
+    opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s,background .2s;cursor:pointer;
+    background:rgba(0,0,0,.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.4);
+    display:flex;align-items:center;justify-content:center;color:#fff;z-index:5}
+  .card:hover .play,.play.playing,.play.loading{opacity:1;transform:none}
+  .play:hover{background:rgba(0,0,0,.72)}
+  .play .ico-pause,.play.playing .ico-play{display:none}
+  .play.playing{background:var(--pill);color:#000;border-color:transparent}
+  .play.playing .ico-pause{display:block}
+  .play.loading svg{animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .rank{position:absolute;left:11px;top:11px;min-width:26px;height:26px;padding:0 7px;border-radius:8px;
-    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:-.02em;
-    color:#fff;background:rgba(0,0,0,.42);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18)}
-  .hot{position:absolute;right:11px;top:11px;font-size:10px;font-weight:700;letter-spacing:.08em;padding:4px 8px;
-    border-radius:6px;color:#000;background:#f5f5f7;box-shadow:0 4px 12px rgba(0,0,0,.4);display:none}
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+    color:#fff;background:rgba(0,0,0,.42);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);z-index:3}
+  .hot{position:absolute;right:11px;top:11px;font-size:10px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:7px;
+    color:#fff;background:rgba(0,0,0,.42);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.22);text-shadow:0 0 10px rgba(255,255,255,.4);display:none;z-index:3}
   .hot.show{display:block}
   .card .title{margin-top:13px;font-size:14.5px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card .artist{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card .rate{display:flex;align-items:center;gap:7px;margin-top:9px}
-  .card .rate .stars{font-size:11px;letter-spacing:1.5px;color:var(--txt)}
-  .card .rate .score{font-size:12.5px;font-weight:600}
-  .card .rate .cnt{font-size:12px;color:var(--muted)}
-  .card .blurb{font-size:12.5px;color:var(--muted2);margin-top:6px;line-height:1.4;
-    display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .card .rate .score{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+  .card .rate .cnt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .card .blurb{font-size:12.5px;color:var(--muted2);margin-top:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .card .recwhy{font-size:11.5px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .card .mine-tag{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:10.5px;font-weight:600;color:#000;background:var(--pill);border-radius:980px;padding:3px 10px}
   .card .mine-tag svg{stroke:#000}
   .lockwrap{position:relative;margin-top:9px;min-height:44px}
   .lockwrap .ghost{filter:blur(5px);opacity:.4;user-select:none;pointer-events:none}
-  .lockwrap .ghost .g1{font-size:11px;letter-spacing:1.5px;color:var(--txt)}
   .lockwrap .ghost .g2{font-size:12.5px;margin-top:6px;color:var(--muted2)}
   .lockwrap .pillbtn{position:absolute;inset:0;display:flex;align-items:center}
-  .lockwrap .pillbtn span{display:inline-flex;align-items:center;gap:7px;background:rgba(28,28,30,.8);
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line2);border-radius:980px;
-    padding:7px 13px;box-shadow:0 4px 14px rgba(0,0,0,.4);font-size:12px;color:var(--txt);font-weight:500;transition:border-color .2s}
+  .lockwrap .pillbtn span{display:inline-flex;align-items:center;gap:7px;background:rgba(28,28,30,.8);backdrop-filter:blur(8px);border:1px solid var(--line2);border-radius:980px;padding:7px 13px;box-shadow:0 4px 14px rgba(0,0,0,.4);font-size:12px;color:var(--txt);font-weight:500;transition:border-color .2s}
   .card:hover .lockwrap .pillbtn span{border-color:#4a4a4e}
   .lockwrap .pillbtn svg{stroke:var(--txt)}
 
-  /* skeleton */
-  .skel{aspect-ratio:1;border-radius:14px;background:linear-gradient(100deg,#141416 30%,#202023 50%,#141416 70%);
-    background-size:200% 100%;animation:shimmer 1.3s infinite}
+  /* skeleton + states */
+  .skel{aspect-ratio:1;border-radius:14px;background:linear-gradient(100deg,var(--surface-2) 30%,#202023 50%,var(--surface-2) 70%);background-size:200% 100%;animation:shimmer 1.3s infinite}
   .skel-line{height:12px;border-radius:6px;background:#16161a;margin-top:11px}
   .skel-line.s2{width:60%}
   @keyframes shimmer{to{background-position:-200% 0}}
-
-  /* states */
-  .state{display:none;text-align:center;padding:80px 0;color:var(--muted);font-size:14px}
+  .state{display:none;text-align:center;padding:74px 0;color:var(--muted)}
   .state.show{display:block}
-  .state b{color:var(--txt);font-weight:600}
-  .state .retry{margin-top:14px;background:var(--pill);color:#000;border:none;border-radius:980px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+  .state svg{stroke:#3a3a3c;margin-bottom:14px}
+  .state .st-title{font-size:18px;font-weight:600;color:var(--txt)}
+  .state .st-sub{font-size:13.5px;color:var(--muted);margin-top:7px}
+  .state .retry{margin-top:16px;background:var(--pill);color:#000;border:none;border-radius:980px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+  .state .sugg{margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .state .sugg .chip{cursor:pointer}
 
-  /* footer */
-  footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 0 50px;color:var(--muted);font-size:12.5px;
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  /* profile (내 평점) */
+  .profile{display:none;margin:2px 0 30px}
+  .profile.show{display:block;animation:stepIn .45s cubic-bezier(.2,.8,.2,1)}
+  .pf-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  @media (max-width:760px){.pf-top{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .pf-card{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:18px 18px}
+  .pf-card .k{font-size:12px;color:var(--muted)}
+  .pf-card .v{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+  .pf-card .v small{font-size:14px;color:var(--muted);font-weight:500}
+  .pf-card .sub{font-size:12px;color:var(--muted2);margin-top:4px}
+  .pf-row{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:16px}
+  @media (max-width:760px){.pf-row{grid-template-columns:1fr}}
+  .pf-box{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .pf-box h3{font-size:14px;font-weight:600;margin-bottom:14px}
+  .dist .drow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12px}
+  .dist .drow .dl{width:34px;color:var(--muted2);font-variant-numeric:tabular-nums}
+  .dist .drow .db{flex:1;height:8px;border-radius:4px;background:#1d1d1f;overflow:hidden}
+  .dist .drow .db i{display:block;height:100%;background:var(--pill);width:0;transition:width .7s cubic-bezier(.2,.8,.25,1)}
+  .dist .drow .dn{width:26px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .gtags{display:flex;flex-wrap:wrap;gap:8px}
+  .gtag{font-size:12.5px;color:var(--muted2);border:1px solid var(--line2);border-radius:980px;padding:6px 12px}
+  .gtag b{color:var(--txt)}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .badge{display:flex;flex-direction:column;align-items:center;gap:6px;width:72px;text-align:center}
+  .badge .bd{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid var(--line2);background:var(--surface-3)}
+  .badge.locked .bd{filter:grayscale(1);opacity:.32}
+  .badge.got .bd{background:var(--pill);color:#000;border-color:transparent;box-shadow:0 6px 18px rgba(255,255,255,.12)}
+  .badge .bn{font-size:10.5px;color:var(--muted)}
+  .badge.got .bn{color:var(--txt)}
+  .pf-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .pf-actions button{background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted2);border-radius:980px;padding:9px 15px;font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:all .2s}
+  .pf-actions button:hover{color:var(--txt);border-color:#4a4a4e;background:rgba(255,255,255,.09)}
+  .pf-actions button.primary{background:var(--pill);color:#000;border-color:transparent;font-weight:600}
+
+  footer{border-top:1px solid var(--line);margin-top:46px;padding:28px 0 48px;color:var(--muted);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   footer .logo{font-weight:700;letter-spacing:.18em;color:var(--muted2)}
+  .reset-link{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:inherit}
+  .reset-link:hover{color:var(--txt)}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);z-index:3000;
+    background:var(--pill);color:#000;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:980px;
+    box-shadow:0 16px 40px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;display:flex;align-items:center;gap:9px;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.lvl{background:linear-gradient(120deg,#fff,#d7d7dc)}
 
   /* onboarding */
   .onb{position:fixed;inset:0;z-index:2000;background:radial-gradient(120% 70% at 50% 0%,rgba(70,70,78,.55),#000 62%),#000;display:none;overflow-y:auto}
   .onb.show{display:flex;flex-direction:column;animation:fade .4s}
   .onb-inner{margin:auto;max-width:1000px;width:100%;padding:48px 40px}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
   @keyframes stepIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   @keyframes ocIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
   .onb-brand{font-weight:700;letter-spacing:.18em;font-size:15px}
@@ -139,40 +218,32 @@
   .onb h2{font-size:38px;font-weight:600;letter-spacing:-.025em;margin-top:10px;background:linear-gradient(180deg,#fff,#c7c7cc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .onb .sub{color:var(--muted2);margin-top:12px;font-size:16px}
   .onb .sub b{color:var(--txt)}
-  .onb .opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
-  .onb .opt{padding:11px 18px;border:1px solid var(--line2);border-radius:980px;font-size:14px;color:var(--txt);cursor:pointer;transition:all .15s;background:rgba(255,255,255,.03)}
-  .onb .opt.sel{background:var(--pill);color:#000;border-color:var(--pill);font-weight:600}
-  .onb .opt:not(.sel):hover{border-color:#4a4a4e}
   .onb-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;margin-top:32px}
-  .oc{position:relative;aspect-ratio:1/1;border-radius:16px;overflow:hidden;cursor:pointer;border:none;
-    display:flex;align-items:flex-end;padding:16px;text-align:left;background-size:cover;background-position:center;background-repeat:no-repeat;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);animation:ocIn .5s backwards;
-    transition:transform .32s cubic-bezier(.2,.8,.25,1),box-shadow .32s}
+  .oc{position:relative;aspect-ratio:1/1;border-radius:16px;overflow:hidden;cursor:pointer;border:none;display:flex;align-items:flex-end;padding:16px;text-align:left;background-size:cover;background-position:center;background-repeat:no-repeat;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);animation:ocIn .5s backwards;transition:transform .32s cubic-bezier(.2,.8,.25,1),box-shadow .32s}
   .oc:hover{transform:translateY(-8px) scale(1.045);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 22px 48px rgba(0,0,0,.65)}
   .oc .scr{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1) 30%,rgba(0,0,0,.74));transition:background .32s}
   .oc:hover .scr{background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.52))}
   .oc .lbl{position:relative;z-index:2;font-size:16px;font-weight:600;letter-spacing:-.01em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
-  .oc .chk{position:absolute;top:11px;right:11px;z-index:3;width:26px;height:26px;border-radius:50%;
-    background:var(--pill);display:none;align-items:center;justify-content:center;transform:scale(0);transition:transform .25s cubic-bezier(.2,1.4,.4,1)}
+  .oc .chk{position:absolute;top:11px;right:11px;z-index:3;width:26px;height:26px;border-radius:50%;background:var(--pill);display:none;align-items:center;justify-content:center;transform:scale(0);transition:transform .25s cubic-bezier(.2,1.4,.4,1)}
   .oc .chk svg{stroke:#000}
   .oc.sel{box-shadow:0 0 0 2px var(--pill),0 16px 38px rgba(0,0,0,.6);transform:translateY(-3px)}
   .oc.sel .chk{display:flex;transform:scale(1)}
-  @media (max-width:760px){.onb-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:760px){.onb-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.onb h2{font-size:28px}}
   @media (max-width:460px){.onb-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .onb-foot{display:flex;align-items:center;gap:12px;margin-top:42px}
   .onb .next{margin-left:auto;background:var(--pill);color:#000;border:none;border-radius:980px;padding:12px 28px;font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s,transform .15s}
   .onb .next:disabled{opacity:.3;cursor:not-allowed}
   .onb .next:not(:disabled):hover{transform:translateY(-2px)}
-  .onb .back{background:none;border:1px solid var(--line2);color:var(--txt);border-radius:980px;padding:12px 20px;font-size:14px;cursor:pointer}
+  .onb .back,.onb .skip2{background:none;border:1px solid var(--line2);color:var(--txt);border-radius:980px;padding:12px 20px;font-size:14px;cursor:pointer}
   .onb .skip{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-  .reroll{margin-top:18px;background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted2);
-    border-radius:980px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:all .2s}
+  .reroll{margin-top:18px;background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--muted2);border-radius:980px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:all .2s}
   .reroll:hover{color:var(--txt);border-color:#4a4a4e;background:rgba(255,255,255,.09)}
   .reroll svg{stroke:currentColor;transition:transform .5s cubic-bezier(.2,.8,.25,1)}
   .reroll:hover svg{transform:rotate(-180deg)}
   .rec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:22px}
   .rec{animation:ocIn .5s backwards}
-  .rec .rc{aspect-ratio:1;border-radius:12px;overflow:hidden;background:#141416;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .3s cubic-bezier(.2,.8,.25,1),box-shadow .3s}
+  .rec .rc{aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface-2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .3s cubic-bezier(.2,.8,.25,1),box-shadow .3s}
   .rec:hover .rc{transform:translateY(-5px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 18px 40px rgba(0,0,0,.6)}
   .rec .rc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.25,1)}
   .rec:hover .rc img{transform:scale(1.06)}
@@ -184,92 +255,112 @@
   .rec .rs button:hover{transform:scale(1.2)}
   .onb .countnote{color:var(--muted)}
   .onb .countnote b{color:var(--txt)}
-  .reset-link{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:inherit}
-  @media (max-width:600px){.rec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.onb h2{font-size:26px}}
 
   /* modal */
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);z-index:1000;
-    display:none;align-items:center;justify-content:center;padding:24px}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px}
   .overlay.open{display:flex;animation:fade .25s}
-  @keyframes fade{from{opacity:0}to{opacity:1}}
-  .modal{position:relative;width:min(920px,100%);max-height:90vh;border-radius:22px;overflow:hidden;display:grid;
-    grid-template-columns:1fr 1fr;background:#0a0a0c;border:1px solid var(--line);
-    box-shadow:0 40px 100px rgba(0,0,0,.75);animation:pop .32s cubic-bezier(.2,.8,.2,1)}
+  .modal{position:relative;width:min(920px,100%);max-height:90vh;border-radius:22px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;background:var(--surface-1);border:1px solid var(--line);box-shadow:0 40px 100px rgba(0,0,0,.75);animation:pop .32s cubic-bezier(.2,.8,.2,1)}
   @keyframes pop{from{transform:scale(.96) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+  .m-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:40px;height:40px;border-radius:50%;background:rgba(20,20,22,.7);backdrop-filter:blur(10px);border:1px solid var(--line2);color:var(--txt);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,opacity .2s}
+  .m-nav:hover{background:rgba(40,40,44,.9)}
+  .m-nav:disabled{opacity:.25;cursor:default}
+  .m-nav.prev{left:-20px} .m-nav.next{right:-20px}
+  @media (max-width:980px){.m-nav.prev{left:8px} .m-nav.next{right:8px}}
   .m-art{position:relative;min-height:460px;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:44px}
   .m-art .ambient{position:absolute;inset:-40%;background-size:cover;background-position:center;filter:blur(60px) saturate(150%);transform:scale(1.2);opacity:.7}
   .m-art .ambient::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28)}
-  .m-art .cover{position:relative;width:100%;max-width:300px;aspect-ratio:1;border-radius:14px;overflow:hidden;
-    box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.12)}
+  .m-art .cover{position:relative;width:100%;max-width:300px;aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.12)}
   .m-art .cover img{width:100%;height:100%;object-fit:cover;display:block}
-  .m-side{display:flex;flex-direction:column;max-height:90vh;border-left:1px solid var(--line);background:#0a0a0c;min-width:0}
-  .m-scroll{flex:1;min-height:0;overflow-y:auto}
-  .m-head{display:flex;align-items:flex-start;gap:12px;padding:24px 24px 16px;border-bottom:1px solid var(--line)}
+  .m-play{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.4);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s,transform .2s;z-index:3}
+  .m-art:hover .m-play,.m-play.playing,.m-play.loading{opacity:1}
+  .m-play:hover{transform:translateX(-50%) scale(1.08)}
+  .m-play .ico-pause,.m-play.playing .ico-play{display:none}
+  .m-play.playing .ico-pause{display:block}
+  .m-play.loading{animation:spin2 .8s linear infinite}
+  @keyframes spin2{to{transform:translateX(-50%) rotate(360deg)}}
+  .m-side{display:flex;flex-direction:column;max-height:90vh;border-left:1px solid var(--line);background:var(--surface-1);min-width:0}
+  .m-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+  .m-scroll::-webkit-scrollbar{width:8px}
+  .m-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:8px}
+  .m-head{display:flex;align-items:flex-start;gap:12px;padding:22px 22px 16px;border-bottom:1px solid var(--line)}
   .m-head .htxt{flex:1;min-width:0}
-  .m-head .h-title{font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+  .m-head .h-title{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
   .m-head .h-artist{font-size:13px;color:var(--muted);margin-top:5px}
   .m-head .h-owner{font-size:11.5px;color:var(--muted);margin-top:9px}
-  .m-head .x{flex:none;cursor:pointer;background:rgba(255,255,255,.07);border:1px solid var(--line2);color:var(--txt);
-    width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s}
+  .m-head-actions{display:flex;gap:8px;flex:none}
+  .m-head .x{cursor:pointer;background:rgba(255,255,255,.07);border:1px solid var(--line2);color:var(--txt);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s}
   .m-head .x:hover{background:rgba(255,255,255,.16)}
-  .m-tags{padding:14px 24px;border-bottom:1px solid var(--line);display:flex;gap:7px;flex-wrap:wrap}
+  .m-tags{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;gap:7px;flex-wrap:wrap}
   .m-tags .tag{font-size:12px;color:var(--muted2);border:1px solid var(--line2);border-radius:980px;padding:4px 11px}
-  .score{padding:18px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
-  .score .big{font-size:46px;font-weight:600;letter-spacing:-.025em;line-height:.9}
+  .score{padding:18px 22px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
+  .score .big{font-size:46px;font-weight:600;letter-spacing:-.025em;line-height:.9;font-variant-numeric:tabular-nums;transition:transform .2s}
+  .score .big.pulse{transform:scale(1.12)}
   .score .big .locked{color:var(--muted)}
   .score .s-sub{font-size:12.5px;color:var(--muted)}
   .score .s-sub b{color:var(--txt);font-weight:600}
-  .tracklist{padding:16px 24px;border-bottom:1px solid var(--line)}
+  .score .s-sub .stars5{margin-top:5px;font-size:13px}
+  .tracklist{padding:16px 22px;border-bottom:1px solid var(--line)}
   .tl-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
   .tl-head .t{font-size:13px;font-weight:600}
   .tl-head .c{font-size:11.5px;color:var(--muted)}
   .tl-msg{padding:14px 0;color:var(--muted);font-size:12.5px}
-  .trk{display:flex;align-items:center;gap:12px;padding:7px 0;font-size:13px}
-  .trk .num{width:18px;flex:none;text-align:right;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+  .trk{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:13px}
+  .trk .tplay{flex:none;width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .trk .tplay:hover{background:rgba(255,255,255,.12)}
+  .trk .tplay.muted{opacity:.25;cursor:default}
+  .trk .tplay .ico-pause,.trk .tplay.playing .ico-play{display:none}
+  .trk .tplay.playing{background:var(--pill);color:#000;border-color:transparent}
+  .trk .tplay.playing .ico-pause{display:block}
+  .trk .num{width:16px;flex:none;text-align:right;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
   .trk .nm{flex:1;min-width:0;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .trk .nm .ft{color:var(--muted);font-size:11.5px}
   .trk .dur{flex:none;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
   .feat-row{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .feat-row .lbl{font-size:11.5px;color:var(--muted);margin-right:2px}
   .feat-row .f{font-size:11.5px;color:var(--muted2);border:1px solid var(--line2);border-radius:980px;padding:3px 10px}
-  .reviews{padding:6px 24px 14px;position:relative;min-height:150px}
+  .reviews{padding:6px 22px 14px;position:relative;min-height:150px}
+  .reviews .burst{position:absolute;left:50%;top:42%;width:10px;height:10px;transform:translate(-50%,-50%);pointer-events:none;z-index:6;
+    background:radial-gradient(circle,rgba(255,255,255,.8),transparent 70%);border-radius:50%;opacity:0}
+  .reviews.reveal .burst{animation:burst .9s ease-out}
+  @keyframes burst{0%{opacity:.9;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(46)}}
   .rev{display:flex;gap:11px;padding:14px 0;border-bottom:1px solid var(--line)}
-  .rev .ava{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
-    font-size:12.5px;font-weight:600;color:#f5f5f7;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+  .reviews.reveal .rev{animation:revIn .5s backwards}
+  @keyframes revIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .rev .ava{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:#f5f5f7;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
   .rev .r-top{display:flex;align-items:center;gap:8px}
   .rev .r-name{font-weight:600;font-size:12.5px}
   .rev .r-stars{color:var(--txt);font-size:11px;letter-spacing:1px}
   .rev .r-text{font-size:13px;color:var(--muted2);margin-top:4px;line-height:1.55}
   .rev .r-when{font-size:10.5px;color:var(--muted);margin-top:5px}
-  .rev.mine{background:rgba(255,255,255,.045);margin:0 -24px;padding:14px 24px}
+  .rev.mine{background:rgba(255,255,255,.045);margin:0 -22px;padding:14px 22px}
   .rev.mine .ava{color:#000}
   .rev.mine .you{background:var(--pill);color:#000;font-size:9px;font-weight:700;padding:2px 8px;border-radius:980px;letter-spacing:.04em}
-  .lock{position:absolute;inset:0;background:rgba(10,10,12,.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;z-index:5}
+  .rev .mine-edit{margin-top:8px;display:flex;gap:8px}
+  .rev .mine-edit button{background:none;border:1px solid var(--line2);color:var(--muted2);border-radius:8px;padding:4px 11px;font-size:11.5px;cursor:pointer;font-family:inherit}
+  .rev .mine-edit button:hover{color:var(--txt);border-color:#4a4a4e}
+  .lock{position:absolute;inset:0;background:rgba(10,10,12,.5);backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;z-index:5;transition:opacity .4s}
   .lock svg{stroke:var(--txt)}
   .lock h4{font-size:18px;font-weight:600;margin-top:14px;letter-spacing:-.01em}
   .lock p{font-size:13px;color:var(--muted);max-width:250px;margin-top:8px;line-height:1.6}
   .lock p b{color:var(--txt)}
-  .reviews.unlocked .lock{display:none}
-  .composer{border-top:1px solid var(--line);padding:16px 24px;background:rgba(255,255,255,.02)}
+  .reviews.unlocked .lock{opacity:0;pointer-events:none}
+  .composer{border-top:1px solid var(--line);padding:16px 22px;background:rgba(255,255,255,.02)}
   .composer.hide{display:none}
   .composer .c-label{font-size:12px;letter-spacing:.04em;color:var(--muted)}
+  .composer .c-label b{color:var(--muted2)}
   .stars-in{display:flex;gap:5px;margin:9px 0}
   .stars-in button{font-size:26px;line-height:1;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.2);transition:transform .12s,color .12s}
   .stars-in button.on{color:var(--txt)}
   .stars-in button:hover{transform:scale(1.18)}
-  .composer textarea{width:100%;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--txt);
-    padding:11px;border-radius:10px;font-family:var(--sans);font-size:13px;resize:vertical;min-height:60px}
+  .composer textarea{width:100%;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--txt);padding:11px;border-radius:10px;font-family:var(--sans);font-size:13px;resize:vertical;min-height:60px}
   .composer textarea::placeholder{color:var(--muted)}
   .composer textarea:focus{outline:none;border-color:#5a5a5e;box-shadow:0 0 0 3px rgba(255,255,255,.07)}
   .c-foot{display:flex;align-items:center;gap:10px;margin-top:11px}
   .c-foot .hint{font-size:11px;color:var(--muted)}
-  .c-foot .submit{margin-left:auto;background:var(--pill);color:#000;border:none;border-radius:980px;
-    padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .15s}
+  .c-foot .submit{margin-left:auto;background:var(--pill);color:#000;border:none;border-radius:980px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .15s}
   .c-foot .submit:disabled{opacity:.3;cursor:not-allowed}
   .c-foot .submit:not(:disabled):hover{transform:translateY(-2px)}
-  .done-note{border-top:1px solid var(--line);padding:14px 24px;color:var(--txt);font-weight:500;font-size:12.5px;
-    display:none;align-items:center;gap:8px;background:rgba(255,255,255,.04)}
+  .done-note{border-top:1px solid var(--line);padding:14px 22px;color:var(--txt);font-weight:500;font-size:12.5px;display:none;align-items:center;gap:8px;background:rgba(255,255,255,.04)}
   .done-note.show{display:flex}
   .done-note svg{stroke:var(--txt)}
 
@@ -278,9 +369,14 @@
     .modal{grid-template-columns:1fr;max-height:92vh;overflow-y:auto}
     .m-art{min-height:300px;padding:32px}
     .m-side{border-left:none;border-top:1px solid var(--line)}
-    .hero h1{font-size:44px}
+    .hero h1{font-size:42px}
   }
   @media (max-width:460px){.grid{grid-template-columns:1fr}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+    .card:hover .frame img,.rec:hover .rc img{transform:none}
+  }
 </style>
 </head>
 <body>
@@ -291,24 +387,37 @@
     <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></symbol>
   </svg>
 
   <header class="nav">
     <div class="left">
-      <div class="logo">TMT</div>
-      <nav><a class="on" href="#">보드</a><a href="#">차트</a><a href="#">내 평점</a></nav>
+      <a class="logo" data-view="board" href="#">TMT</a>
+      <nav>
+        <a data-view="board" class="on" href="#">보드</a>
+        <a data-view="chart" href="#">차트</a>
+        <a data-view="mine" href="#">내 평점</a>
+      </nav>
     </div>
     <div class="right">
-      <div class="search">
+      <div class="levelw" id="levelW" data-view="mine" title="평론가 레벨 · 내 평점">
+        <span class="lvl-name" id="lvlName">청취자</span>
+        <span class="lvl-bar"><i id="lvlFill"></i></span>
+        <span class="streak" id="streakChip" hidden>🔥 <b id="streakN">0</b></span>
+      </div>
+      <div class="search" id="searchBox">
         <span class="search-ico" aria-hidden="true"><svg width="16" height="16"><use href="#i-search"/></svg></span>
         <input class="search-input" id="searchInput" type="text" placeholder="앨범·아티스트 검색" autocomplete="off" aria-label="검색" />
+        <button class="search-clear" id="searchClear" aria-label="검색어 지우기" hidden>×</button>
+        <div class="recent" id="recentBox"></div>
       </div>
-      <button class="btn-add">+ 앨범 올리기</button>
+      <button class="btn-add" id="btnAdd">+ 앨범 올리기</button>
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero" id="hero">
     <div class="kicker">Music · Taste · Community</div>
     <h1>Album Board</h1>
     <p>커버만 보고 들어와. 들어봤으면 별점과 한 줄 평을 남겨.</p>
@@ -316,7 +425,7 @@
   </section>
 
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head" id="secHead">
       <div class="t" id="boardTitle">이번 주 보드</div>
       <div class="chips" id="chips">
         <button class="chip" data-sort="popular">인기순</button>
@@ -324,9 +433,23 @@
         <button class="chip" data-sort="top">평점 높은</button>
       </div>
     </div>
+
+    <div class="profile" id="profile"></div>
+
     <div class="grid" id="grid"></div>
-    <div class="state" id="emptyState"><b id="emptyQ"></b> 에 대한 검색 결과가 없어요.</div>
-    <div class="state" id="errorState">앨범 데이터를 불러오지 못했어요.<br><button class="retry" id="retryBtn">다시 시도</button></div>
+
+    <div class="state" id="emptyState">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><use href="#i-search"/></svg>
+      <div class="st-title"><span id="emptyQ"></span> 결과가 없어요</div>
+      <div class="st-sub">다른 키워드로 찾아보거나, 아래 추천을 눌러보세요.</div>
+      <div class="sugg" id="emptySugg"></div>
+    </div>
+    <div class="state" id="errorState">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><use href="#i-x"/></svg>
+      <div class="st-title">불러오지 못했어요</div>
+      <div class="st-sub">네트워크 상태를 확인해 주세요. 데이터는 Apple iTunes에서 가져옵니다.</div>
+      <button class="retry" id="retryBtn">다시 시도</button>
+    </div>
 
     <footer>
       <span class="logo">TMT</span>
@@ -334,7 +457,7 @@
     </footer>
   </div>
 
-  <!-- onboarding (first visit) -->
+  <!-- onboarding -->
   <div class="onb" id="onb">
     <div class="onb-inner">
       <div class="onb-brand">TMT</div>
@@ -351,9 +474,9 @@
       <div class="onb-step" data-step="1">
         <div class="eyebrow">취향 설정 · 2 / 3</div>
         <h2>요즘 어떤 무드가 끌려요?</h2>
-        <div class="sub">지금 듣고 싶은 분위기를 골라줘. <b>(복수 선택)</b></div>
+        <div class="sub">지금 듣고 싶은 분위기를 골라줘. <b>(선택)</b></div>
         <div class="onb-cards" id="onbMoods"></div>
-        <div class="onb-foot"><button class="back" id="onbBack2">이전</button><button class="next" id="onbNext2" disabled>다음</button></div>
+        <div class="onb-foot"><button class="back" id="onbBack2">이전</button><button class="skip2" id="onbSkip2">그냥 시작</button><button class="next" id="onbNext2">다음</button></div>
       </div>
 
       <div class="onb-step" data-step="2">
@@ -362,16 +485,19 @@
         <div class="sub">최소 <b>3개</b>만 평가하면 맞춤 보드를 만들어 줄게요. · <span class="countnote" id="onbCount"><b>0</b>개 평가됨</span></div>
         <button class="reroll" id="onbReroll"><svg width="13" height="13"><use href="#i-refresh"/></svg> 들어본 게 없어요 · 다른 앨범 추천</button>
         <div class="rec-grid" id="onbRecs"></div>
-        <div class="onb-foot"><button class="back" id="onbBack3">이전</button><button class="next" id="onbStart" disabled>내 보드 시작하기</button></div>
+        <div class="onb-foot"><button class="back" id="onbBack3">이전</button><button class="skip2" id="onbSkip3">그냥 시작</button><button class="next" id="onbStart" disabled>내 보드 시작하기</button></div>
       </div>
     </div>
   </div>
 
+  <!-- modal -->
   <div class="overlay" id="overlay">
-    <div class="modal" id="modal">
+    <button class="m-nav prev" id="mPrev" aria-label="이전 앨범">‹</button>
+    <button class="m-nav next" id="mNext" aria-label="다음 앨범">›</button>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
       <div class="m-art">
         <div class="ambient" id="mAmbient"></div>
-        <div class="cover"><img id="mImg" alt="" /></div>
+        <div class="cover"><img id="mImg" alt="" /><button class="m-play" id="mPlay" aria-label="미리듣기"><svg class="ico-play" width="18" height="18"><use href="#i-play"/></svg><svg class="ico-pause" width="18" height="18"><use href="#i-pause"/></svg></button></div>
       </div>
       <div class="m-side">
         <div class="m-head">
@@ -380,7 +506,10 @@
             <div class="h-artist" id="mArtist"></div>
             <div class="h-owner" id="mOwner"></div>
           </div>
-          <button class="x" id="closeBtn" aria-label="닫기"><svg width="14" height="14"><use href="#i-x"/></svg></button>
+          <div class="m-head-actions">
+            <button class="x" id="mShare" aria-label="공유"><svg width="14" height="14"><use href="#i-share"/></svg></button>
+            <button class="x" id="closeBtn" aria-label="닫기"><svg width="14" height="14"><use href="#i-x"/></svg></button>
+          </div>
         </div>
         <div class="m-scroll">
           <div class="m-tags" id="mTags"></div>
@@ -389,9 +518,9 @@
           <div class="reviews" id="mReviews"></div>
         </div>
         <div class="composer" id="mComposer">
-          <div class="c-label">내 평점</div>
-          <div class="stars-in" id="mStars">
-            <button data-v="1">★</button><button data-v="2">★</button><button data-v="3">★</button><button data-v="4">★</button><button data-v="5">★</button>
+          <div class="c-label">내 별점 <b>· 커뮤니티 평균이 몇 점일지 예측해봐</b></div>
+          <div class="stars-in" id="mStars" role="radiogroup" aria-label="별점">
+            <button data-v="1" aria-label="1점">★</button><button data-v="2" aria-label="2점">★</button><button data-v="3" aria-label="3점">★</button><button data-v="4" aria-label="4점">★</button><button data-v="5" aria-label="5점">★</button>
           </div>
           <textarea id="mText" placeholder="한 줄 평을 남겨줘 (최소 10자) — 솔직하게!"></textarea>
           <div class="c-foot">
@@ -399,13 +528,15 @@
             <button class="submit" id="mSubmit" disabled>잠금 해제</button>
           </div>
         </div>
-        <div class="done-note" id="mDone"><svg width="15" height="15"><use href="#i-check"/></svg> 평가 완료! 다른 사람들 의견이 열렸어.</div>
+        <div class="done-note" id="mDone"><svg width="15" height="15"><use href="#i-check"/></svg> <span id="mDoneText">평가 완료! 다른 사람들 의견이 열렸어.</span></div>
       </div>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
 <script>
-/* ============ iTunes dynamic data via JSONP (CORS-free, works on GitHub Pages) ============ */
+/* ===================== iTunes data (JSONP for search/lookup, fetch+CORS for RSS) ===================== */
 let jsonpId=0;
 function jsonp(url){
   return new Promise((resolve,reject)=>{
@@ -419,85 +550,89 @@ function jsonp(url){
     document.body.appendChild(s);
   });
 }
-const ART=u=>(u||'').replace('100x100bb','1200x1200bb');
+const art=(u,px)=>(u||'').replace(/\/\d+x\d+bb\./,'/'+px+'x'+px+'bb.');
 const norm=s=>(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const fmtDur=ms=>{ const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000); return m+':'+String(s).padStart(2,'0'); };
+const todayStr=()=>new Date().toISOString().slice(0,10);
 
-/* deterministic pseudo-community reviews (iTunes has no reviews) */
-const RTEXT=["커버만 보고 들었는데 인생앨범 됐다.","밤에 혼자 듣기 좋은 질감. 오래 남는다.","처음부터 끝까지 군더더기 없는 완성도.","취향 타지만 매력은 확실하다.","사운드 레이어링이 빽빽해서 들을수록 좋아짐.","분위기는 좋은데 후반부가 살짝 늘어진다.","헤드폰으로 들어야 진가가 나온다.","드라이브할 때 틀면 분위기 싹 바뀐다.","두 번째 트랙부터 계속 반복재생 중.","올해의 발견. 계속 돌려듣게 된다.","가사 한 줄 한 줄이 박힌다.","그루브가 끈적하다. 베이스 라인 최고.","잔잔한데 속은 단단한 앨범.","처음엔 별로였는데 들을수록 빠져든다.","무드가 확실해서 늦은 밤에 딱."];
-const RNAME=["vinyl_kid","nori_film","retro_mina","shibuya_03","midnight_snack","ova_archive","portra_summer","kissaten_jun","jihan_gi","furugi_lover","analog_heart","crate_digger"];
-const RWHEN=["방금","1일 전","2일 전","3일 전","5일 전","1주 전","2주 전"];
-function rng(seed){ let s=seed%2147483647; if(s<=0)s+=2147483646; return ()=>(s=s*16807%2147483647)/2147483647; }
-function shuffle(arr,rand){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-function genReviews(id){
-  const rand=rng(id|0||1);
-  const count=2+Math.floor(rand()*2);
-  const texts=shuffle(RTEXT,rand).slice(0,count);
-  const names=shuffle(RNAME,rand).slice(0,count+1);
-  return texts.map((t,i)=>({ name:names[i], stars:rand()<0.62?5:(rand()<0.7?4:3), text:t, when:RWHEN[Math.floor(rand()*RWHEN.length)] }));
-}
-function genOwner(id){ const rand=rng((id|0)+777); return shuffle(RNAME,rand)[0]; }
+/* ===================== reviews / persistence ===================== */
+const STORE='tmt_reviews_v1', PREFS='tmt_prefs_v1', GUESS='tmt_guess_v1', STREAK='tmt_streak_v1', RECENT='tmt_recent_v1', BADGES='tmt_badges_v1';
+function load(k,d){ try{ return JSON.parse(localStorage.getItem(k)||'null') ?? d; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+let state=load(STORE,{}); if(typeof state!=='object'||!state) state={};
+function persist(){ save(STORE,state); }
+function getPrefs(){ return load(PREFS,null); }
+function setPrefs(p){ save(PREFS,p); }
+let guess=load(GUESS,{hit:0,total:0});
+let streak=load(STREAK,{last:'',count:0});
+let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
 
-/* persistence */
-const STORE='tmt_reviews_v1';
-let state={}; try{ state=JSON.parse(localStorage.getItem(STORE)||'{}'); }catch(e){ state={}; }
-function persist(){ try{ localStorage.setItem(STORE,JSON.stringify(state)); }catch(e){} }
-
-/* taste preferences (onboarding) */
-const PREFS='tmt_prefs_v1';
-function getPrefs(){ try{ return JSON.parse(localStorage.getItem(PREFS)||'null'); }catch(e){ return null; } }
-function setPrefs(p){ try{ localStorage.setItem(PREFS,JSON.stringify(p)); }catch(e){} }
 const GENRES=[{id:18,ko:'힙합'},{id:14,ko:'팝'},{id:21,ko:'록'},{id:15,ko:'R&B / 소울'},{id:20,ko:'얼터너티브'},{id:7,ko:'일렉트로닉'},{id:17,ko:'댄스'},{id:11,ko:'재즈'},{id:51,ko:'K-팝'},{id:6,ko:'컨트리'}];
 const MOODS=['신나는','차분한','감성적인','몽환적인','강렬한','집중되는','설레는','쓸쓸한'];
+const LEVELS=[{min:0,name:'청취자'},{min:3,name:'입문 평론가'},{min:10,name:'큐레이터'},{min:25,name:'평론가'},{min:50,name:'마스터 평론가'},{min:100,name:'전설의 귀'}];
+function levelInfo(n){
+  let cur=LEVELS[0], idx=0;
+  for(let i=0;i<LEVELS.length;i++){ if(n>=LEVELS[i].min){ cur=LEVELS[i]; idx=i; } }
+  const next=LEVELS[idx+1];
+  const prog=next? (n-cur.min)/(next.min-cur.min) : 1;
+  return {name:cur.name, idx, next, prog:Math.max(0,Math.min(1,prog))};
+}
 
-/* helpers */
-const stars=n=>"★★★★★☆☆☆☆☆".slice(5-n,10-n);
+/* ===================== helpers ===================== */
 const ICON_LOCK='<svg width="11" height="11"><use href="#i-lock"/></svg>';
 const ICON_CHECK='<svg width="11" height="11"><use href="#i-check"/></svg>';
-function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function escapeHtml(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function starsStr(n){ return "★★★★★☆☆☆☆☆".slice(5-n,10-n); }
+function starsHTML(v){ const pct=Math.max(0,Math.min(100,(v/5)*100)); return `<span class="stars5"><span class="s-bg">★★★★★</span><span class="s-fg" style="width:${pct}%">★★★★★</span></span>`; }
 function avaStyle(name){ let h=0; for(const ch of (name||'?')) h=(h*31+ch.charCodeAt(0))>>>0; const a=30+(h%40); return `background:linear-gradient(135deg,hsl(0,0%,${a}%),hsl(0,0%,${a+30}%))`; }
 function avaHTML(name,cls=""){ return `<div class="ava ${cls}" style="${avaStyle(name)}">${escapeHtml((name||'?')[0]).toUpperCase()}</div>`; }
 function avg(al){ const all=al.reviews.concat(state[al.id]?[state[al.id]]:[]); return (all.reduce((x,r)=>x+r.stars,0)/all.length).toFixed(1); }
 function baseAvg(al){ return al.reviews.reduce((x,r)=>x+r.stars,0)/al.reviews.length; }
 
-/* ============ board load ============ */
-let ALBUMS=[]; let sortMode='new'; const trackCache={};
-let cardEls={}; const albumIndex={}; let displayed=[]; let searchMode=false;
-const grid=document.getElementById('grid');
-
-function skeletons(n){ grid.innerHTML=''; for(let i=0;i<n;i++){ const d=document.createElement('div'); d.innerHTML=`<div class="skel"></div><div class="skel-line"></div><div class="skel-line s2"></div>`; grid.appendChild(d); } }
-function show(id,on){ document.getElementById(id).classList.toggle('show',on); }
-
-/* visitor region from browser locale (e.g. ko-KR -> kr), fallback us */
-function regionCode(){
-  const langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||'en-US'];
-  for(const l of langs){ const m=/[-_]([A-Za-z]{2})$/.exec(l||''); if(m) return m[1].toLowerCase(); }
-  return 'us';
+let toastTimer=null;
+function showToast(msg, lvl){
+  const t=document.getElementById('toast'); t.innerHTML=msg; t.className='toast show'+(lvl?' lvl':'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'), 2600);
 }
-let REGION='us';
 
-/* map one iTunes RSS topalbums entry -> album object */
+/* deterministic pseudo community reviews */
+const RTEXT=["커버만 보고 들었는데 인생앨범 됐다.","밤에 혼자 듣기 좋은 질감. 오래 남는다.","처음부터 끝까지 군더더기 없는 완성도.","취향 타지만 매력은 확실하다.","사운드 레이어링이 빽빽해서 들을수록 좋아짐.","분위기는 좋은데 후반부가 살짝 늘어진다.","헤드폰으로 들어야 진가가 나온다.","드라이브할 때 틀면 분위기 싹 바뀐다.","두 번째 트랙부터 계속 반복재생 중.","올해의 발견. 계속 돌려듣게 된다.","가사 한 줄 한 줄이 박힌다.","그루브가 끈적하다. 베이스 라인 최고.","잔잔한데 속은 단단한 앨범.","처음엔 별로였는데 들을수록 빠져든다.","무드가 확실해서 늦은 밤에 딱."];
+const RNAME=["vinyl_kid","nori_film","retro_mina","shibuya_03","midnight_snack","ova_archive","portra_summer","kissaten_jun","jihan_gi","furugi_lover","analog_heart","crate_digger"];
+const RWHEN=["방금","1일 전","2일 전","3일 전","5일 전","1주 전","2주 전"];
+function rng(seed){ let s=seed%2147483647; if(s<=0)s+=2147483646; return ()=>(s=s*16807%2147483647)/2147483647; }
+function shuffle(a,rand){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function genReviews(id){ const rand=rng(id|0||1); const count=2+Math.floor(rand()*2); const texts=shuffle(RTEXT,rand).slice(0,count); const names=shuffle(RNAME,rand).slice(0,count+1); return texts.map((t,i)=>({name:names[i],stars:rand()<0.62?5:(rand()<0.7?4:3),text:t,when:RWHEN[Math.floor(rand()*RWHEN.length)]})); }
+function genOwner(id){ return shuffle(RNAME,rng((id|0)+777))[0]; }
+
+/* ===================== data fetch ===================== */
+function regionCode(){ const langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||'en-US']; for(const l of langs){ const m=/[-_]([A-Za-z]{2})$/.exec(l||''); if(m) return m[1].toLowerCase(); } return 'us'; }
+let REGION='us', chartCache=null;
+
 function rssToAlbum(e,i){
   try{
     const id=+e.id.attributes['im:id'];
     const imgs=e['im:image']; const raw=imgs[imgs.length-1].label;
-    const cover=raw.replace(/\/\d+x\d+bb\./,'/1200x1200bb.');
     const genre=(e.category&&e.category.attributes.label)||'';
     const released=(e['im:releaseDate']&&e['im:releaseDate'].label)||'';
     const year=released.slice(0,4);
-    return { id, title:e['im:name'].label, artist:e['im:artist'].label, cover, genre, year, released, chartRank:i,
-      tags:['#'+genre.replace(/[\/&]/g,' ').trim().replace(/\s+/g,''), year?'#'+year:null].filter(Boolean),
-      reviews:genReviews(id), owner:genOwner(id), hot:false };
+    return mkAlbum(id, e['im:name'].label, e['im:artist'].label, raw, genre, year, released, i);
   }catch(err){ return null; }
+}
+function toAlbum(r){
+  if(!r||!r.collectionId) return null;
+  return mkAlbum(r.collectionId, r.collectionName, r.artistName, r.artworkUrl100, r.primaryGenreName||'', (r.releaseDate||'').slice(0,4), r.releaseDate||'', 0);
+}
+function mkAlbum(id,title,artist,raw,genre,year,released,chartRank){
+  return { id, title, artist, raw, cover:art(raw,600), coverHi:art(raw,1200), genre, year, released, chartRank,
+    tags:['#'+genre.replace(/[\/&]/g,' ').trim().replace(/\s+/g,''), year?'#'+year:null].filter(Boolean),
+    reviews:genReviews(id), owner:genOwner(id), hot:false };
 }
 async function fetchChart(region){
   try{
-    // RSS feed supports CORS (Access-Control-Allow-Origin: *) but not JSONP (nosniff) → use fetch
     const res=await fetch(`https://itunes.apple.com/${region}/rss/topalbums/limit=60/json`);
     if(!res.ok) return null;
-    const data=await res.json();
-    let entries=(data.feed&&data.feed.entry)||[]; if(!Array.isArray(entries)) entries=[entries];
-    return entries.map((e,i)=>rssToAlbum(e,i)).filter(Boolean);
+    const d=await res.json(); let e=(d.feed&&d.feed.entry)||[]; if(!Array.isArray(e)) e=[e];
+    return e.map((x,i)=>rssToAlbum(x,i)).filter(Boolean);
   }catch(e){ return null; }
 }
 async function fetchGenre(genreId,region,limit){
@@ -509,14 +644,48 @@ async function fetchGenre(genreId,region,limit){
   }catch(e){ return null; }
 }
 async function fetchByGenres(ids,region){
-  const lists=(await Promise.all(ids.map(id=>fetchGenre(id,region)))).filter(l=>l&&l.length);
+  const lists=(await Promise.all(ids.map(id=>fetchGenre(id,region,25)))).filter(l=>l&&l.length);
   if(!lists.length) return null;
   const merged=[], seen=new Set();
   for(let i=0;i<40;i++){ for(const l of lists){ const a=l[i]; if(a&&!seen.has(a.id)){ seen.add(a.id); merged.push(a); } } }
   return merged;
 }
+async function ensureRegion(){ const l=await fetchChart(REGION); if(!l||!l.length){ REGION='us'; chartCache=await fetchChart('us'); } else { chartCache=l; } }
+async function ensureAlbumMetas(ids){
+  const missing=ids.filter(id=>!albumIndex[id]);
+  for(let i=0;i<missing.length;i+=20){
+    const batch=missing.slice(i,i+20);
+    try{ const d=await jsonp(`https://itunes.apple.com/lookup?id=${batch.join(',')}&entity=album&country=${REGION}`); (d.results||[]).forEach(r=>{ if(r.collectionId&&!albumIndex[r.collectionId]){ const a=toAlbum(r); if(a) albumIndex[a.id]=a; } }); }catch(e){}
+  }
+}
 
-let BOARD_TITLE='이번 주 보드';
+/* ===================== preview audio ===================== */
+const audio=new Audio(); audio.preload='none'; let curBtn=null;
+audio.addEventListener('ended',stopAudio); audio.addEventListener('pause',()=>{ if(audio.currentTime===0&&curBtn){} });
+function stopAudio(){ try{audio.pause();}catch(e){} audio.currentTime=0; if(curBtn){ curBtn.classList.remove('playing'); curBtn=null; } }
+function toggleAudio(url,btn){ if(curBtn===btn){ stopAudio(); return; } stopAudio(); if(!url) return; audio.src=url; audio.play().catch(()=>{}); curBtn=btn; btn.classList.add('playing'); }
+async function leadPreview(al){ const info=await fetchTracks(al); const t=(info.tracks||[]).find(x=>x.preview); return t&&t.preview; }
+
+/* ===================== board / views ===================== */
+let ALBUMS=[]; let sortMode='new'; const trackCache={}; let cardEls={}; const albumIndex={}; let displayed=[]; let viewMode='board';
+let searchMode=false; let BOARD_TITLE='이번 주 보드';
+let lastErr={mode:'board',q:''};
+const grid=document.getElementById('grid');
+const hero=document.getElementById('hero');
+const profileEl=document.getElementById('profile');
+function show(id,on){ document.getElementById(id).classList.toggle('show',on); }
+function skeletons(n){ profileEl.classList.remove('show'); grid.innerHTML=''; for(let i=0;i<n;i++){ const d=document.createElement('div'); d.innerHTML='<div class="skel"></div><div class="skel-line"></div><div class="skel-line s2"></div>'; grid.appendChild(d); } }
+
+/* recommendation scoring from liked albums */
+function tasteWeights(){
+  const g={}, a={};
+  const add=(genre,artist,w)=>{ if(genre) g[genre]=(g[genre]||0)+w; if(artist) a[artist]=(a[artist]||0)+w; };
+  Object.keys(state).forEach(id=>{ const al=albumIndex[id]; if(al&&state[id].stars>=4) add(al.genre,al.artist,state[id].stars-3); });
+  const prefs=getPrefs(); if(prefs&&prefs.ratings) Object.keys(prefs.ratings).forEach(id=>{ const al=albumIndex[id]; if(al&&prefs.ratings[id]>=4) add(al.genre,al.artist,prefs.ratings[id]-3); });
+  return {g,a};
+}
+function scoreAlbum(al,w){ let s=0; if(w.g[al.genre]) s+=w.g[al.genre]*2; if(w.a[al.artist]) s+=w.a[al.artist]*4; return s; }
+
 async function loadBoard(){
   show('emptyState',false); show('errorState',false); searchMode=false;
   document.getElementById('chips').style.display='';
@@ -528,14 +697,30 @@ async function loadBoard(){
     if(!list||!list.length) list=await fetchByGenres(prefs.genres,'us');
     personalized=!!(list&&list.length); count=12;
   }
-  if(!list||!list.length){ list=await fetchChart(REGION); personalized=false; count=8; }
-  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); personalized=false; count=8; }
-  if(!list||!list.length){ grid.innerHTML=''; show('errorState',true); return; }
-  list.sort((a,b)=>(b.released||'').localeCompare(a.released||''));
+  if(!list||!list.length){ list=chartCache||await fetchChart(REGION); personalized=false; count=8; }
+  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); personalized=false; }
+  if(!list||!list.length){ grid.innerHTML=''; lastErr={mode:'board'}; show('errorState',true); return; }
+  // taste re-rank for personalized
+  if(personalized){ const w=tasteWeights(); list=list.map(a=>({a,s:scoreAlbum(a,w)})).sort((x,y)=>y.s-x.s).map(o=>{ o.a._recScore=o.s; return o.a; }); }
+  list.sort((a,b)=> personalized ? ((b._recScore||0)-(a._recScore||0))||((b.released||'').localeCompare(a.released||'')) : (b.released||'').localeCompare(a.released||''));
   ALBUMS=list.slice(0,count);
   BOARD_TITLE = personalized ? '당신을 위한 추천' : (REGION.toUpperCase()+' 최신 인기 앨범');
   const hot=new Set([...ALBUMS].sort((a,b)=>a.chartRank-b.chartRank).slice(0,3).map(a=>a.id));
   ALBUMS.forEach(a=>a.hot=hot.has(a.id));
+  showBoard();
+}
+async function loadChart(){
+  show('emptyState',false); show('errorState',false); searchMode=false;
+  document.getElementById('chips').style.display='';
+  skeletons(8);
+  let list=chartCache||await fetchChart(REGION);
+  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); }
+  if(!list||!list.length){ grid.innerHTML=''; lastErr={mode:'chart'}; show('errorState',true); return; }
+  ALBUMS=list.slice(0,12);
+  BOARD_TITLE=REGION.toUpperCase()+' 인기 차트';
+  const hot=new Set([...ALBUMS].sort((a,b)=>a.chartRank-b.chartRank).slice(0,3).map(a=>a.id));
+  ALBUMS.forEach(a=>a.hot=hot.has(a.id));
+  sortMode='popular'; document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.sort==='popular'));
   showBoard();
 }
 
@@ -545,11 +730,13 @@ function renderCards(list){
     albumIndex[al.id]=al;
     const c=document.createElement('div');
     c.className='card'; c.dataset.id=al.id; c.style.animationDelay=Math.min(i,12)*45+'ms';
+    c.tabIndex=0; c.setAttribute('role','button'); c.setAttribute('aria-label', al.title+' · '+al.artist+' 상세 열기');
     c.innerHTML=`
       <div class="frame">
-        <img src="${al.cover}" alt="${escapeHtml(al.title)} 커버" loading="lazy"/>
+        <img src="${al.cover}" alt="${escapeHtml(al.title)} 커버" loading="lazy" decoding="async"
+             onerror="this.onerror=null;this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,#2a2a2a,#0d0d0d)'"/>
         <div class="scrim"></div><div class="glare"></div>
-        <div class="play"><svg width="20" height="20"><use href="#i-play"/></svg></div>
+        <button class="play" aria-label="미리듣기" tabindex="-1"><svg class="ico-play" width="18" height="18"><use href="#i-play"/></svg><svg class="ico-pause" width="18" height="18"><use href="#i-pause"/></svg></button>
         <div class="rank"></div>
         <div class="hot ${al.hot?'show':''}">HOT</div>
       </div>
@@ -557,29 +744,35 @@ function renderCards(list){
       <div class="artist">${escapeHtml(al.artist)}${al.year?' · '+al.year:''}</div>
       <div class="rateslot"></div>`;
     c.addEventListener('click',()=>openModal(al.id));
+    c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(al.id); } });
+    const pb=c.querySelector('.play');
+    pb.addEventListener('click',async e=>{
+      e.stopPropagation();
+      if(curBtn===pb){ stopAudio(); return; }
+      pb.classList.add('loading');
+      const url=await leadPreview(al);
+      pb.classList.remove('loading');
+      if(url) toggleAudio(url,pb); else showToast('미리듣기를 찾지 못했어요');
+    });
     attachTilt(c);
-    cardEls[al.id]=c;
-    grid.appendChild(c);
-    renderCardRate(al);
+    cardEls[al.id]=c; grid.appendChild(c); renderCardRate(al);
   });
-  displayed=list;
-  setRanks();
+  displayed=list; setRanks();
 }
 function setRanks(){ displayed.forEach((al,i)=>{ const c=cardEls[al.id]; if(c) c.querySelector('.rank').textContent=i+1; }); }
 
 function renderCardRate(al){
-  const slot=cardEls[al.id].querySelector('.rateslot');
+  const slot=cardEls[al.id]&&cardEls[al.id].querySelector('.rateslot'); if(!slot) return;
   if(state[al.id]){
-    slot.innerHTML=`
-      <div class="rate"><span class="stars">${stars(Math.round(avg(al)))}</span><span class="score">${avg(al)}</span><span class="cnt">· ${al.reviews.length+1}</span></div>
+    slot.innerHTML=`<div class="rate">${starsHTML(+avg(al))}<span class="score">${avg(al)}</span><span class="cnt">· ${al.reviews.length+1}</span></div>
       <div class="blurb">“${escapeHtml(state[al.id].text)}”</div>
       <span class="mine-tag">${ICON_CHECK} 내 평가 완료</span>`;
+  } else if(al._recScore>0){
+    slot.innerHTML=`<div class="lockwrap"><div class="ghost"><div class="stars5"><span class="s-fg" style="width:84%">★★★★★</span><span>★★★★★</span></div><div class="g2">“xxxxxx xxxx xxxxxxx xx.”</div></div>
+      <div class="pillbtn"><span>${ICON_LOCK} 별점 남기고 열기</span></div></div>`;
   } else {
-    slot.innerHTML=`
-      <div class="lockwrap">
-        <div class="ghost"><div class="g1">★★★★☆ ${avg(al)} · ${al.reviews.length}</div><div class="g2">“xxxxxx xxxx xxxxxxx xx.”</div></div>
-        <div class="pillbtn"><span>${ICON_LOCK} 별점 남기고 열기</span></div>
-      </div>`;
+    slot.innerHTML=`<div class="lockwrap"><div class="ghost"><div class="stars5"><span class="s-fg" style="width:84%">★★★★★</span><span>★★★★★</span></div><div class="g2">“xxxxxx xxxx xxxxxxx xx.”</div></div>
+      <div class="pillbtn"><span>${ICON_LOCK} 별점 남기고 열기</span></div></div>`;
   }
 }
 
@@ -587,282 +780,436 @@ function sortedBoard(){
   let arr=[...ALBUMS];
   if(sortMode==='new') arr.sort((a,b)=>(b.released||'').localeCompare(a.released||''));
   else if(sortMode==='top') arr.sort((a,b)=>parseFloat(avg(b))-parseFloat(avg(a)));
-  else arr.sort((a,b)=>(a.chartRank||0)-(b.chartRank||0)); // 인기순 = 차트 순위
+  else arr.sort((a,b)=>(a.chartRank||0)-(b.chartRank||0));
   return arr;
 }
 function showBoard(){
-  searchMode=false;
+  searchMode=false; profileEl.classList.remove('show');
   document.getElementById('boardTitle').textContent=BOARD_TITLE;
   document.getElementById('chips').style.display='';
   document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.sort===sortMode));
   show('emptyState',false); show('errorState',false);
   renderCards(sortedBoard());
 }
-function reorderBoard(){
-  const arr=sortedBoard();
-  arr.forEach((al,i)=>{ const c=cardEls[al.id]; if(c) grid.appendChild(c); });
-  displayed=arr; setRanks();
+function reorderBoard(){ const arr=sortedBoard(); arr.forEach(al=>{ const c=cardEls[al.id]; if(c) grid.appendChild(c); }); displayed=arr; setRanks(); }
+
+/* ===================== 내 평점 (profile) ===================== */
+async function showMine(){
+  viewMode='mine'; setActiveNav(); searchMode=false;
+  hero.style.display='none'; document.getElementById('chips').style.display='none';
+  document.getElementById('boardTitle').textContent='내 평점';
+  show('emptyState',false); show('errorState',false);
+  const ids=Object.keys(state).map(Number);
+  if(!ids.length){
+    profileEl.classList.remove('show'); grid.innerHTML='';
+    document.getElementById('emptyQ').textContent='아직 남긴 평가가';
+    document.querySelector('#emptyState .st-sub').textContent='보드에서 들어본 앨범에 별점·한 줄 평을 남겨보세요.';
+    document.getElementById('emptySugg').innerHTML='<button class="chip" onclick="navTo(\'board\')">보드로 가기</button>';
+    show('emptyState',true);
+    return;
+  }
+  skeletons(Math.min(ids.length,8));
+  await ensureAlbumMetas(ids);
+  const list=ids.map(id=>albumIndex[id]).filter(Boolean);
+  renderProfile(list);
+  renderCards(list);
+}
+function renderProfile(list){
+  const ids=Object.keys(state).map(Number);
+  const prefs=getPrefs()||{};
+  const ratingVals=[]; ids.forEach(id=>ratingVals.push(state[id].stars));
+  if(prefs.ratings) Object.values(prefs.ratings).forEach(v=>ratingVals.push(v));
+  const n=ids.length;
+  const dist=[0,0,0,0,0]; ratingVals.forEach(v=>{ if(v>=1&&v<=5) dist[v-1]++; });
+  const distMax=Math.max(1,...dist);
+  const meanAll=ratingVals.length? ratingVals.reduce((a,b)=>a+b,0)/ratingVals.length : 0;
+  const lenient = meanAll>=4.2?'후한 편 🍯' : meanAll<=3.4?'까다로운 편 🧐' : '균형 잡힌 ⚖️';
+  // genre tally from rated full reviews
+  const gt={}; list.forEach(al=>{ if(state[al.id]&&al.genre){ gt[al.genre]=gt[al.genre]||{c:0,s:0}; gt[al.genre].c++; gt[al.genre].s+=state[al.id].stars; } });
+  const topG=Object.entries(gt).sort((a,b)=>b[1].c-a[1].c).slice(0,3);
+  const lv=levelInfo(n);
+  const acc=guess.total? Math.round(guess.hit/guess.total*100):null;
+  const badges=allBadges();
+
+  profileEl.innerHTML=`
+    <div class="pf-top">
+      <div class="pf-card"><div class="k">평가한 앨범</div><div class="v">${n}<small> 장</small></div><div class="sub">${escapeHtml(lv.name)}${lv.next?` · 다음까지 ${lv.next.min-n}장`:' · MAX'}</div></div>
+      <div class="pf-card"><div class="k">내 평균 별점</div><div class="v">${meanAll.toFixed(1)}</div><div class="sub">${lenient}</div></div>
+      <div class="pf-card"><div class="k">예측 적중률</div><div class="v">${acc!=null?acc+'<small> %</small>':'—'}</div><div class="sub">${guess.total?`${guess.hit}/${guess.total} 적중`:'블라인드 예측 기록 없음'}</div></div>
+      <div class="pf-card"><div class="k">연속 방문</div><div class="v">${streak.count}<small> 일</small></div><div class="sub">${streak.count>0?'🔥 스트릭 유지 중':'오늘 평가하면 시작!'}</div></div>
+    </div>
+    <div class="pf-row">
+      <div class="pf-box"><h3>별점 분포</h3><div class="dist">${[5,4,3,2,1].map(s=>`<div class="drow"><span class="dl">${starsStr(s).slice(0,s)}</span><span class="db"><i style="width:${dist[s-1]/distMax*100}%"></i></span><span class="dn">${dist[s-1]}</span></div>`).join('')}</div></div>
+      <div class="pf-box"><h3>취향 장르 Top 3</h3>${topG.length?`<div class="gtags">${topG.map(([g,o])=>`<span class="gtag"><b>${escapeHtml(g)}</b> ${o.c}장 · ${(o.s/o.c).toFixed(1)}점</span>`).join('')}</div>`:'<div class="sub" style="color:var(--muted)">평가가 쌓이면 보여요</div>'}
+        <h3 style="margin-top:18px">뱃지</h3><div class="badges">${badges.map(b=>`<div class="badge ${b.got?'got':'locked'}"><div class="bd">${b.icon}</div><div class="bn">${escapeHtml(b.name)}</div></div>`).join('')}</div>
+      </div>
+    </div>
+    <div class="pf-actions">
+      <button class="primary" id="pfShare"><svg width="14" height="14"><use href="#i-share"/></svg> 취향 카드 공유</button>
+      <button id="pfExport">평가 내보내기</button>
+      <button id="pfImport">가져오기</button>
+      <button id="pfClear">평가 기록 초기화</button>
+    </div>`;
+  profileEl.classList.add('show');
+  document.getElementById('pfShare').addEventListener('click',shareTaste);
+  document.getElementById('pfExport').addEventListener('click',exportData);
+  document.getElementById('pfImport').addEventListener('click',importData);
+  document.getElementById('pfClear').addEventListener('click',clearData);
 }
 
-/* tilt */
+/* ===================== badges ===================== */
+function allBadges(){
+  const ids=Object.keys(state); const n=ids.length;
+  const genres=new Set(ids.map(id=>albumIndex[id]&&albumIndex[id].genre).filter(Boolean));
+  const hasLong=ids.some(id=>(state[id].text||'').length>=50);
+  const hasHarsh=ids.some(id=>state[id].stars<=2);
+  const defs=[
+    {id:'first',name:'첫 평가',icon:'✍️',got:n>=1},
+    {id:'ten',name:'10장',icon:'🔟',got:n>=10},
+    {id:'25',name:'25장',icon:'🎖️',got:n>=25},
+    {id:'50',name:'50장',icon:'👑',got:n>=50},
+    {id:'genre5',name:'5장르',icon:'🌈',got:genres.size>=5},
+    {id:'harsh',name:'독설가',icon:'🔪',got:hasHarsh},
+    {id:'essay',name:'평론가',icon:'📝',got:hasLong},
+    {id:'streak3',name:'3일 연속',icon:'🔥',got:streak.count>=3},
+  ];
+  return defs;
+}
+function checkNewBadges(){
+  const got=allBadges().filter(b=>b.got).map(b=>b.id);
+  const prev=load(BADGES,[]);
+  const fresh=got.filter(id=>!prev.includes(id));
+  save(BADGES,got);
+  if(fresh.length){ const b=allBadges().find(x=>x.id===fresh[0]); showToast(`${b.icon} 새 뱃지 획득 · ${b.name}`, true); }
+}
+
+/* ===================== streak ===================== */
+function bumpStreak(){
+  const t=todayStr();
+  if(streak.last===t) return;
+  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  streak.count = (streak.last===y)? streak.count+1 : 1;
+  streak.last=t; save(STREAK,streak); renderLevel();
+}
+function renderLevel(){
+  const n=Object.keys(state).length; const lv=levelInfo(n);
+  document.getElementById('lvlName').textContent=lv.name;
+  document.getElementById('lvlFill').style.width=(lv.prog*100)+'%';
+  const sc=document.getElementById('streakChip');
+  if(streak.count>0){ sc.hidden=false; document.getElementById('streakN').textContent=streak.count; } else sc.hidden=true;
+}
+
+/* ===================== tilt (rAF + rect cache) ===================== */
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 function attachTilt(card){
+  if(reduceMotion) return;
   const frame=card.querySelector('.frame'), glare=card.querySelector('.glare');
-  card.addEventListener('mousemove',e=>{
-    const r=frame.getBoundingClientRect();
-    const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
-    frame.style.transform=`translateY(-7px) rotateX(${(0.5-py)*13}deg) rotateY(${(px-0.5)*15}deg)`;
-    glare.style.setProperty('--gx',(px*100).toFixed(1)+'%');
-    glare.style.setProperty('--gy',(py*100).toFixed(1)+'%');
-  });
-  card.addEventListener('mouseleave',()=>{ frame.style.transform=''; });
+  let rect=null, px=.5, py=.5, raf=0;
+  function apply(){ raf=0; frame.style.transform=`translateY(-7px) rotateX(${(0.5-py)*13}deg) rotateY(${(px-0.5)*15}deg)`; glare.style.setProperty('--gx',(px*100).toFixed(1)+'%'); glare.style.setProperty('--gy',(py*100).toFixed(1)+'%'); }
+  card.addEventListener('mouseenter',()=>{ rect=frame.getBoundingClientRect(); frame.style.transition='box-shadow .45s'; });
+  card.addEventListener('mousemove',e=>{ if(!rect) rect=frame.getBoundingClientRect(); px=(e.clientX-rect.left)/rect.width; py=(e.clientY-rect.top)/rect.height; if(!raf) raf=requestAnimationFrame(apply); });
+  card.addEventListener('mouseleave',()=>{ if(raf){cancelAnimationFrame(raf);raf=0;} frame.style.transition=''; frame.style.transform=''; rect=null; });
 }
 
-/* chips */
-document.getElementById('chips').addEventListener('click',e=>{
-  const b=e.target.closest('.chip'); if(!b) return;
-  document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));
-  sortMode=b.dataset.sort; if(!searchMode) reorderBoard();
-});
+/* ===================== chips / nav ===================== */
+document.getElementById('chips').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(!b||!b.dataset.sort) return; document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b)); sortMode=b.dataset.sort; if(!searchMode&&viewMode!=='mine') reorderBoard(); });
+function setActiveNav(){ document.querySelectorAll('.nav nav a').forEach(a=>a.classList.toggle('on',a.dataset.view===viewMode)); }
+function navTo(mode){
+  stopAudio(); searchInput.value=''; searchClear.hidden=true;
+  viewMode=mode; setActiveNav();
+  if(mode==='mine'){ showMine(); }
+  else { hero.style.display=''; if(mode==='chart'){ loadChart(); } else { loadBoard(); } }
+}
+document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',e=>{ e.preventDefault(); navTo(el.dataset.view); }));
+document.getElementById('btnAdd').addEventListener('click',()=>{ searchInput.focus(); showToast('🔎 듣고 싶은 앨범을 검색해서 평가해보세요'); });
 
-/* search — live against the iTunes catalog */
+/* ===================== search ===================== */
 const searchInput=document.getElementById('searchInput');
+const searchClear=document.getElementById('searchClear');
+const recentBox=document.getElementById('recentBox');
 let searchTimer=null;
-searchInput.addEventListener('input',()=>{ clearTimeout(searchTimer); const q=searchInput.value.trim(); searchTimer=setTimeout(()=>runSearch(q),350); });
-searchInput.addEventListener('keydown',e=>{ if(e.key==='Escape'){ searchInput.value=''; clearTimeout(searchTimer); searchInput.blur(); showBoard(); }});
-function toAlbum(r){
-  if(!r||!r.collectionId) return null;
-  const id=r.collectionId, year=(r.releaseDate||'').slice(0,4), genre=r.primaryGenreName||'';
-  return { id, title:r.collectionName, artist:r.artistName, cover:ART(r.artworkUrl100), genre, year, released:r.releaseDate||'',
-    chartRank:0, trackCount:r.trackCount,
-    tags:['#'+genre.replace(/[\/&]/g,' ').trim().replace(/\s+/g,''), year?'#'+year:null].filter(Boolean),
-    reviews:genReviews(id), owner:genOwner(id), hot:false };
-}
+function pushRecent(q){ q=q.trim(); if(!q) return; recent=[q,...recent.filter(x=>x!==q)].slice(0,8); save(RECENT,recent); }
+function renderRecent(){ if(!recent.length){ recentBox.classList.remove('show'); return; } recentBox.innerHTML='<div class="rl">최근 검색</div>'+recent.map(q=>`<span class="rchip" data-q="${escapeHtml(q)}"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#i-search"/></svg>${escapeHtml(q)}</span>`).join(''); recentBox.classList.add('show'); }
+searchInput.addEventListener('focus',()=>{ if(!searchInput.value.trim()) renderRecent(); });
+searchInput.addEventListener('input',()=>{ searchClear.hidden=!searchInput.value; clearTimeout(searchTimer); const q=searchInput.value.trim(); if(!q){ recentBox.classList.contains('show')||renderRecent(); } else recentBox.classList.remove('show'); searchTimer=setTimeout(()=>runSearch(q),350); });
+searchInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); recentBox.classList.remove('show'); const q=searchInput.value.trim(); if(q){ pushRecent(q); runSearch(q); } } else if(e.key==='Escape'){ searchInput.value=''; searchClear.hidden=true; recentBox.classList.remove('show'); searchInput.blur(); navTo(viewMode==='mine'?'board':viewMode); } });
+searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.hidden=true; searchInput.focus(); navTo('board'); });
+recentBox.addEventListener('click',e=>{ const c=e.target.closest('.rchip'); if(!c) return; searchInput.value=c.dataset.q; searchClear.hidden=false; recentBox.classList.remove('show'); runSearch(c.dataset.q); });
+document.addEventListener('click',e=>{ if(!e.target.closest('#searchBox')) recentBox.classList.remove('show'); });
+
 async function runSearch(q){
-  if(!q){ showBoard(); return; }
-  searchMode=true;
+  if(!q){ navTo('board'); return; }
+  searchMode=true; viewMode='board'; setActiveNav(); hero.style.display=''; profileEl.classList.remove('show');
   document.getElementById('chips').style.display='none';
   document.getElementById('boardTitle').textContent='검색 결과';
-  show('emptyState',false); show('errorState',false);
-  skeletons(8);
+  show('emptyState',false); show('errorState',false); skeletons(8);
   try{
     const data=await jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=album&limit=24&country=${REGION}`);
-    if(searchInput.value.trim()!==q) return; // stale response
+    if(searchInput.value.trim()!==q) return;
     const seen={}, list=[];
     (data.results||[]).forEach(r=>{ if(r.collectionId&&!seen[r.collectionId]){ seen[r.collectionId]=1; const a=toAlbum(r); if(a) list.push(a); } });
     if(searchInput.value.trim()!==q) return;
-    if(!list.length){ grid.innerHTML=''; document.getElementById('emptyQ').textContent='“'+q+'”'; show('emptyState',true); document.getElementById('boardTitle').textContent='검색 결과'; return; }
+    if(!list.length){ grid.innerHTML=''; document.getElementById('emptyQ').textContent='“'+q+'”에 대한'; document.querySelector('#emptyState .st-sub').textContent='다른 키워드로 찾아보거나, 아래 추천을 눌러보세요.'; document.getElementById('emptySugg').innerHTML=['The Weeknd','NewJeans','Radiohead'].map(s=>`<button class="chip" onclick="searchInput.value='${s}';runSearch('${s}')">${s}</button>`).join(''); document.getElementById('boardTitle').textContent='검색 결과'; show('emptyState',true); return; }
+    pushRecent(q);
     document.getElementById('boardTitle').textContent=`검색 결과 · ${list.length}`;
-    renderCards(list);
-  }catch(e){ if(searchInput.value.trim()===q){ grid.innerHTML=''; show('errorState',true); } }
+    ALBUMS=list; renderCards(list);
+  }catch(e){ if(searchInput.value.trim()===q){ grid.innerHTML=''; lastErr={mode:'search',q}; show('errorState',true); } }
 }
 
-/* ============ modal ============ */
+/* ===================== modal ===================== */
 const overlay=document.getElementById('overlay');
-let current=null, pendingStars=0;
-function openModal(id){
+let current=null, pendingStars=0, editing=false, lastFocused=null;
+
+function openModal(id, fromHistory){
   const al=albumIndex[id]||ALBUMS.find(a=>String(a.id)===String(id)); if(!al) return;
-  current=al; pendingStars=0;
-  document.getElementById('mImg').src=al.cover;
+  if(!overlay.classList.contains('open')) lastFocused=document.activeElement;
+  stopAudio();
+  current=al; pendingStars=0; editing=false;
+  document.getElementById('mImg').src=al.coverHi||al.cover;
   document.getElementById('mAmbient').style.backgroundImage=`url("${al.cover}")`;
   document.getElementById('mTitle').textContent=al.title;
   document.getElementById('mArtist').textContent=[al.artist,al.genre,al.year].filter(Boolean).join(' · ');
   document.getElementById('mOwner').textContent=`${al.owner} 님이 올림 · ${al.reviews.length+(state[al.id]?1:0)}명 평가`;
   document.getElementById('mTags').innerHTML=al.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('');
-  renderModal(); loadTracks(al);
+  renderModal(false); loadTracksUI(al); updateNavBtns();
   overlay.classList.add('open'); document.body.style.overflow='hidden';
+  document.getElementById('closeBtn').focus();
+  if(!fromHistory){ try{ history.pushState({album:al.id},'', '#album='+al.id); }catch(e){} }
 }
-function closeModal(){ overlay.classList.remove('open'); document.body.style.overflow=''; current=null; }
+function closeModal(fromPop){
+  stopAudio(); overlay.classList.remove('open'); document.body.style.overflow=''; current=null;
+  if(lastFocused&&lastFocused.focus){ try{lastFocused.focus();}catch(e){} }
+  if(!fromPop){ if(location.hash.indexOf('#album=')===0){ try{ history.back(); }catch(e){} } }
+}
+function updateNavBtns(){
+  const i=displayed.findIndex(a=>a.id===current.id);
+  document.getElementById('mPrev').disabled=!(i>0);
+  document.getElementById('mNext').disabled=!(i>=0&&i<displayed.length-1);
+}
+function navAlbum(d){ const i=displayed.findIndex(a=>a.id===current.id); const t=displayed[i+d]; if(t) openModal(t.id); }
 
 function fmtTrack(t){ const i=t.indexOf(' ('); return i<0?escapeHtml(t):escapeHtml(t.slice(0,i))+'<span class="ft"> '+escapeHtml(t.slice(i+1))+'</span>'; }
-function renderTracks(al,info){
+function extractFeat(tracks){ const out=[]; tracks.forEach(t=>{ const m=t.t.match(/\((?:feat\.|featuring|ft\.|with)\s*([^)]+)\)/i); if(m) m[1].split(/\s+&\s+|\s+and\s+/i).forEach(n=>{ n=n.trim().replace(/\.$/,''); if(n&&!out.includes(n)) out.push(n); }); }); return out; }
+async function fetchTracks(al){
+  if(trackCache[al.id]) return trackCache[al.id];
+  async function look(country){ const d=await jsonp(`https://itunes.apple.com/lookup?id=${al.id}&entity=song&limit=80&country=${country}`); return (d.results||[]).filter(x=>x.wrapperType==='track'); }
+  try{
+    let rows=await look(REGION); if(!rows.length&&REGION!=='us') rows=await look('us');
+    const tracks=rows.map(x=>({n:x.trackNumber,t:x.trackName,d:fmtDur(x.trackTimeMillis||0),preview:x.previewUrl})).sort((a,b)=>(a.n||0)-(b.n||0));
+    const info={tracks,feat:extractFeat(tracks)}; trackCache[al.id]=info; return info;
+  }catch(e){ return {tracks:[],feat:[],error:true}; }
+}
+async function loadTracksUI(al){
   const box=document.getElementById('mTracks');
+  box.innerHTML=`<div class="tl-head"><span class="t">수록곡</span></div><div class="tl-msg">불러오는 중…</div>`;
+  const info=await fetchTracks(al);
+  if(!current||current.id!==al.id) return;
+  if(info.error||!info.tracks.length){ box.innerHTML=`<div class="tl-head"><span class="t">수록곡</span></div><div class="tl-msg">수록곡을 불러오지 못했어요.</div>`; return; }
   let h=`<div class="tl-head"><span class="t">수록곡</span><span class="c">${info.tracks.length}곡</span></div>`;
-  h+=info.tracks.map(t=>`<div class="trk"><span class="num">${t.n}</span><span class="nm">${fmtTrack(t.t)}</span><span class="dur">${t.d}</span></div>`).join('');
+  h+=info.tracks.map(t=>`<div class="trk"><button class="tplay${t.preview?'':' muted'}" ${t.preview?`data-prev="${escapeHtml(t.preview)}"`:'disabled'} aria-label="미리듣기"><svg class="ico-play" width="12" height="12"><use href="#i-play"/></svg><svg class="ico-pause" width="12" height="12"><use href="#i-pause"/></svg></button><span class="num">${t.n||''}</span><span class="nm">${fmtTrack(t.t)}</span><span class="dur">${t.d}</span></div>`).join('');
   if(info.feat.length) h+=`<div class="feat-row"><span class="lbl">피처링</span>`+info.feat.map(f=>`<span class="f">${escapeHtml(f)}</span>`).join('')+`</div>`;
   box.innerHTML=h;
-}
-function extractFeat(tracks){
-  const out=[];
-  tracks.forEach(t=>{ const m=t.t.match(/\((?:feat\.|featuring|ft\.|with)\s*([^)]+)\)/i);
-    if(m) m[1].split(/\s+&\s+|\s+and\s+/i).forEach(n=>{ n=n.trim().replace(/\.$/,''); if(n&&!out.includes(n)) out.push(n); }); });
-  return out;
-}
-async function loadTracks(al){
-  const box=document.getElementById('mTracks');
-  if(trackCache[al.id]){ renderTracks(al,trackCache[al.id]); return; }
-  box.innerHTML=`<div class="tl-head"><span class="t">수록곡</span></div><div class="tl-msg">불러오는 중…</div>`;
-  try{
-    const data=await jsonp(`https://itunes.apple.com/lookup?id=${al.id}&entity=song&limit=80&country=US`);
-    const tracks=(data.results||[]).filter(x=>x.wrapperType==='track')
-      .map(x=>({n:x.trackNumber,t:x.trackName,d:fmtDur(x.trackTimeMillis||0)}))
-      .sort((a,b)=>(a.n||0)-(b.n||0));
-    const info={tracks,feat:extractFeat(tracks)};
-    trackCache[al.id]=info;
-    if(current&&current.id===al.id) renderTracks(al,info);
-  }catch(e){
-    if(current&&current.id===al.id) box.innerHTML=`<div class="tl-head"><span class="t">수록곡</span></div><div class="tl-msg">수록곡을 불러오지 못했어요.</div>`;
-  }
+  box.querySelectorAll('.tplay[data-prev]').forEach(btn=>btn.addEventListener('click',()=>toggleAudio(btn.dataset.prev,btn)));
 }
 
-function renderModal(){
-  const al=current, done=!!state[al.id];
+function countUp(el,target,dur){
+  let start=null;
+  function step(ts){ if(start==null) start=ts; const p=Math.min(1,(ts-start)/dur); const e=1-Math.pow(1-p,3); el.textContent=(target*e).toFixed(1); if(p<1) requestAnimationFrame(step); else el.textContent=target.toFixed(1); }
+  requestAnimationFrame(step);
+}
+function renderModal(animate){
+  const al=current, done=!!state[al.id]&&!editing;
   const reviews=document.getElementById('mReviews'), composer=document.getElementById('mComposer'), doneNote=document.getElementById('mDone');
   const scoreEl=document.getElementById('mScore'), scoreSub=document.getElementById('mScoreSub');
-  let html='<div class="lock"><svg width="40" height="40"><use href="#i-lock"/></svg><h4>잠겨 있어요</h4><p>다른 사람들의 평점·평론은 <b>네 의견을 남겨야</b> 열려. 솔직하게 먼저 평가해봐!</p></div>';
+  let html='<div class="burst"></div><div class="lock"><svg width="40" height="40"><use href="#i-lock"/></svg><h4>잠겨 있어요</h4><p>다른 사람들의 평점·평론은 <b>네 의견을 남겨야</b> 열려. 솔직하게 먼저 평가해봐!</p></div>';
   if(done){ const m=state[al.id];
-    html+=`<div class="rev mine">${avaHTML("나","mine")}<div><div class="r-top"><span class="r-name">나</span><span class="you">YOU</span><span class="r-stars">${stars(m.stars)}</span></div><div class="r-text">${escapeHtml(m.text)}</div><div class="r-when">방금</div></div></div>`;
+    html+=`<div class="rev mine">${avaHTML("나","mine")}<div style="flex:1"><div class="r-top"><span class="r-name">나</span><span class="you">YOU</span><span class="r-stars">${starsStr(m.stars)}</span></div><div class="r-text">${escapeHtml(m.text)}</div><div class="r-when">방금</div><div class="mine-edit"><button id="revEdit">수정</button><button id="revDel">삭제</button></div></div></div>`;
   }
-  al.reviews.forEach(r=>{ html+=`<div class="rev">${avaHTML(r.name)}<div><div class="r-top"><span class="r-name">${escapeHtml(r.name)}</span><span class="r-stars">${stars(r.stars)}</span></div><div class="r-text">${escapeHtml(r.text)}</div><div class="r-when">${r.when}</div></div></div>`; });
+  al.reviews.forEach(r=>{ html+=`<div class="rev">${avaHTML(r.name)}<div style="flex:1"><div class="r-top"><span class="r-name">${escapeHtml(r.name)}</span><span class="r-stars">${starsStr(r.stars)}</span></div><div class="r-text">${escapeHtml(r.text)}</div><div class="r-when">${r.when}</div></div></div>`; });
   reviews.innerHTML=html;
   if(done){
     reviews.classList.add('unlocked'); composer.classList.add('hide'); doneNote.classList.add('show');
-    scoreEl.innerHTML=avg(al); scoreSub.innerHTML=`<b>${al.reviews.length+1}명</b>의 평균 평점`;
+    const a=avg(al);
+    scoreSub.innerHTML=`${starsHTML(+a)}<br><b>${al.reviews.length+1}명</b>의 평균 평점`;
+    if(animate){
+      reviews.classList.add('reveal'); scoreEl.classList.add('pulse'); scoreEl.textContent='0.0';
+      countUp(scoreEl, parseFloat(a), 900);
+      setTimeout(()=>{ scoreEl.classList.remove('pulse'); reviews.classList.remove('reveal'); }, 1100);
+    } else { scoreEl.textContent=a; }
+    const ed=document.getElementById('revEdit'), dl=document.getElementById('revDel');
+    if(ed) ed.addEventListener('click',startEdit);
+    if(dl) dl.addEventListener('click',deleteReview);
   } else {
-    reviews.classList.remove('unlocked'); composer.classList.remove('hide'); doneNote.classList.remove('show');
+    reviews.classList.remove('unlocked','reveal'); composer.classList.remove('hide'); doneNote.classList.remove('show');
     scoreEl.innerHTML='<span class="locked">?.?</span>'; scoreSub.innerHTML=`평점 <b>잠김</b> · ${al.reviews.length}명이 먼저 평가함`;
-    pendingStars=0; document.querySelectorAll('#mStars button').forEach(b=>b.classList.remove('on'));
-    document.getElementById('mText').value=''; validate();
+    const m=editing?state[al.id]:null;
+    pendingStars=m?m.stars:0;
+    document.querySelectorAll('#mStars button').forEach(b=>{ b.classList.toggle('on',+b.dataset.v<=pendingStars); b.setAttribute('aria-checked',+b.dataset.v<=pendingStars); });
+    document.getElementById('mText').value=m?m.text:''; validate();
   }
 }
+function startEdit(){ editing=true; renderModal(false); document.getElementById('mText').focus(); }
+function deleteReview(){ delete state[current.id]; persist(); editing=false; renderModal(false); renderCardRate(current); renderLevel(); if(viewMode==='mine') showMine(); else if(!searchMode) reorderBoard(); showToast('평가를 삭제했어요'); }
 
-document.querySelectorAll('#mStars button').forEach(btn=>{
-  btn.addEventListener('click',()=>{ pendingStars=+btn.dataset.v;
-    document.querySelectorAll('#mStars button').forEach(b=>b.classList.toggle('on',+b.dataset.v<=pendingStars)); validate(); });
-});
+document.querySelectorAll('#mStars button').forEach(btn=>btn.addEventListener('click',()=>{ pendingStars=+btn.dataset.v; document.querySelectorAll('#mStars button').forEach(b=>{ b.classList.toggle('on',+b.dataset.v<=pendingStars); b.setAttribute('aria-checked',+b.dataset.v<=pendingStars); }); validate(); }));
 const textEl=document.getElementById('mText');
 textEl.addEventListener('input',validate);
-function validate(){
-  const ok=pendingStars>0 && textEl.value.trim().length>=10;
-  document.getElementById('mSubmit').disabled=!ok;
-  document.getElementById('mHint').textContent=ok?'준비 완료! 잠금을 해제해보세요':(pendingStars===0?'먼저 별점을 선택해주세요':`평론 ${Math.max(0,10-textEl.value.trim().length)}자 더 (최소 10자)`);
-}
+function validate(){ const ok=pendingStars>0&&textEl.value.trim().length>=10; document.getElementById('mSubmit').disabled=!ok; document.getElementById('mSubmit').textContent=editing?'수정 완료':'잠금 해제'; document.getElementById('mHint').textContent=ok?'준비 완료! 잠금을 해제해보세요':(pendingStars===0?'먼저 별점을 선택해주세요':`평론 ${Math.max(0,10-textEl.value.trim().length)}자 더 (최소 10자)`); }
+
 document.getElementById('mSubmit').addEventListener('click',()=>{
   if(pendingStars===0||textEl.value.trim().length<10) return;
-  state[current.id]={stars:pendingStars,text:textEl.value.trim()}; persist();
-  renderCardRate(current); renderModal();
-  if(!searchMode) reorderBoard();
+  const al=current; const wasEditing=editing;
+  // prediction game (only on first rating)
+  let predLine='';
+  if(!wasEditing){
+    const community=baseAvg(al); const diff=Math.abs(pendingStars-community); const hit=diff<=0.5;
+    guess.total++; if(hit) guess.hit++; save(GUESS,guess);
+    predLine = hit ? `🎯 예측 적중! 커뮤니티 평균 ${community.toFixed(1)}` : (pendingStars>community ? `커뮤니티 평균 ${community.toFixed(1)} — 남들은 좀 더 짰어` : `커뮤니티 평균 ${community.toFixed(1)} — 남들은 더 후했어`);
+  }
+  const prevN=Object.keys(state).length; const prevLv=levelInfo(prevN).name;
+  state[al.id]={stars:pendingStars,text:textEl.value.trim(),ts:Date.now()}; persist();
+  editing=false;
+  if(!wasEditing){ bumpStreak(); }
+  renderLevel(); checkNewBadges();
+  document.getElementById('mDoneText').textContent = wasEditing ? '평가를 수정했어요.' : (predLine || '평가 완료! 다른 사람들 의견이 열렸어.');
+  renderModal(!wasEditing);
+  renderCardRate(al);
+  if(viewMode!=='mine' && !searchMode) reorderBoard();
+  // level up toast
+  const newLv=levelInfo(Object.keys(state).length).name;
+  if(!wasEditing && newLv!==prevLv) setTimeout(()=>showToast(`🎉 레벨 업! 「${newLv}」`, true), 700);
 });
-document.getElementById('closeBtn').addEventListener('click',closeModal);
-overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&overlay.classList.contains('open')) closeModal(); });
-document.getElementById('retryBtn').addEventListener('click',loadBoard);
 
-/* ============ onboarding (Watcha-style first-visit taste setup) ============ */
+document.getElementById('closeBtn').addEventListener('click',()=>closeModal());
+document.getElementById('mPrev').addEventListener('click',()=>navAlbum(-1));
+document.getElementById('mNext').addEventListener('click',()=>navAlbum(1));
+document.getElementById('mPlay').addEventListener('click',async()=>{
+  const pb=document.getElementById('mPlay');
+  if(curBtn===pb){ stopAudio(); return; }
+  pb.classList.add('loading'); const url=await leadPreview(current); pb.classList.remove('loading');
+  if(url) toggleAudio(url,pb); else showToast('미리듣기를 찾지 못했어요');
+});
+document.getElementById('mShare').addEventListener('click',async()=>{
+  const al=current; const url=location.origin+location.pathname+'#album='+al.id;
+  const data={title:'TMT — '+al.title, text:`${al.title} · ${al.artist} — TMT Album Board에서 평가해봐`, url};
+  if(navigator.share){ try{ await navigator.share(data); }catch(e){} }
+  else { try{ await navigator.clipboard.writeText(url); showToast('🔗 링크를 복사했어요'); }catch(e){ showToast(url); } }
+});
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
+overlay.addEventListener('keydown',e=>{
+  if(e.key!=='Tab') return;
+  const f=overlay.querySelectorAll('button:not(:disabled),textarea,[href],input,[tabindex]:not([tabindex="-1"])');
+  const list=[...f].filter(el=>el.offsetParent!==null);
+  if(!list.length) return; const first=list[0], last=list[list.length-1];
+  if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
+document.addEventListener('keydown',e=>{
+  if(!overlay.classList.contains('open')) return;
+  if(e.key==='Escape') closeModal();
+  else if(e.key==='ArrowLeft' && document.activeElement.tagName!=='TEXTAREA') navAlbum(-1);
+  else if(e.key==='ArrowRight' && document.activeElement.tagName!=='TEXTAREA') navAlbum(1);
+});
+window.addEventListener('popstate',e=>{
+  const m=location.hash.match(/#album=(\d+)/);
+  if(m){ openModal(+m[1], true); }
+  else if(overlay.classList.contains('open')) closeModal(true);
+});
+document.getElementById('retryBtn').addEventListener('click',()=>{ if(lastErr.mode==='search') runSearch(lastErr.q); else if(lastErr.mode==='chart') loadChart(); else loadBoard(); });
+
+/* ===================== data export / import / clear / share ===================== */
+function exportData(){
+  const blob=new Blob([JSON.stringify({reviews:state,prefs:getPrefs(),guess,streak},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tmt-taste-backup.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  showToast('💾 평가를 내보냈어요');
+}
+function importData(){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+  inp.onchange=()=>{ const f=inp.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result); if(d.reviews){ state={...state,...d.reviews}; persist(); } if(d.prefs) setPrefs(d.prefs); if(d.guess){guess=d.guess;save(GUESS,guess);} if(d.streak){streak=d.streak;save(STREAK,streak);} renderLevel(); showMine(); showToast('✅ 가져왔어요'); }catch(e){ showToast('파일을 읽지 못했어요'); } }; r.readAsText(f); };
+  inp.click();
+}
+function clearData(){
+  if(!confirm('모든 평가 기록을 지울까요? 되돌릴 수 없어요.')) return;
+  state={}; persist(); guess={hit:0,total:0}; save(GUESS,guess); save(BADGES,[]);
+  renderLevel(); showMine(); showToast('평가 기록을 초기화했어요');
+}
+function shareTaste(){
+  const n=Object.keys(state).length; const lv=levelInfo(n).name;
+  const vals=Object.values(state).map(r=>r.stars); const mean=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'-';
+  const gt={}; Object.keys(state).forEach(id=>{ const al=albumIndex[id]; if(al&&al.genre) gt[al.genre]=(gt[al.genre]||0)+1; });
+  const top=Object.entries(gt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join(', ')||'-';
+  const text=`🎧 내 TMT 취향 카드\n등급: ${lv}\n평가: ${n}장 · 평균 ${mean}★\n최애 장르: ${top}\n${location.origin+location.pathname}`;
+  if(navigator.share){ navigator.share({title:'내 TMT 취향',text}).catch(()=>{}); }
+  else { navigator.clipboard.writeText(text).then(()=>showToast('🔗 취향 카드를 복사했어요')).catch(()=>showToast('복사 실패')); }
+}
+
+/* ===================== onboarding ===================== */
 const onb=document.getElementById('onb');
 const selGenres=new Set(), selMoods=new Set(), onbRatings={};
-const GRADS=[
-  'radial-gradient(120% 120% at 28% 22%,#6d6d6d,#141414)',
-  'linear-gradient(140deg,#3a3a3a,#0d0d0d)',
-  'repeating-radial-gradient(circle at 50% 58%,#2a2a2a 0 6px,#141414 6px 13px)',
-  'linear-gradient(104deg,#141414 0 52%,#3d3d3d 52% 100%)',
-  'repeating-linear-gradient(62deg,#1b1b1b 0 9px,#2c2c2c 9px 18px)',
-  'linear-gradient(160deg,#585858,#161616)',
-  'radial-gradient(circle at center,#2e2e2e 1.4px,transparent 1.6px) 0 0/13px 13px,#161616',
-  'linear-gradient(135deg,#2a2a2a,#0d0d0d)',
-  'conic-gradient(from 210deg at 32% 30%,#3a3a3a,#111,#3a3a3a)',
-  'linear-gradient(180deg,#4a4a4a,#111)'
-];
-function goStep(i){
-  document.querySelectorAll('.onb-step').forEach(s=>s.classList.toggle('on',+s.dataset.step===i));
-  document.querySelectorAll('.onb-prog i').forEach((d,idx)=>d.classList.toggle('on',idx<=i));
-  onb.scrollTop=0;
-}
+const GRADS=['radial-gradient(120% 120% at 28% 22%,#6d6d6d,#141414)','linear-gradient(140deg,#3a3a3a,#0d0d0d)','repeating-radial-gradient(circle at 50% 58%,#2a2a2a 0 6px,#141414 6px 13px)','linear-gradient(104deg,#141414 0 52%,#3d3d3d 52% 100%)','repeating-linear-gradient(62deg,#1b1b1b 0 9px,#2c2c2c 9px 18px)','linear-gradient(160deg,#585858,#161616)','radial-gradient(circle at center,#2e2e2e 1.4px,transparent 1.6px) 0 0/13px 13px,#161616','linear-gradient(135deg,#2a2a2a,#0d0d0d)','conic-gradient(from 210deg at 32% 30%,#3a3a3a,#111,#3a3a3a)','linear-gradient(180deg,#4a4a4a,#111)'];
+function goStep(i){ document.querySelectorAll('.onb-step').forEach(s=>s.classList.toggle('on',+s.dataset.step===i)); document.querySelectorAll('.onb-prog i').forEach((d,idx)=>d.classList.toggle('on',idx<=i)); onb.scrollTop=0; }
 function buildOnb(){
   const card=(bg,attr,label,i)=>`<button class="oc" ${attr} style="background:${bg};animation-delay:${(i||0)*45}ms"><div class="scr"></div><div class="chk"><svg width="13" height="13"><use href="#i-check"/></svg></div><div class="lbl">${escapeHtml(label)}</div></button>`;
   const g=document.getElementById('onbGenres');
   g.innerHTML=GENRES.map((x,i)=>card(GRADS[i%GRADS.length],`data-id="${x.id}"`,x.ko,i)).join('');
-  g.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const id=+b.dataset.id;
-    if(selGenres.has(id)){selGenres.delete(id);b.classList.remove('sel');} else {selGenres.add(id);b.classList.add('sel');}
-    document.getElementById('onbNext1').disabled=selGenres.size===0; });
+  g.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const id=+b.dataset.id; if(selGenres.has(id)){selGenres.delete(id);b.classList.remove('sel');}else{selGenres.add(id);b.classList.add('sel');} document.getElementById('onbNext1').disabled=selGenres.size===0; });
   const m=document.getElementById('onbMoods');
   m.innerHTML=MOODS.map((x,i)=>card(GRADS[(i+3)%GRADS.length],`data-m="${escapeHtml(x)}"`,x,i)).join('');
-  m.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const v=b.dataset.m;
-    if(selMoods.has(v)){selMoods.delete(v);b.classList.remove('sel');} else {selMoods.add(v);b.classList.add('sel');}
-    document.getElementById('onbNext2').disabled=selMoods.size===0; });
+  m.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const v=b.dataset.m; if(selMoods.has(v)){selMoods.delete(v);b.classList.remove('sel');}else{selMoods.add(v);b.classList.add('sel');} });
   document.getElementById('onbNext1').addEventListener('click',()=>goStep(1));
   document.getElementById('onbBack2').addEventListener('click',()=>goStep(0));
   document.getElementById('onbNext2').addEventListener('click',()=>{ goStep(2); loadRecs(); });
   document.getElementById('onbBack3').addEventListener('click',()=>goStep(1));
   document.getElementById('onbSkip').addEventListener('click',finishOnb);
+  document.getElementById('onbSkip2').addEventListener('click',finishOnb);
+  document.getElementById('onbSkip3').addEventListener('click',finishOnb);
   document.getElementById('onbStart').addEventListener('click',finishOnb);
   document.getElementById('onbReroll').addEventListener('click',rerollRecs);
 }
-function setCardImg(el,cover){ if(!el||!cover) return; const im=new Image();
-  im.onload=()=>{ el.style.backgroundImage=`url("${cover}")`; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.style.backgroundRepeat='no-repeat'; }; im.src=cover; }
-async function applyGenreImages(){
-  const cards=[...document.querySelectorAll('#onbGenres .oc')];
-  await Promise.all(GENRES.map(async(g,i)=>{
-    let list=await fetchGenre(g.id,REGION,10);
-    if(!list||!list.length) list=await fetchGenre(g.id,'us',10);
-    setCardImg(cards[i], list&&list[0]&&list[0].cover);
-  }));
-}
-async function applyMoodImages(){
-  const cards=[...document.querySelectorAll('#onbMoods .oc')];
-  let list=await fetchChart(REGION); if(!list||!list.length) list=await fetchChart('us');
-  if(!list||!list.length) return;
-  cards.forEach((c,i)=>{ const it=list[(i*3+1)%list.length]; setCardImg(c, it&&it.cover); });
-}
+function setCardImg(el,cover){ if(!el||!cover) return; const im=new Image(); im.onload=()=>{ el.style.backgroundImage=`url("${cover}")`; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.style.backgroundRepeat='no-repeat'; }; im.src=cover; }
+async function applyGenreImages(){ const cards=[...document.querySelectorAll('#onbGenres .oc')]; await Promise.all(GENRES.map(async(g,i)=>{ let list=await fetchGenre(g.id,REGION,10); if(!list||!list.length) list=await fetchGenre(g.id,'us',10); setCardImg(cards[i],list&&list[0]&&list[0].cover); })); }
+async function applyMoodImages(){ const cards=[...document.querySelectorAll('#onbMoods .oc')]; let list=chartCache||await fetchChart(REGION); if(!list||!list.length) list=await fetchChart('us'); if(!list||!list.length) return; cards.forEach((c,i)=>{ const it=list[(i*3+1)%list.length]; setCardImg(c,it&&it.cover); }); }
 function loadOnbImages(){ applyGenreImages(); applyMoodImages(); }
-async function ensureRegion(){ const l=await fetchChart(REGION); if(!l||!l.length) REGION='us'; }
 let recPool=[], recOffset=0;
 async function loadRecs(){
   const box=document.getElementById('onbRecs');
   box.innerHTML='<div class="countnote" style="grid-column:1/-1;padding:30px 0">추천 앨범 불러오는 중…</div>';
   let list=await fetchByGenres([...selGenres],REGION);
   if(!list||!list.length) list=await fetchByGenres([...selGenres],'us');
-  if(!list||!list.length) list=await fetchChart(REGION);
+  if(!list||!list.length) list=chartCache||await fetchChart(REGION);
   if(!list||!list.length) list=await fetchChart('us');
   recPool=list||[]; recOffset=0;
   if(!recPool.length){ box.innerHTML='<div class="countnote" style="grid-column:1/-1;padding:30px 0">추천을 불러오지 못했어요. 그냥 시작해도 돼요.</div>'; document.getElementById('onbStart').disabled=false; return; }
   renderRecs();
 }
-function updateRecCount(){ const n=Object.keys(onbRatings).length;
-  document.getElementById('onbCount').innerHTML=`<b>${n}</b>개 평가됨`;
-  document.getElementById('onbStart').disabled=n<3; }
+function updateRecCount(){ const n=Object.keys(onbRatings).length; document.getElementById('onbCount').innerHTML=`<b>${n}</b>개 평가됨`; document.getElementById('onbStart').disabled=n<3; }
 function renderRecs(){
-  const box=document.getElementById('onbRecs'), n=recPool.length;
-  const recs=[]; for(let k=0;k<Math.min(9,n);k++) recs.push(recPool[(recOffset+k)%n]);
-  box.innerHTML=recs.map((al,i)=>`
-    <div class="rec" data-id="${al.id}" style="animation-delay:${i*45}ms">
-      <div class="rc"><img src="${al.cover}" alt="" loading="lazy"/></div>
-      <div class="rt">${escapeHtml(al.title)}</div>
-      <div class="ra">${escapeHtml(al.artist)}</div>
-      <div class="rs">${[1,2,3,4,5].map(v=>`<button data-v="${v}" class="${onbRatings[al.id]>=v?'on':''}" aria-label="${v}점">★</button>`).join('')}</div>
-    </div>`).join('');
-  box.querySelectorAll('.rec').forEach(card=>{
-    const id=+card.dataset.id;
-    card.querySelectorAll('.rs button').forEach(btn=>btn.addEventListener('click',()=>{
-      const v=+btn.dataset.v; onbRatings[id]=v;
-      card.querySelectorAll('.rs button').forEach(b=>b.classList.toggle('on',+b.dataset.v<=v));
-      updateRecCount();
-    }));
-  });
+  const box=document.getElementById('onbRecs'), n=recPool.length; const recs=[]; for(let k=0;k<Math.min(9,n);k++) recs.push(recPool[(recOffset+k)%n]);
+  box.innerHTML=recs.map((al,i)=>{ albumIndex[al.id]=al; return `<div class="rec" data-id="${al.id}" style="animation-delay:${i*45}ms"><div class="rc"><img src="${al.cover}" alt="" loading="lazy" onerror="this.style.opacity=0"/></div><div class="rt">${escapeHtml(al.title)}</div><div class="ra">${escapeHtml(al.artist)}</div><div class="rs">${[1,2,3,4,5].map(v=>`<button data-v="${v}" class="${onbRatings[al.id]>=v?'on':''}" aria-label="${v}점">★</button>`).join('')}</div></div>`; }).join('');
+  box.querySelectorAll('.rec').forEach(card=>{ const id=+card.dataset.id; card.querySelectorAll('.rs button').forEach(btn=>btn.addEventListener('click',()=>{ const v=+btn.dataset.v; onbRatings[id]=v; card.querySelectorAll('.rs button').forEach(b=>b.classList.toggle('on',+b.dataset.v<=v)); updateRecCount(); })); });
 }
 function rerollRecs(){ if(recPool.length>1){ recOffset=(recOffset+9)%recPool.length; renderRecs(); } }
-function finishOnb(){
-  setPrefs({ genres:[...selGenres], moods:[...selMoods], ratings:onbRatings });
-  onb.classList.remove('show'); document.body.style.overflow='';
-  loadBoard();
-}
+function finishOnb(){ setPrefs({genres:[...selGenres],moods:[...selMoods],ratings:onbRatings}); onb.classList.remove('show'); document.body.style.overflow=''; navTo('board'); }
 function startOnb(){ goStep(0); onb.classList.add('show'); document.body.style.overflow='hidden'; }
 
 document.getElementById('resetPrefs').addEventListener('click',()=>{
   try{ localStorage.removeItem(PREFS); }catch(e){}
   selGenres.clear(); selMoods.clear(); for(const k in onbRatings) delete onbRatings[k];
   document.querySelectorAll('.onb .oc').forEach(o=>o.classList.remove('sel'));
-  document.getElementById('onbNext1').disabled=true; document.getElementById('onbNext2').disabled=true; document.getElementById('onbStart').disabled=true;
+  document.getElementById('onbNext1').disabled=true; document.getElementById('onbStart').disabled=true;
   document.getElementById('onbCount').innerHTML='<b>0</b>개 평가됨';
   startOnb(); loadOnbImages();
 });
 
-/* ============ init ============ */
+/* ===================== init ===================== */
 (async function boot(){
   REGION=regionCode();
-  buildOnb();
-  await ensureRegion();           // fall back to a working region if visitor's feed is down
-  if(getPrefs()){ loadBoard(); }
+  buildOnb(); renderLevel();
+  await ensureRegion();
+  const hash=location.hash.match(/#album=(\d+)/);
+  if(getPrefs()){ await loadBoard(); }
   else { startOnb(); loadOnbImages(); }
+  if(hash){ openModal(+hash[1], true); }
 })();
 </script>
 </body>
