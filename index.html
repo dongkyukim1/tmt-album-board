@@ -123,6 +123,59 @@
     display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   footer .logo{font-weight:700;letter-spacing:.18em;color:var(--muted2)}
 
+  /* onboarding */
+  .onb{position:fixed;inset:0;z-index:2000;background:radial-gradient(120% 70% at 50% -10%,rgba(60,60,66,.5),#000 60%),#000;display:none;overflow-y:auto}
+  .onb.show{display:block;animation:fade .3s}
+  .onb-inner{max-width:780px;margin:0 auto;width:100%;padding:56px 30px 64px;min-height:100%}
+  .onb-brand{font-weight:700;letter-spacing:.18em;font-size:15px}
+  .onb-prog{display:flex;gap:6px;margin:26px 0 30px}
+  .onb-prog i{width:30px;height:4px;border-radius:2px;background:#2a2a2c;transition:background .3s}
+  .onb-prog i.on{background:var(--pill)}
+  .onb-step{display:none}
+  .onb-step.on{display:block;animation:fade .3s}
+  .onb .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .onb h2{font-size:32px;font-weight:600;letter-spacing:-.02em;margin-top:10px;background:linear-gradient(180deg,#fff,#c7c7cc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .onb .sub{color:var(--muted2);margin-top:10px;font-size:15px}
+  .onb .sub b{color:var(--txt)}
+  .onb .opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .onb .opt{padding:11px 18px;border:1px solid var(--line2);border-radius:980px;font-size:14px;color:var(--txt);cursor:pointer;transition:all .15s;background:rgba(255,255,255,.03)}
+  .onb .opt.sel{background:var(--pill);color:#000;border-color:var(--pill);font-weight:600}
+  .onb .opt:not(.sel):hover{border-color:#4a4a4e}
+  .onb-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:28px}
+  .oc{position:relative;aspect-ratio:1/1;border-radius:14px;overflow:hidden;cursor:pointer;border:none;
+    display:flex;align-items:flex-end;padding:14px;text-align:left;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);transition:transform .25s,box-shadow .25s}
+  .oc:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 12px 30px rgba(0,0,0,.5)}
+  .oc{background-size:cover;background-position:center}
+  .oc .scr{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12) 30%,rgba(0,0,0,.72))}
+  .oc .lbl{position:relative;z-index:2;font-size:15px;font-weight:600;letter-spacing:-.01em;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+  .oc .chk{position:absolute;top:10px;right:10px;z-index:3;width:24px;height:24px;border-radius:50%;
+    background:var(--pill);display:none;align-items:center;justify-content:center}
+  .oc .chk svg{stroke:#000}
+  .oc.sel{box-shadow:0 0 0 2px var(--pill),0 12px 30px rgba(0,0,0,.55)}
+  .oc.sel .chk{display:flex}
+  @media (max-width:760px){.onb-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:460px){.onb-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .onb-foot{display:flex;align-items:center;gap:12px;margin-top:42px}
+  .onb .next{margin-left:auto;background:var(--pill);color:#000;border:none;border-radius:980px;padding:12px 28px;font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s,transform .15s}
+  .onb .next:disabled{opacity:.3;cursor:not-allowed}
+  .onb .next:not(:disabled):hover{transform:translateY(-2px)}
+  .onb .back{background:none;border:1px solid var(--line2);color:var(--txt);border-radius:980px;padding:12px 20px;font-size:14px;cursor:pointer}
+  .onb .skip{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .rec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:26px}
+  .rec .rc{aspect-ratio:1;border-radius:10px;overflow:hidden;background:#141416;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+  .rec .rc img{width:100%;height:100%;object-fit:cover;display:block}
+  .rec .rt{font-size:13px;font-weight:600;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rec .ra{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rec .rs{display:flex;gap:4px;margin-top:7px}
+  .rec .rs button{background:none;border:none;color:rgba(255,255,255,.2);font-size:18px;cursor:pointer;padding:0;line-height:1;transition:transform .1s,color .1s}
+  .rec .rs button.on{color:var(--txt)}
+  .rec .rs button:hover{transform:scale(1.2)}
+  .onb .countnote{color:var(--muted)}
+  .onb .countnote b{color:var(--txt)}
+  .reset-link{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:inherit}
+  @media (max-width:600px){.rec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.onb h2{font-size:26px}}
+
   /* modal */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);z-index:1000;
     display:none;align-items:center;justify-content:center;padding:24px}
@@ -265,8 +318,40 @@
 
     <footer>
       <span class="logo">TMT</span>
-      <span>취향을 공유하고 싶은 사람들 · 앨범 데이터 © Apple iTunes</span>
+      <span>취향을 공유하고 싶은 사람들 · 앨범 데이터 © Apple iTunes · <button class="reset-link" id="resetPrefs">취향 다시 설정</button></span>
     </footer>
+  </div>
+
+  <!-- onboarding (first visit) -->
+  <div class="onb" id="onb">
+    <div class="onb-inner">
+      <div class="onb-brand">TMT</div>
+      <div class="onb-prog"><i class="on"></i><i></i><i></i></div>
+
+      <div class="onb-step on" data-step="0">
+        <div class="eyebrow">취향 설정 · 1 / 3</div>
+        <h2>어떤 장르를 좋아하세요?</h2>
+        <div class="sub">좋아하는 장르를 골라줘. 추천에 바로 반영돼요. <b>(복수 선택)</b></div>
+        <div class="onb-cards" id="onbGenres"></div>
+        <div class="onb-foot"><button class="skip" id="onbSkip">건너뛰고 바로 둘러보기</button><button class="next" id="onbNext1" disabled>다음</button></div>
+      </div>
+
+      <div class="onb-step" data-step="1">
+        <div class="eyebrow">취향 설정 · 2 / 3</div>
+        <h2>요즘 어떤 무드가 끌려요?</h2>
+        <div class="sub">지금 듣고 싶은 분위기를 골라줘. <b>(복수 선택)</b></div>
+        <div class="onb-cards" id="onbMoods"></div>
+        <div class="onb-foot"><button class="back" id="onbBack2">이전</button><button class="next" id="onbNext2" disabled>다음</button></div>
+      </div>
+
+      <div class="onb-step" data-step="2">
+        <div class="eyebrow">취향 설정 · 3 / 3</div>
+        <h2>들어본 앨범에 별점을 남겨주세요</h2>
+        <div class="sub">최소 <b>3개</b>만 평가하면 맞춤 보드를 만들어 줄게요. · <span class="countnote" id="onbCount"><b>0</b>개 평가됨</span></div>
+        <div class="rec-grid" id="onbRecs"></div>
+        <div class="onb-foot"><button class="back" id="onbBack3">이전</button><button class="next" id="onbStart" disabled>내 보드 시작하기</button></div>
+      </div>
+    </div>
   </div>
 
   <div class="overlay" id="overlay">
@@ -345,6 +430,13 @@ const STORE='tmt_reviews_v1';
 let state={}; try{ state=JSON.parse(localStorage.getItem(STORE)||'{}'); }catch(e){ state={}; }
 function persist(){ try{ localStorage.setItem(STORE,JSON.stringify(state)); }catch(e){} }
 
+/* taste preferences (onboarding) */
+const PREFS='tmt_prefs_v1';
+function getPrefs(){ try{ return JSON.parse(localStorage.getItem(PREFS)||'null'); }catch(e){ return null; } }
+function setPrefs(p){ try{ localStorage.setItem(PREFS,JSON.stringify(p)); }catch(e){} }
+const GENRES=[{id:18,ko:'힙합'},{id:14,ko:'팝'},{id:21,ko:'록'},{id:15,ko:'R&B / 소울'},{id:20,ko:'얼터너티브'},{id:7,ko:'일렉트로닉'},{id:17,ko:'댄스'},{id:11,ko:'재즈'},{id:51,ko:'K-팝'},{id:6,ko:'컨트리'}];
+const MOODS=['신나는','차분한','감성적인','몽환적인','강렬한','집중되는','설레는','쓸쓸한'];
+
 /* helpers */
 const stars=n=>"★★★★★☆☆☆☆☆".slice(5-n,10-n);
 const ICON_LOCK='<svg width="11" height="11"><use href="#i-lock"/></svg>';
@@ -391,23 +483,44 @@ async function fetchChart(region){
     const res=await fetch(`https://itunes.apple.com/${region}/rss/topalbums/limit=60/json`);
     if(!res.ok) return null;
     const data=await res.json();
-    const entries=(data.feed&&data.feed.entry)||[];
+    let entries=(data.feed&&data.feed.entry)||[]; if(!Array.isArray(entries)) entries=[entries];
     return entries.map((e,i)=>rssToAlbum(e,i)).filter(Boolean);
   }catch(e){ return null; }
 }
+async function fetchGenre(genreId,region,limit){
+  try{
+    const res=await fetch(`https://itunes.apple.com/${region}/rss/topalbums/genre=${genreId}/limit=${limit||25}/json`);
+    if(!res.ok) return null;
+    const d=await res.json(); let e=(d.feed&&d.feed.entry)||[]; if(!Array.isArray(e)) e=[e];
+    return e.map((x,i)=>rssToAlbum(x,i)).filter(Boolean);
+  }catch(e){ return null; }
+}
+async function fetchByGenres(ids,region){
+  const lists=(await Promise.all(ids.map(id=>fetchGenre(id,region)))).filter(l=>l&&l.length);
+  if(!lists.length) return null;
+  const merged=[], seen=new Set();
+  for(let i=0;i<40;i++){ for(const l of lists){ const a=l[i]; if(a&&!seen.has(a.id)){ seen.add(a.id); merged.push(a); } } }
+  return merged;
+}
 
+let BOARD_TITLE='이번 주 보드';
 async function loadBoard(){
   show('emptyState',false); show('errorState',false); searchMode=false;
   document.getElementById('chips').style.display='';
   skeletons(8);
-  REGION=regionCode();
-  let list=await fetchChart(REGION);
-  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); }
+  const prefs=getPrefs();
+  let list=null, personalized=false, count=8;
+  if(prefs && prefs.genres && prefs.genres.length){
+    list=await fetchByGenres(prefs.genres,REGION);
+    if(!list||!list.length) list=await fetchByGenres(prefs.genres,'us');
+    personalized=!!(list&&list.length); count=12;
+  }
+  if(!list||!list.length){ list=await fetchChart(REGION); personalized=false; count=8; }
+  if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); personalized=false; count=8; }
   if(!list||!list.length){ grid.innerHTML=''; show('errorState',true); return; }
-  // 8 newest by release date (localized chart)
   list.sort((a,b)=>(b.released||'').localeCompare(a.released||''));
-  ALBUMS=list.slice(0,8);
-  // HOT = top 3 by chart rank among the chosen
+  ALBUMS=list.slice(0,count);
+  BOARD_TITLE = personalized ? '당신을 위한 추천' : (REGION.toUpperCase()+' 최신 인기 앨범');
   const hot=new Set([...ALBUMS].sort((a,b)=>a.chartRank-b.chartRank).slice(0,3).map(a=>a.id));
   ALBUMS.forEach(a=>a.hot=hot.has(a.id));
   showBoard();
@@ -466,7 +579,7 @@ function sortedBoard(){
 }
 function showBoard(){
   searchMode=false;
-  document.getElementById('boardTitle').textContent=`${REGION.toUpperCase()} 최신 인기 앨범`;
+  document.getElementById('boardTitle').textContent=BOARD_TITLE;
   document.getElementById('chips').style.display='';
   document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.sort===sortMode));
   show('emptyState',false); show('errorState',false);
@@ -621,7 +734,113 @@ overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&overlay.classList.contains('open')) closeModal(); });
 document.getElementById('retryBtn').addEventListener('click',loadBoard);
 
-loadBoard();
+/* ============ onboarding (Watcha-style first-visit taste setup) ============ */
+const onb=document.getElementById('onb');
+const selGenres=new Set(), selMoods=new Set(), onbRatings={};
+const GRADS=[
+  'radial-gradient(120% 120% at 28% 22%,#6d6d6d,#141414)',
+  'linear-gradient(140deg,#3a3a3a,#0d0d0d)',
+  'repeating-radial-gradient(circle at 50% 58%,#2a2a2a 0 6px,#141414 6px 13px)',
+  'linear-gradient(104deg,#141414 0 52%,#3d3d3d 52% 100%)',
+  'repeating-linear-gradient(62deg,#1b1b1b 0 9px,#2c2c2c 9px 18px)',
+  'linear-gradient(160deg,#585858,#161616)',
+  'radial-gradient(circle at center,#2e2e2e 1.4px,transparent 1.6px) 0 0/13px 13px,#161616',
+  'linear-gradient(135deg,#2a2a2a,#0d0d0d)',
+  'conic-gradient(from 210deg at 32% 30%,#3a3a3a,#111,#3a3a3a)',
+  'linear-gradient(180deg,#4a4a4a,#111)'
+];
+function goStep(i){
+  document.querySelectorAll('.onb-step').forEach(s=>s.classList.toggle('on',+s.dataset.step===i));
+  document.querySelectorAll('.onb-prog i').forEach((d,idx)=>d.classList.toggle('on',idx<=i));
+  onb.scrollTop=0;
+}
+function buildOnb(){
+  const card=(bg,attr,label)=>`<button class="oc" ${attr} style="background:${bg}"><div class="scr"></div><div class="chk"><svg width="13" height="13"><use href="#i-check"/></svg></div><div class="lbl">${escapeHtml(label)}</div></button>`;
+  const g=document.getElementById('onbGenres');
+  g.innerHTML=GENRES.map((x,i)=>card(GRADS[i%GRADS.length],`data-id="${x.id}"`,x.ko)).join('');
+  g.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const id=+b.dataset.id;
+    if(selGenres.has(id)){selGenres.delete(id);b.classList.remove('sel');} else {selGenres.add(id);b.classList.add('sel');}
+    document.getElementById('onbNext1').disabled=selGenres.size===0; });
+  const m=document.getElementById('onbMoods');
+  m.innerHTML=MOODS.map((x,i)=>card(GRADS[(i+3)%GRADS.length],`data-m="${escapeHtml(x)}"`,x)).join('');
+  m.addEventListener('click',e=>{ const b=e.target.closest('.oc'); if(!b) return; const v=b.dataset.m;
+    if(selMoods.has(v)){selMoods.delete(v);b.classList.remove('sel');} else {selMoods.add(v);b.classList.add('sel');}
+    document.getElementById('onbNext2').disabled=selMoods.size===0; });
+  document.getElementById('onbNext1').addEventListener('click',()=>goStep(1));
+  document.getElementById('onbBack2').addEventListener('click',()=>goStep(0));
+  document.getElementById('onbNext2').addEventListener('click',()=>{ goStep(2); loadRecs(); });
+  document.getElementById('onbBack3').addEventListener('click',()=>goStep(1));
+  document.getElementById('onbSkip').addEventListener('click',finishOnb);
+  document.getElementById('onbStart').addEventListener('click',finishOnb);
+}
+function setCardImg(el,cover){ if(!el||!cover) return; const im=new Image();
+  im.onload=()=>{ el.style.backgroundImage=`url("${cover}")`; }; im.src=cover; }
+async function applyGenreImages(){
+  const cards=[...document.querySelectorAll('#onbGenres .oc')];
+  await Promise.all(GENRES.map(async(g,i)=>{
+    let list=await fetchGenre(g.id,REGION,10);
+    if(!list||!list.length) list=await fetchGenre(g.id,'us',10);
+    setCardImg(cards[i], list&&list[0]&&list[0].cover);
+  }));
+}
+async function applyMoodImages(){
+  const cards=[...document.querySelectorAll('#onbMoods .oc')];
+  let list=await fetchChart(REGION); if(!list||!list.length) list=await fetchChart('us');
+  if(!list||!list.length) return;
+  cards.forEach((c,i)=>{ const it=list[(i*3+1)%list.length]; setCardImg(c, it&&it.cover); });
+}
+function loadOnbImages(){ applyGenreImages(); applyMoodImages(); }
+async function ensureRegion(){ const l=await fetchChart(REGION); if(!l||!l.length) REGION='us'; }
+async function loadRecs(){
+  const box=document.getElementById('onbRecs');
+  box.innerHTML='<div class="countnote" style="grid-column:1/-1;padding:30px 0">추천 앨범 불러오는 중…</div>';
+  let list=await fetchByGenres([...selGenres],REGION);
+  if(!list||!list.length) list=await fetchChart(REGION);
+  if(!list||!list.length) list=await fetchChart('us');
+  if(!list||!list.length){ box.innerHTML='<div class="countnote" style="grid-column:1/-1;padding:30px 0">추천을 불러오지 못했어요. 그냥 시작해도 돼요.</div>'; document.getElementById('onbStart').disabled=false; return; }
+  const recs=list.slice(0,9);
+  box.innerHTML=recs.map(al=>`
+    <div class="rec" data-id="${al.id}">
+      <div class="rc"><img src="${al.cover}" alt="" loading="lazy"/></div>
+      <div class="rt">${escapeHtml(al.title)}</div>
+      <div class="ra">${escapeHtml(al.artist)}</div>
+      <div class="rs">${[1,2,3,4,5].map(v=>`<button data-v="${v}" aria-label="${v}점">★</button>`).join('')}</div>
+    </div>`).join('');
+  box.querySelectorAll('.rec').forEach(card=>{
+    const id=+card.dataset.id;
+    card.querySelectorAll('.rs button').forEach(btn=>btn.addEventListener('click',()=>{
+      const v=+btn.dataset.v; onbRatings[id]=v;
+      card.querySelectorAll('.rs button').forEach(b=>b.classList.toggle('on',+b.dataset.v<=v));
+      const n=Object.keys(onbRatings).length;
+      document.getElementById('onbCount').innerHTML=`<b>${n}</b>개 평가됨`;
+      document.getElementById('onbStart').disabled=n<3;
+    }));
+  });
+}
+function finishOnb(){
+  setPrefs({ genres:[...selGenres], moods:[...selMoods], ratings:onbRatings });
+  onb.classList.remove('show'); document.body.style.overflow='';
+  loadBoard();
+}
+function startOnb(){ goStep(0); onb.classList.add('show'); document.body.style.overflow='hidden'; }
+
+document.getElementById('resetPrefs').addEventListener('click',()=>{
+  try{ localStorage.removeItem(PREFS); }catch(e){}
+  selGenres.clear(); selMoods.clear(); for(const k in onbRatings) delete onbRatings[k];
+  document.querySelectorAll('.onb .oc').forEach(o=>o.classList.remove('sel'));
+  document.getElementById('onbNext1').disabled=true; document.getElementById('onbNext2').disabled=true; document.getElementById('onbStart').disabled=true;
+  document.getElementById('onbCount').innerHTML='<b>0</b>개 평가됨';
+  startOnb(); loadOnbImages();
+});
+
+/* ============ init ============ */
+(async function boot(){
+  REGION=regionCode();
+  buildOnb();
+  await ensureRegion();           // fall back to a working region if visitor's feed is down
+  if(getPrefs()){ loadBoard(); }
+  else { startOnb(); loadOnbImages(); }
+})();
 </script>
 </body>
 </html>
