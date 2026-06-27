@@ -794,7 +794,11 @@ sb.auth.onAuthStateChange(async (_event, sess)=>{
     myProfile=data||null;
     renderAuthUI();
     if(!myProfile){ openAuth(); }      // logged in but no nickname yet
-    else { await syncMyReviews(); if(current) loadReviewsUI(current); }
+    else {
+      // 로그인 성공 → 모달이 열려 있으면 닫고 메시지 정리
+      if(authOverlay.classList.contains('open')){ closeAuth(); document.getElementById('authMsg').textContent=''; }
+      await syncMyReviews(); if(current) loadReviewsUI(current);
+    }
   } else {
     myProfile=null; renderAuthUI();
   }
