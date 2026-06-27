@@ -394,6 +394,11 @@
   .auth-btn{width:100%;margin-top:14px;background:var(--pill);color:#000;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
   .auth-btn:hover{opacity:.85}
   .auth-btn:disabled{opacity:.5;cursor:default}
+  .auth-btn.ghost{margin-top:0;background:transparent;color:var(--txt);border:1px solid var(--line2)}
+  .auth-btn.ghost:hover{background:rgba(255,255,255,.05);opacity:1}
+  .auth-or{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+  .auth-or-line{flex:1;height:1px;background:var(--line2)}
+  .auth-or-txt{font-size:11.5px;color:var(--muted2)}
   .auth-msg{font-size:12.5px;color:var(--muted2);margin-top:12px;min-height:16px;line-height:1.45}
   .auth-msg.ok{color:#7ed492}.auth-msg.err{color:#ff6b6b}
   .auth-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.06);color:var(--muted2);font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -586,6 +591,10 @@
           <span id="authSwitchText">처음이신가요?</span>
           <button type="button" class="auth-link" id="authSwitch">회원가입</button>
         </div>
+        <div class="auth-or" id="authMagicWrap">
+          <span class="auth-or-line"></span><span class="auth-or-txt">또는</span><span class="auth-or-line"></span>
+        </div>
+        <button type="button" class="auth-btn ghost" id="authMagic">메일로 매직 링크 받기</button>
       </div>
       <div id="authNick" hidden>
         <h3>닉네임 설정</h3>
@@ -677,6 +686,9 @@ function setAuthMode(mode){
   document.getElementById('authPassword').autocomplete = signup?'new-password':'current-password';
   document.getElementById('authSwitchText').textContent = signup?'이미 계정이 있나요?':'처음이신가요?';
   document.getElementById('authSwitch').textContent = signup?'로그인':'회원가입';
+  // 매직 링크는 로그인 모드에서만 노출(계약: 이메일·비번 + 매직링크 공존)
+  document.getElementById('authMagicWrap').style.display = signup?'none':'';
+  document.getElementById('authMagic').style.display = signup?'none':'';
   const msg=document.getElementById('authMsg'); msg.className='auth-msg'; msg.textContent='';
 }
 document.getElementById('authSwitch').addEventListener('click',()=>{ setAuthMode(authMode==='signin'?'signup':'signin'); });
@@ -716,6 +728,19 @@ async function submitAuth(){
 document.getElementById('authSend').addEventListener('click',submitAuth);
 document.getElementById('authEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('authPassword').focus(); });
 document.getElementById('authPassword').addEventListener('keydown',e=>{ if(e.key==='Enter') submitAuth(); });
+
+/* magic link (보조 로그인 — 비밀번호 없이 메일 링크로) */
+async function sendMagicLink(){
+  const email=document.getElementById('authEmail').value.trim();
+  const msg=document.getElementById('authMsg');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.className='auth-msg err'; msg.textContent='매직 링크를 받을 이메일을 입력해주세요.'; return; }
+  const btn=document.getElementById('authMagic'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='전송 중…';
+  const {error}=await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+'/' } });
+  btn.disabled=false;
+  if(error){ msg.className='auth-msg err'; msg.textContent=friendlyAuthError(error,false); }
+  else { msg.className='auth-msg ok'; msg.textContent='메일을 확인하세요! 링크를 누르면 자동 로그인됩니다.'; }
+}
+document.getElementById('authMagic').addEventListener('click',sendMagicLink);
 
 /* save nickname (creates the profile row) */
 document.getElementById('authNickSave').addEventListener('click',async()=>{
@@ -1470,10 +1495,17 @@ document.getElementById('resetPrefs').addEventListener('click',()=>{
   REGION=regionCode();
   buildOnb(); renderLevel(); renderAuthUI();
   await ensureRegion();
-  const hash=location.hash.match(/#album=(\d+)/);
+  // 딥링크: SSR 앨범페이지(/album/:id)의 CTA가 보내는 ?album=<id>, 또는 기존 #album=<id> 해시
+  const qsId=new URLSearchParams(location.search).get('album');
+  const hashId=(location.hash.match(/#album=(\d+)/)||[])[1];
+  const deepId=(qsId&&/^\d+$/.test(qsId))?qsId:hashId;
   if(getPrefs()){ await loadBoard(); }
   else { startOnb(); loadOnbImages(); }
-  if(hash){ openModal(+hash[1], true); }
+  if(deepId){
+    try{ await ensureAlbumMetas([deepId]); }catch(e){}   // 보드에 없는 앨범도 lookup으로 채움
+    if(qsId){ try{ history.replaceState({},'',location.pathname); }catch(e){} }   // ?album= 정리
+    openModal(+deepId, !qsId);   // 쿼리 진입은 #album 해시를 새로 push, 해시 진입은 그대로
+  }
 })();
 </script>
 </body>
