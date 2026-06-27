@@ -607,6 +607,8 @@
   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- 런타임 환경설정 주입 (Next /env.js 라우트가 process.env에서 생성) -->
+<script src="/env.js"></script>
 <script>
 /* ===================== iTunes data (JSONP for search/lookup, fetch+CORS for RSS) ===================== */
 let jsonpId=0;
@@ -640,8 +642,12 @@ let streak=load(STREAK,{last:'',count:0});
 let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
 
 /* ===================== Supabase (auth + shared reviews) ===================== */
-const SUPA_URL='https://ctyktludgsbnzqrxviyz.supabase.co';
-const SUPA_KEY='sb_publishable_DKpYErSKF4W_VKQIrkDfIQ_D28dywqc';
+/* 설정은 /env.js(런타임 주입)에서만 읽는다 — 소스에 하드코딩하지 않음. */
+const ENV = window.__ENV__ || {};
+const SUPA_URL = ENV.SUPABASE_URL;
+const SUPA_KEY = ENV.SUPABASE_ANON_KEY;
+const API_BASE = ENV.API_BASE_URL || '';   // 백엔드(§4) base. 미설정 시 데이터는 기존 Supabase 직접호출.
+if(!SUPA_URL || !SUPA_KEY){ console.error('[TMT] 환경설정(/env.js) 누락: SUPABASE_URL/ANON_KEY'); }
 const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let session=null, myProfile=null;          // myProfile = { id, nickname }
 const myUid=()=>myProfile?myProfile.id:null;
