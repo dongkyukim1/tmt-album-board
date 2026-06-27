@@ -158,6 +158,17 @@
   /* profile (내 평점) */
   .profile{display:none;margin:2px 0 30px}
   .profile.show{display:block;animation:stepIn .45s cubic-bezier(.2,.8,.2,1)}
+  /* 내 토스터 (백엔드 /me/charts) */
+  .pf-charts{margin-top:24px}
+  .pf-charts h3{font-size:15px;font-weight:600;margin:0 0 14px}
+  .pf-charts h3 small{color:var(--muted2);font-weight:500;margin-left:4px}
+  .tz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .tz{cursor:default}
+  .tz-cover{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface-1);border:1px solid var(--line2)}
+  .tz-cover img{width:100%;height:100%;object-fit:cover}
+  .tz-empty{background:var(--surface-2)}
+  .tz-name{margin-top:8px;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tz-priv{font-size:11px;color:var(--muted2);font-weight:500}
   .pf-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
   @media (max-width:760px){.pf-top{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .pf-card{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:18px 18px}
@@ -1128,6 +1139,7 @@ function renderProfile(list){
         <h3 style="margin-top:18px">뱃지</h3><div class="badges">${badges.map(b=>`<div class="badge ${b.got?'got':'locked'}"><div class="bd">${b.icon}</div><div class="bn">${escapeHtml(b.name)}</div></div>`).join('')}</div>
       </div>
     </div>
+    <div class="pf-charts" id="pfCharts" hidden></div>
     <div class="pf-actions">
       <button class="primary" id="pfShare"><svg width="14" height="14"><use href="#i-share"/></svg> 취향 카드 공유</button>
       <button id="pfExport">평가 내보내기</button>
@@ -1135,10 +1147,42 @@ function renderProfile(list){
       <button id="pfClear">평가 기록 초기화</button>
     </div>`;
   profileEl.classList.add('show');
+  loadMyCharts();   // 백엔드(§4) 연결 시 "내 토스터" 비동기 로드 (미연결/비로그인이면 섹션 숨김)
   document.getElementById('pfShare').addEventListener('click',shareTaste);
   document.getElementById('pfExport').addEventListener('click',exportData);
   document.getElementById('pfImport').addEventListener('click',importData);
   document.getElementById('pfClear').addEventListener('click',clearData);
+}
+
+/* ===================== 내 토스터 (백엔드 §4 /me/charts 연동) ===================== */
+async function apiAuthHeader(){
+  const { data } = await sb.auth.getSession();
+  const token = data && data.session && data.session.access_token;
+  return token ? { Authorization: 'Bearer '+token } : null;
+}
+async function loadMyCharts(){
+  const box=document.getElementById('pfCharts'); if(!box) return;
+  if(!API_BASE){ box.hidden=true; return; }            // 백엔드 미연결 → 섹션 숨김(기존 UX 유지)
+  const auth=await apiAuthHeader(); if(!auth){ box.hidden=true; return; }   // 비로그인 → 숨김
+  try{
+    const res=await fetch(API_BASE+'/me/charts', { headers: auth });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    renderMyCharts(box, (json && json.data) || []);
+  }catch(e){ console.error('[TMT] 내 토스터 불러오기 실패:', e); box.hidden=true; }
+}
+function renderMyCharts(box, charts){
+  box.hidden=false;
+  const cells4 = urls => { const a=(urls||[]).slice(0,4); while(a.length<4) a.push(null); return a; };
+  box.innerHTML = `<h3>내 토스터 <small>${charts.length}</small></h3>` + (
+    charts.length
+      ? `<div class="tz-grid">${charts.map(c=>`
+          <div class="tz" data-id="${escapeHtml(String(c.id))}">
+            <div class="tz-cover">${cells4(c.coverUrls).map(u=>u?`<img src="${escapeHtml(u)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"/>`:'<span class="tz-empty"></span>').join('')}</div>
+            <div class="tz-name">${escapeHtml(c.name||'무제')}${c.isPublic?'':' <span class="tz-priv">비공개</span>'}</div>
+          </div>`).join('')}</div>`
+      : `<div class="sub" style="color:var(--muted)">아직 만든 토스터가 없어요. 앱(Topster)에서 만들면 여기 표시돼요.</div>`
+  );
 }
 
 /* ===================== badges ===================== */
