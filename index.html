@@ -653,12 +653,13 @@ let streak=load(STREAK,{last:'',count:0});
 let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
 
 /* ===================== Supabase (auth + shared reviews) ===================== */
-/* 설정은 /env.js(런타임 주입)에서만 읽는다 — 소스에 하드코딩하지 않음. */
+/* 설정 우선순위: /env.js 런타임 주입(Next/Vercel) → 정적 호스팅(GitHub Pages) 폴백.
+   정적 호스팅엔 /env.js 서버 라우트가 없으므로 publishable(anon, 클라 노출 안전) 키를 폴백으로 둔다.
+   실시크릿(service_role 등)은 절대 여기 두지 않음 — 백엔드 전용. */
 const ENV = window.__ENV__ || {};
-const SUPA_URL = ENV.SUPABASE_URL;
-const SUPA_KEY = ENV.SUPABASE_ANON_KEY;
-const API_BASE = ENV.API_BASE_URL || '';   // 백엔드(§4) base. 미설정 시 데이터는 기존 Supabase 직접호출.
-if(!SUPA_URL || !SUPA_KEY){ console.error('[TMT] 환경설정(/env.js) 누락: SUPABASE_URL/ANON_KEY'); }
+const SUPA_URL = ENV.SUPABASE_URL || 'https://ctyktludgsbnzqrxviyz.supabase.co';
+const SUPA_KEY = ENV.SUPABASE_ANON_KEY || 'sb_publishable_DKpYErSKF4W_VKQIrkDfIQ_D28dywqc';
+const API_BASE = ENV.API_BASE_URL || '';   // 백엔드(§4) base. 미설정 시 데이터는 Supabase 직접호출.
 const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let session=null, myProfile=null;          // myProfile = { id, nickname }
 const myUid=()=>myProfile?myProfile.id:null;
@@ -752,7 +753,7 @@ async function sendMagicLink(){
   const msg=document.getElementById('authMsg');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.className='auth-msg err'; msg.textContent='매직 링크를 받을 이메일을 입력해주세요.'; return; }
   const btn=document.getElementById('authMagic'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='전송 중…';
-  const {error}=await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+'/' } });
+  const {error}=await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
   btn.disabled=false;
   if(error){ msg.className='auth-msg err'; msg.textContent=friendlyAuthError(error,false); }
   else { msg.className='auth-msg ok'; msg.textContent='메일을 확인하세요! 링크를 누르면 자동 로그인됩니다.'; }
