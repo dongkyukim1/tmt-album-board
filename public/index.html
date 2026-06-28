@@ -824,15 +824,25 @@ sb.auth.onAuthStateChange(async (_event, sess)=>{
 /* pull the signed-in user's own reviews from DB into local state (cross-device) */
 async function syncMyReviews(){
   if(!myProfile) return;
-  const {data,error}=await sb.from('reviews').select('collection_id,stars,text,created_at').eq('user_id',myProfile.id);
-  if(error||!data) return;
-  data.forEach(r=>{ state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
+  let rows=null;   // 정규화 형태: {collection_id,stars,text,created_at}
+  if(API_BASE){
+    try{ const d=await apiMyReviews(); rows=(d||[]).map(r=>({ collection_id:r.collectionId, stars:r.stars, text:r.text, created_at:r.createdAt })); }
+    catch(e){ console.error('[TMT] /me/reviews 실패, Supabase 폴백:', e); }
+  }
+  if(rows===null){
+    const {data,error}=await sb.from('reviews').select('collection_id,stars,text,created_at').eq('user_id',myProfile.id);
+    if(error||!data) return; rows=data;
+  }
+  rows.forEach(r=>{ state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
   persist();
   try{ renderLevel(); }catch(e){}
   if(viewMode==='mine'){ try{ showMine(); }catch(e){} }
 }
 
-/* fetch shared reviews for one album and merge into the in-memory album object */
+/* fetch shared reviews for one album and merge into the in-memory album object
+   NOTE: 백엔드 GET /albums/:id/reviews는 현재 profiles(nickname) 조인을 제공하지 않아
+   (리뷰어 이름이 모두 "익명"이 되는 회귀) 이 읽기 경로는 Supabase 직접호출을 유지한다.
+   백엔드가 응답에 nickname을 포함하면 API_BASE로 전환 예정. (오케스트레이터 보고됨) */
 async function loadReviewsUI(al){
   let rows=null;
   try{
@@ -1154,11 +1164,32 @@ function renderProfile(list){
   document.getElementById('pfClear').addEventListener('click',clearData);
 }
 
-/* ===================== 내 토스터 (백엔드 §4 /me/charts 연동) ===================== */
+/* ===================== 백엔드 API 클라이언트 (§4, Supabase JWT Bearer) ===================== */
 async function apiAuthHeader(){
   const { data } = await sb.auth.getSession();
   const token = data && data.session && data.session.access_token;
   return token ? { Authorization: 'Bearer '+token } : null;
+}
+/* reviews 전환: API_BASE 설정 시 백엔드 사용, 미설정 시 호출부가 Supabase 직접호출로 폴백 */
+async function apiMyReviews(){
+  const auth=await apiAuthHeader(); if(!auth) return null;
+  const res=await fetch(API_BASE+'/me/reviews?limit=100',{ headers:auth });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const j=await res.json(); return (j&&j.data)||[];
+}
+async function apiUpsertReview(collectionId,stars,text){
+  const auth=await apiAuthHeader(); if(!auth) throw new Error('로그인이 필요해요');
+  const res=await fetch(API_BASE+'/reviews',{ method:'PUT',
+    headers:{...auth,'content-type':'application/json'},
+    body:JSON.stringify({ collectionId:String(collectionId), stars, text }) });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return (await res.json()).data;
+}
+async function apiDeleteReview(collectionId){
+  const auth=await apiAuthHeader(); if(!auth) throw new Error('로그인이 필요해요');
+  const res=await fetch(API_BASE+'/reviews/'+encodeURIComponent(String(collectionId)),{ method:'DELETE', headers:auth });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return true;
 }
 async function loadMyCharts(){
   const box=document.getElementById('pfCharts'); if(!box) return;
@@ -1379,7 +1410,12 @@ function renderModal(animate){
 function startEdit(){ editing=true; renderModal(false); document.getElementById('mText').focus(); }
 async function deleteReview(){
   const al=current;
-  if(myProfile){ const {error}=await sb.from('reviews').delete().eq('collection_id',al.id).eq('user_id',myProfile.id); if(error){ showToast('삭제 실패: '+error.message); return; } }
+  if(myProfile){
+    try{
+      if(API_BASE){ await apiDeleteReview(al.id); }
+      else { const {error}=await sb.from('reviews').delete().eq('collection_id',al.id).eq('user_id',myProfile.id); if(error) throw error; }
+    }catch(e){ showToast('삭제 실패: '+(e.message||e)); return; }
+  }
   delete state[al.id]; persist(); editing=false;
   if(current&&current.id===al.id){ loadReviewsUI(al); renderModal(false); }
   renderCardRate(al); renderLevel(); if(viewMode==='mine') showMine(); else if(!searchMode) reorderBoard(); showToast('평가를 삭제했어요');
@@ -1395,12 +1431,17 @@ document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
   const al=current; const wasEditing=editing; const text=textEl.value.trim();
   const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
-  // save to shared DB first
-  const {error}=await sb.from('reviews').upsert(
-    { collection_id:al.id, user_id:myProfile.id, stars:pendingStars, text },
-    { onConflict:'collection_id,user_id' });
+  // save to shared DB first (API_BASE 설정 시 백엔드, 아니면 Supabase 직접호출)
+  try{
+    if(API_BASE){ await apiUpsertReview(al.id, pendingStars, text); }
+    else {
+      const {error}=await sb.from('reviews').upsert(
+        { collection_id:al.id, user_id:myProfile.id, stars:pendingStars, text },
+        { onConflict:'collection_id,user_id' });
+      if(error) throw error;
+    }
+  }catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
   submitBtn.disabled=false;
-  if(error){ showToast('저장 실패: '+error.message); return; }
   // prediction game (only on first rating)
   let predLine='';
   if(!wasEditing){
