@@ -659,7 +659,9 @@ let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
 const ENV = window.__ENV__ || {};
 const SUPA_URL = ENV.SUPABASE_URL || 'https://ctyktludgsbnzqrxviyz.supabase.co';
 const SUPA_KEY = ENV.SUPABASE_ANON_KEY || 'sb_publishable_DKpYErSKF4W_VKQIrkDfIQ_D28dywqc';
-const API_BASE = ENV.API_BASE_URL || '';   // 백엔드(§4) base. 미설정 시 데이터는 Supabase 직접호출.
+/* 백엔드(§4) base. Vercel은 /env.js로 주입, 정적 호스팅(GitHub Pages)은 아래 라이브 URL 폴백.
+   백엔드 실패(다운/CORS/오류) 시 각 호출부가 Supabase 직접호출로 폴백한다. */
+const API_BASE = ENV.API_BASE_URL || 'https://music-api-o7d8.onrender.com/api/v1';
 const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let session=null, myProfile=null;          // myProfile = { id, nickname }
 const myUid=()=>myProfile?myProfile.id:null;
@@ -1192,6 +1194,25 @@ async function apiDeleteReview(collectionId){
   if(!res.ok) throw new Error('HTTP '+res.status);
   return true;
 }
+/* 백엔드 우선, 실패(다운/CORS/오류) 시 Supabase 직접호출 폴백 */
+async function upsertReviewRemote(collectionId,stars,text){
+  if(API_BASE){
+    try{ await apiUpsertReview(collectionId,stars,text); return; }
+    catch(e){ console.error('[TMT] 저장 API 실패, Supabase 폴백:', e); }
+  }
+  const {error}=await sb.from('reviews').upsert(
+    { collection_id:collectionId, user_id:myProfile.id, stars, text },
+    { onConflict:'collection_id,user_id' });
+  if(error) throw error;
+}
+async function deleteReviewRemote(collectionId){
+  if(API_BASE){
+    try{ await apiDeleteReview(collectionId); return; }
+    catch(e){ console.error('[TMT] 삭제 API 실패, Supabase 폴백:', e); }
+  }
+  const {error}=await sb.from('reviews').delete().eq('collection_id',collectionId).eq('user_id',myProfile.id);
+  if(error) throw error;
+}
 async function loadMyCharts(){
   const box=document.getElementById('pfCharts'); if(!box) return;
   if(!API_BASE){ box.hidden=true; return; }            // 백엔드 미연결 → 섹션 숨김(기존 UX 유지)
@@ -1412,10 +1433,8 @@ function startEdit(){ editing=true; renderModal(false); document.getElementById(
 async function deleteReview(){
   const al=current;
   if(myProfile){
-    try{
-      if(API_BASE){ await apiDeleteReview(al.id); }
-      else { const {error}=await sb.from('reviews').delete().eq('collection_id',al.id).eq('user_id',myProfile.id); if(error) throw error; }
-    }catch(e){ showToast('삭제 실패: '+(e.message||e)); return; }
+    try{ await deleteReviewRemote(al.id); }
+    catch(e){ showToast('삭제 실패: '+(e.message||e)); return; }
   }
   delete state[al.id]; persist(); editing=false;
   if(current&&current.id===al.id){ loadReviewsUI(al); renderModal(false); }
@@ -1432,16 +1451,9 @@ document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
   const al=current; const wasEditing=editing; const text=textEl.value.trim();
   const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
-  // save to shared DB first (API_BASE 설정 시 백엔드, 아니면 Supabase 직접호출)
-  try{
-    if(API_BASE){ await apiUpsertReview(al.id, pendingStars, text); }
-    else {
-      const {error}=await sb.from('reviews').upsert(
-        { collection_id:al.id, user_id:myProfile.id, stars:pendingStars, text },
-        { onConflict:'collection_id,user_id' });
-      if(error) throw error;
-    }
-  }catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
+  // save to shared DB first (백엔드 우선, 실패 시 Supabase 폴백)
+  try{ await upsertReviewRemote(al.id, pendingStars, text); }
+  catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
   submitBtn.disabled=false;
   // prediction game (only on first rating)
   let predLine='';
