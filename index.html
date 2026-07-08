@@ -20,6 +20,12 @@
     --surface-1:#0a0a0c; --surface-2:#141416; --surface-3:#1b1b1e;
     --ring:0 0 0 2px rgba(255,255,255,.75);
     --sans:-apple-system,'SF Pro Display','SF Pro Text',system-ui,'Pretendard','Apple SD Gothic Neo',sans-serif;
+    /* spacing scale */
+    --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px;
+    /* radii */
+    --r-card:16px; --r-cover:8px;
+    /* accent for the current genre context (overridden inline per section) */
+    --accent:#868E96;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -63,6 +69,12 @@
   .search-clear{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
   .search-clear:hover{color:var(--txt);background:rgba(255,255,255,.1)}
   @media (max-width:560px){.search-input{width:104px}}
+  /* 모바일 네비 여백 정리 — 좁은 화면에서 로고 겹침 방지 (레이아웃만, 로직 무관) */
+  @media (max-width:560px){
+    .nav{padding:12px 16px;gap:8px}
+    .nav .left{gap:12px}
+    .btn-add{display:none}
+  }
   .recent{position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:var(--surface-2);border:1px solid var(--line2);border-radius:14px;padding:10px;box-shadow:0 18px 44px rgba(0,0,0,.6);display:none;z-index:120}
   .recent.show{display:block}
   .recent .rl{font-size:11px;color:var(--muted);padding:2px 6px 8px}
@@ -423,6 +435,112 @@
   .auth-menu .mi{font-size:13px;color:var(--muted2);padding:9px 11px;border-radius:8px;cursor:pointer}
   .auth-menu .mi:hover{background:rgba(255,255,255,.06);color:var(--txt)}
   .auth-menu .mi-email{font-size:11.5px;color:var(--muted);padding:6px 11px 9px;border-bottom:1px solid var(--line);margin-bottom:4px;word-break:break-all}
+
+  /* ============================================================
+     DISCOVER HEADER (Watcha Pedia 패턴 — 히어로 / HOT 랭킹 / 장르 행)
+     ============================================================ */
+  .discover{margin:var(--sp-2) 0 var(--sp-8)}
+  .discover[hidden]{display:none}
+
+  /* 섹션 헤더 (장르 컬러 점) */
+  .drow{margin-bottom:var(--sp-8)}
+  .drow-head{display:flex;align-items:baseline;gap:10px;margin:0 0 var(--sp-4)}
+  .drow-head .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;align-self:center;box-shadow:0 0 12px var(--accent)}
+  .drow-head h2{font-size:20px;font-weight:700;letter-spacing:-.015em}
+  .drow-head .drow-sub{font-size:12px;color:var(--muted);margin-left:2px}
+
+  /* 히어로 카드 */
+  .dhero{position:relative;display:block;width:100%;text-align:left;border:none;cursor:pointer;padding:0;color:var(--txt);
+    border-radius:var(--r-card);overflow:hidden;min-height:230px;background:var(--surface-2);
+    box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.06);
+    transition:transform .4s cubic-bezier(.2,.8,.25,1),box-shadow .4s}
+  .dhero:hover{transform:translateY(-3px);box-shadow:0 26px 60px rgba(0,0,0,.62),inset 0 0 0 1px rgba(255,255,255,.12)}
+  .dhero-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.25);filter:blur(34px) saturate(150%);opacity:.7}
+  .dhero-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.6) 42%,rgba(0,0,0,.28) 100%),linear-gradient(0deg,rgba(0,0,0,.5),transparent 60%)}
+  .dhero-inner{position:relative;z-index:2;display:flex;align-items:center;gap:var(--sp-6);padding:26px 30px}
+  .dhero-cover{width:172px;height:172px;flex:none;border-radius:var(--r-cover);object-fit:cover;
+    box-shadow:0 20px 44px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.14)}
+  .dhero-txt{min-width:0}
+  .dhero .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#ffce80;font-weight:700}
+  .dhero-title{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.08;margin-top:10px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .dhero-artist{font-size:15px;color:var(--muted2);margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dhero-cta{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:13px;font-weight:600;color:#000;
+    background:var(--pill);border-radius:980px;padding:9px 17px}
+  .dhero-cta svg{fill:#000}
+  .dhero.skel-hero{min-height:230px;background:linear-gradient(100deg,var(--surface-2) 30%,#202023 50%,var(--surface-2) 70%);background-size:200% 100%;animation:shimmer 1.3s infinite;cursor:default}
+
+  /* 가로 스크롤 행 (HOT 랭킹 / 장르) */
+  .hscroll{display:flex;gap:var(--sp-4);overflow-x:auto;padding:4px 4px 14px;scroll-snap-type:x proximity;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+  .hscroll::-webkit-scrollbar{height:8px}
+  .hscroll::-webkit-scrollbar-track{background:transparent}
+  .hscroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+  .hscroll:hover::-webkit-scrollbar-thumb{background:rgba(255,255,255,.24)}
+
+  /* HOT 랭킹 아이템 — Watcha식 대형 순위 숫자 */
+  .hrank-item{flex:none;width:150px;scroll-snap-align:start;background:none;border:none;padding:0;cursor:pointer;text-align:left;color:var(--txt);
+    display:flex;flex-direction:column;animation:rise .5s backwards}
+  .hrank-cover{position:relative;aspect-ratio:1;border-radius:var(--r-cover);overflow:hidden;background:var(--surface-2);
+    box-shadow:0 10px 26px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.07);
+    transition:transform .4s cubic-bezier(.2,.8,.25,1),box-shadow .4s}
+  .hrank-item:hover .hrank-cover{transform:translateY(-5px);box-shadow:0 22px 46px rgba(0,0,0,.65),inset 0 0 0 1px rgba(255,255,255,.16)}
+  .hrank-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.25,1)}
+  .hrank-item:hover .hrank-cover img{transform:scale(1.07)}
+  .hrank-num{position:absolute;left:-4px;bottom:-10px;z-index:2;font-size:64px;font-weight:800;line-height:.8;
+    font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#fff;
+    text-shadow:0 3px 14px rgba(0,0,0,.85);-webkit-text-stroke:2px rgba(0,0,0,.55);pointer-events:none}
+  .hrank-num.d2{font-size:52px;left:-2px}
+  .hrank-t{font-size:13px;font-weight:600;margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hrank-a{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hrank-item .skel{aspect-ratio:1;border-radius:var(--r-cover)}
+
+  /* 장르 행 아이템 (약간 작게) */
+  .grank-item{flex:none;width:132px;scroll-snap-align:start;background:none;border:none;padding:0;cursor:pointer;text-align:left;color:var(--txt);
+    display:flex;flex-direction:column;animation:rise .5s backwards}
+  .grank-cover{position:relative;aspect-ratio:1;border-radius:var(--r-cover);overflow:hidden;background:var(--surface-2);
+    box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.06);
+    transition:transform .4s cubic-bezier(.2,.8,.25,1),box-shadow .4s}
+  .grank-item:hover .grank-cover{transform:translateY(-5px);box-shadow:0 20px 42px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.15)}
+  .grank-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.25,1)}
+  .grank-item:hover .grank-cover img{transform:scale(1.07)}
+  .grank-badge{position:absolute;left:8px;top:8px;z-index:2;min-width:22px;height:22px;padding:0 6px;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+    color:#fff;background:color-mix(in srgb,var(--accent) 78%,#000);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .grank-t{font-size:12.5px;font-weight:600;margin-top:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grank-a{font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grank-item .skel{aspect-ratio:1;border-radius:var(--r-cover)}
+
+  @media (max-width:640px){
+    .dhero-inner{flex-direction:column;align-items:flex-start;padding:20px}
+    .dhero-cover{width:104px;height:104px}
+    .dhero-title{font-size:23px}
+    .dhero-artist{font-size:13.5px}
+    .hrank-item{width:124px}
+    .hrank-num{font-size:52px}
+    .grank-item{width:112px}
+  }
+
+  /* ============================================================
+     ALBUM MODAL — RYM식 평점 요약 (평균 + 별 + 분포 바)
+     ============================================================ */
+  .score{padding:18px 22px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .score-main{display:flex;align-items:center;gap:16px;flex:none}
+  .score-dist{flex:1;min-width:150px;display:flex;flex-direction:column;gap:4px}
+  .score-dist[hidden]{display:none}
+  .score-dist .sdrow{display:flex;align-items:center;gap:8px;font-size:11px}
+  .score-dist .sdrow .sdl{width:26px;color:var(--muted2);font-variant-numeric:tabular-nums;text-align:right;letter-spacing:-.5px}
+  .score-dist .sdrow .sdb{flex:1;height:7px;border-radius:4px;background:#1d1d1f;overflow:hidden}
+  .score-dist .sdrow .sdb i{display:block;height:100%;background:var(--pill);width:0;transition:width .7s cubic-bezier(.2,.8,.25,1)}
+  .score-dist .sdrow .sdn{width:22px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .m-tags .tag.genre-chip{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line2));
+    background:color-mix(in srgb,var(--accent) 12%,transparent);font-weight:600}
+
+  /* 수록곡 헤어라인 구분선 */
+  .tracklist .trk+.trk{border-top:1px solid var(--line)}
+
+  /* 카드 평점 ★4.2 스타일 */
+  .card .rate .rstar{color:var(--txt);font-size:12px}
 </style>
 </head>
 <body>
@@ -478,6 +596,9 @@
   </section>
 
   <div class="wrap">
+    <!-- discover 헤더 (히어로 + HOT 랭킹 + 장르 행) — JS가 렌더, 보드 홈에서만 표시 -->
+    <div class="discover" id="discover" hidden></div>
+
     <div class="sec-head" id="secHead">
       <div class="t" id="boardTitle">이번 주 보드</div>
       <div class="chips" id="chips">
@@ -566,7 +687,10 @@
         </div>
         <div class="m-scroll">
           <div class="m-tags" id="mTags"></div>
-          <div class="score"><div class="big" id="mScore"></div><div class="s-sub" id="mScoreSub"></div></div>
+          <div class="score">
+            <div class="score-main"><div class="big" id="mScore"></div><div class="s-sub" id="mScoreSub"></div></div>
+            <div class="score-dist" id="mDist" hidden></div>
+          </div>
           <div class="tracklist" id="mTracks"></div>
           <div class="reviews" id="mReviews"></div>
         </div>
@@ -1063,6 +1187,24 @@ function avaHTML(name,cls=""){ return `<div class="ava ${cls}" style="${avaStyle
 function avg(al){ const all=al.reviews.concat(state[al.id]?[state[al.id]]:[]); return (all.reduce((x,r)=>x+r.stars,0)/all.length).toFixed(1); }
 function baseAvg(al){ return al.reviews.reduce((x,r)=>x+r.stars,0)/al.reviews.length; }
 
+/* 장르 컬러 (Every Noise 감성 — 칩: 12% bg + 풀컬러 텍스트, 섹션 점) */
+const GENRE_COLORS=[
+  [/hip.?hop|rap|힙합/i,'#E8590C'],[/k.?pop|k-?팝/i,'#9C36B5'],[/\bpop\b|팝/i,'#E64980'],
+  [/rock|록/i,'#C2255C'],[/electronic|일렉/i,'#3B5BDB'],[/dance|댄스/i,'#1971C2'],
+  [/r&b|soul|소울/i,'#F08C00'],[/jazz|재즈/i,'#B08968'],[/country|컨트리/i,'#74B816'],
+  [/classical|클래식/i,'#868E96'],[/reggae|레게/i,'#2F9E44'],[/alternative|얼터너티브/i,'#E03131'],
+];
+function genreColor(name){ const s=name||''; for(const [re,c] of GENRE_COLORS){ if(re.test(s)) return c; } return '#868E96'; }
+
+/* 별점 분포 바 (5→1). counts:[c1..c5], 총합 대비 채움 */
+function distBarsHTML(counts){
+  const total=counts.reduce((a,b)=>a+b,0)||1, max=Math.max(1,...counts);
+  return [5,4,3,2,1].map(s=>{ const c=counts[s-1]||0; const pct=Math.round(c/max*100);
+    return `<div class="sdrow"><span class="sdl">${s}★</span><span class="sdb"><i style="width:${pct}%"></i></span><span class="sdn">${c}</span></div>`;
+  }).join('');
+}
+function albumStarCounts(al){ const counts=[0,0,0,0,0]; al.reviews.forEach(r=>{ if(r.stars>=1&&r.stars<=5) counts[r.stars-1]++; }); const m=state[al.id]; if(m&&m.stars>=1&&m.stars<=5) counts[m.stars-1]++; return counts; }
+
 let toastTimer=null;
 function showToast(msg, lvl){
   const t=document.getElementById('toast'); t.innerHTML=msg; t.className='toast show'+(lvl?' lvl':'');
@@ -1163,6 +1305,7 @@ function scoreAlbum(al,w){ let s=0; if(w.g[al.genre]) s+=w.g[al.genre]*2; if(w.a
 async function loadBoard(){
   show('emptyState',false); show('errorState',false); searchMode=false;
   document.getElementById('chips').style.display='';
+  setDiscoverVisible(true);
   skeletons(8);
   const prefs=getPrefs();
   let list=null, personalized=false, count=8;
@@ -1186,6 +1329,7 @@ async function loadBoard(){
 async function loadChart(){
   show('emptyState',false); show('errorState',false); searchMode=false;
   document.getElementById('chips').style.display='';
+  setDiscoverVisible(false);
   skeletons(8);
   let list=chartCache||await fetchChart(REGION);
   if(!list||!list.length){ REGION='us'; list=await fetchChart('us'); }
@@ -1238,7 +1382,7 @@ function setRanks(){ displayed.forEach((al,i)=>{ const c=cardEls[al.id]; if(c) c
 function renderCardRate(al){
   const slot=cardEls[al.id]&&cardEls[al.id].querySelector('.rateslot'); if(!slot) return;
   if(state[al.id]){
-    slot.innerHTML=`<div class="rate">${starsHTML(+avg(al))}<span class="score">${avg(al)}</span><span class="cnt">· ${al.reviews.length+1}</span></div>
+    slot.innerHTML=`<div class="rate"><span class="rstar">★</span><span class="score">${avg(al)}</span><span class="cnt">· ${al.reviews.length+1}</span></div>
       <div class="blurb">“${escapeHtml(state[al.id].text)}”</div>
       <span class="mine-tag">${ICON_CHECK} 내 평가 완료</span>`;
   } else if(al._recScore>0){
@@ -1267,9 +1411,101 @@ function showBoard(){
 }
 function reorderBoard(){ const arr=sortedBoard(); arr.forEach(al=>{ const c=cardEls[al.id]; if(c) grid.appendChild(c); }); displayed=arr; setRanks(); }
 
+/* ===================== discover 헤더 (백엔드 /itunes/top 프록시) ===================== */
+/* Watcha Pedia 패턴: 히어로(#1) + HOT 랭킹(1–20) + 장르 행. 보드 홈에서만 노출. */
+const discoverEl=document.getElementById('discover');
+const DISCOVER_GENRES=[{id:18,ko:'힙합'},{id:51,ko:'K-Pop'}];
+let discoverLoaded=false, discoverLoading=false;
+
+/* 백엔드 프록시가 Apple RSS 봉투를 그대로 반환 → 기존 rssToAlbum으로 파싱 */
+async function fetchBackendTop(country,genre,limit){
+  const qs=new URLSearchParams({country,limit:String(limit||20)});
+  if(genre) qs.set('genre',String(genre));
+  const res=await apiFetch('/itunes/top?'+qs.toString());
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const j=await res.json();
+  let e=j&&j.data&&j.data.feed&&j.data.feed.entry; if(!e) return [];
+  if(!Array.isArray(e)) e=[e];
+  return e.map((x,i)=>rssToAlbum(x,i)).filter(Boolean);
+}
+/* 스펙대로 country=kr 우선, 비어 있으면 사용자 지역·us로 폴백(현재 kr RSS가 비는 날 대비) */
+async function fetchDiscoverTop(genre,limit){
+  for(const c of [...new Set(['kr',REGION,'us'])]){
+    try{ const l=await fetchBackendTop(c,genre,limit); if(l.length) return l; }catch(e){}
+  }
+  return [];
+}
+function discoverSkeleton(){
+  const items=n=>Array.from({length:n}).map(()=>'<div class="hrank-item"><div class="skel"></div></div>').join('');
+  discoverEl.innerHTML=`
+    <div class="dhero skel-hero" aria-hidden="true"></div>
+    <section class="drow" style="--accent:#ff922b;margin-top:var(--sp-8)"><div class="drow-head"><span class="dot"></span><h2>HOT 랭킹</h2><span class="drow-sub">지금 가장 많이 듣는 앨범</span></div><div class="hscroll">${items(7)}</div></section>
+    ${DISCOVER_GENRES.map(g=>`<section class="drow" style="--accent:${genreColor(g.ko)}"><div class="drow-head"><span class="dot"></span><h2>${g.ko} 인기</h2></div><div class="hscroll">${items(7)}</div></section>`).join('')}`;
+}
+function hotItemHTML(a,i){
+  const r=i+1;
+  return `<button class="hrank-item" data-id="${a.id}" style="animation-delay:${Math.min(i,10)*40}ms" aria-label="${r}위 ${escapeHtml(a.title)} 상세 열기">
+    <div class="hrank-cover"><span class="hrank-num${r>=10?' d2':''}">${r}</span><img src="${a.cover}" alt="" loading="lazy" onerror="this.style.opacity=0"/></div>
+    <div class="hrank-t">${escapeHtml(a.title)}</div><div class="hrank-a">${escapeHtml(a.artist)}</div></button>`;
+}
+function grankItemHTML(a,i){
+  return `<button class="grank-item" data-id="${a.id}" style="animation-delay:${Math.min(i,10)*40}ms" aria-label="${escapeHtml(a.title)} 상세 열기">
+    <div class="grank-cover"><span class="grank-badge">${i+1}</span><img src="${a.cover}" alt="" loading="lazy" onerror="this.style.opacity=0"/></div>
+    <div class="grank-t">${escapeHtml(a.title)}</div><div class="grank-a">${escapeHtml(a.artist)}</div></button>`;
+}
+function discoverHTML(top,genreLists){
+  const hero=top[0], hot=top.slice(0,20);
+  let h=`
+    <button class="dhero" data-id="${hero.id}" aria-label="${escapeHtml(hero.title)} · ${escapeHtml(hero.artist)} 자세히 보기">
+      <div class="dhero-bg" style="background-image:url('${hero.cover}')"></div>
+      <div class="dhero-scrim"></div>
+      <div class="dhero-inner">
+        <img class="dhero-cover" src="${hero.coverHi||hero.cover}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"/>
+        <div class="dhero-txt">
+          <span class="eyebrow">지금 가장 핫한 앨범</span>
+          <div class="dhero-title">${escapeHtml(hero.title)}</div>
+          <div class="dhero-artist">${escapeHtml(hero.artist)}${hero.year?' · '+hero.year:''}</div>
+          <span class="dhero-cta"><svg width="13" height="13"><use href="#i-play"/></svg> 자세히 보기</span>
+        </div>
+      </div>
+    </button>
+    <section class="drow" style="--accent:#ff922b"><div class="drow-head"><span class="dot"></span><h2>HOT 랭킹</h2><span class="drow-sub">지금 가장 많이 듣는 앨범</span></div>
+      <div class="hscroll">${hot.map((a,i)=>hotItemHTML(a,i)).join('')}</div></section>`;
+  DISCOVER_GENRES.forEach((g,gi)=>{
+    const list=(genreLists[gi]||[]).slice(0,12); if(!list.length) return;
+    h+=`<section class="drow" style="--accent:${genreColor(g.ko)}"><div class="drow-head"><span class="dot"></span><h2>${g.ko} 인기</h2></div>
+      <div class="hscroll">${list.map((a,i)=>grankItemHTML(a,i)).join('')}</div></section>`;
+  });
+  return h;
+}
+async function loadDiscover(){
+  if(discoverLoaded||discoverLoading) return;
+  discoverLoading=true; discoverSkeleton();
+  try{
+    const [top,...genreLists]=await Promise.all([
+      fetchDiscoverTop(null,20),
+      ...DISCOVER_GENRES.map(g=>fetchDiscoverTop(g.id,12)),
+    ]);
+    if(!top||!top.length){ discoverEl.hidden=true; discoverEl.innerHTML=''; return; }   // 실패 시 조용히 숨김
+    top.forEach(a=>{ if(!albumIndex[a.id]) albumIndex[a.id]=a; });
+    genreLists.forEach(l=>(l||[]).forEach(a=>{ if(!albumIndex[a.id]) albumIndex[a.id]=a; }));
+    discoverEl.innerHTML=discoverHTML(top,genreLists);
+    discoverLoaded=true;
+  }catch(e){ console.error('[TMT] discover 불러오기 실패:', e); discoverEl.hidden=true; discoverEl.innerHTML=''; }
+  finally{ discoverLoading=false; }
+}
+async function openDiscoverAlbum(id){
+  id=+id;
+  if(!albumIndex[id]){ try{ await ensureAlbumMetas([id]); }catch(e){} }
+  if(albumIndex[id]) openModal(id); else showToast('앨범을 불러오지 못했어요');
+}
+/* 이벤트 위임(컨테이너는 재렌더에도 유지되므로 1회 바인딩) */
+discoverEl.addEventListener('click',e=>{ const b=e.target.closest('[data-id]'); if(!b) return; openDiscoverAlbum(b.dataset.id); });
+function setDiscoverVisible(on){ discoverEl.hidden=!on; if(on) loadDiscover(); }
+
 /* ===================== 내 평점 (profile) ===================== */
 async function showMine(){
-  viewMode='mine'; setActiveNav(); searchMode=false;
+  viewMode='mine'; setActiveNav(); searchMode=false; setDiscoverVisible(false);
   hero.style.display='none'; document.getElementById('chips').style.display='none';
   document.getElementById('boardTitle').textContent='내 평점';
   show('emptyState',false); show('errorState',false);
@@ -1474,6 +1710,7 @@ document.addEventListener('click',e=>{ if(!e.target.closest('#searchBox')) recen
 async function runSearch(q){
   if(!q){ navTo('board'); return; }
   searchMode=true; viewMode='board'; setActiveNav(); hero.style.display=''; profileEl.classList.remove('show');
+  setDiscoverVisible(false);
   document.getElementById('chips').style.display='none';
   document.getElementById('boardTitle').textContent='검색 결과';
   show('emptyState',false); show('errorState',false); skeletons(8);
@@ -1504,7 +1741,11 @@ function openModal(id, fromHistory){
   document.getElementById('mTitle').textContent=al.title;
   document.getElementById('mArtist').textContent=[al.artist,al.genre,al.year].filter(Boolean).join(' · ');
   document.getElementById('mOwner').textContent=`${al.owner} 님이 올림 · ${al.reviews.length+(state[al.id]?1:0)}명 평가`;
-  document.getElementById('mTags').innerHTML=al.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('');
+  const mTagParts=[];
+  if(al.genre) mTagParts.push(`<span class="tag genre-chip" style="--accent:${genreColor(al.genre)}">${escapeHtml(al.genre)}</span>`);
+  if(al.released) mTagParts.push(`<span class="tag">${escapeHtml(al.released.slice(0,10))}</span>`);
+  else if(al.year) mTagParts.push(`<span class="tag">${al.year}</span>`);
+  document.getElementById('mTags').innerHTML=mTagParts.join('');
   renderModal(false); loadTracksUI(al); loadReviewsUI(al); updateNavBtns();
   overlay.classList.add('open'); document.body.style.overflow='hidden';
   document.getElementById('closeBtn').focus();
@@ -1554,7 +1795,7 @@ function countUp(el,target,dur){
 function renderModal(animate){
   const al=current, done=!!state[al.id]&&!editing;
   const reviews=document.getElementById('mReviews'), composer=document.getElementById('mComposer'), doneNote=document.getElementById('mDone');
-  const scoreEl=document.getElementById('mScore'), scoreSub=document.getElementById('mScoreSub');
+  const scoreEl=document.getElementById('mScore'), scoreSub=document.getElementById('mScoreSub'), distEl=document.getElementById('mDist');
   let html='<div class="burst"></div><div class="lock"><svg width="40" height="40"><use href="#i-lock"/></svg><h4>잠겨 있어요</h4><p>다른 사람들의 평점·평론은 <b>네 의견을 남겨야</b> 열려. 솔직하게 먼저 평가해봐!</p></div>';
   if(done){ const m=state[al.id];
     html+=`<div class="rev mine">${avaHTML("나","mine")}<div style="flex:1"><div class="r-top"><span class="r-name">나</span><span class="you">YOU</span><span class="r-stars">${starsStr(m.stars)}</span></div><div class="r-text">${escapeHtml(m.text)}</div><div class="r-when">방금</div><div class="mine-edit"><button id="revEdit">수정</button><button id="revDel">삭제</button></div></div></div>`;
@@ -1563,8 +1804,9 @@ function renderModal(animate){
   reviews.innerHTML=html;
   if(done){
     reviews.classList.add('unlocked'); composer.classList.add('hide'); doneNote.classList.add('show');
-    const a=avg(al);
-    scoreSub.innerHTML=`${starsHTML(+a)}<br><b>${al.reviews.length+1}명</b>의 평균 평점`;
+    const a=avg(al); const total=al.reviews.length+1;
+    scoreSub.innerHTML=`${starsHTML(+a)}<br><b>평가 ${total}개</b>`;
+    distEl.hidden=false; distEl.innerHTML=distBarsHTML(albumStarCounts(al));
     if(animate){
       reviews.classList.add('reveal'); scoreEl.classList.add('pulse'); scoreEl.textContent='0.0';
       countUp(scoreEl, parseFloat(a), 900);
@@ -1576,6 +1818,7 @@ function renderModal(animate){
   } else {
     reviews.classList.remove('unlocked','reveal'); composer.classList.remove('hide'); doneNote.classList.remove('show');
     scoreEl.innerHTML='<span class="locked">?.?</span>'; scoreSub.innerHTML=`평점 <b>잠김</b> · ${al.reviews.length}명이 먼저 평가함`;
+    distEl.hidden=true; distEl.innerHTML='';
     const m=editing?state[al.id]:null;
     pendingStars=m?m.stars:0;
     document.querySelectorAll('#mStars button').forEach(b=>{ b.classList.toggle('on',+b.dataset.v<=pendingStars); b.setAttribute('aria-checked',+b.dataset.v<=pendingStars); });
