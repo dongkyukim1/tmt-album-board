@@ -1604,7 +1604,7 @@ document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
   const al=current; const wasEditing=editing; const text=textEl.value.trim();
   const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
-  // save to shared DB first (백엔드 우선, 실패 시 Supabase 폴백)
+  // save to shared DB first (백엔드 API)
   try{ await upsertReviewRemote(al.id, pendingStars, text); }
   catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
   submitBtn.disabled=false;
