@@ -55,7 +55,7 @@
 python3 -m http.server 8000          # http://localhost:8000
 
 # Next.js 하이브리드(SSR/OG 포함) — 로컬
-cp .env.example .env.local           # 값 채우기(SUPABASE URL/ANON KEY, API_BASE)
+cp .env.example .env.local           # 값 채우기(API_BASE_URL)
 npm install && npm run dev           # http://localhost:3000
 ```
 

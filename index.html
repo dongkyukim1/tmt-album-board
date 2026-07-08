@@ -402,6 +402,7 @@
   .auth-box input{width:100%;border:1px solid var(--line2);background:var(--surface-1);color:var(--txt);font-family:inherit;font-size:15px;border-radius:11px;padding:13px 14px;transition:border-color .2s}
   .auth-box input:focus{border-color:#4a4a4e}
   .auth-box input + input{margin-top:10px}
+  .auth-box input.code{letter-spacing:.3em;text-align:center;font-size:20px;font-variant-numeric:tabular-nums}
   .auth-btn{width:100%;margin-top:14px;background:var(--pill);color:#000;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
   .auth-btn:hover{opacity:.85}
   .auth-btn:disabled{opacity:.5;cursor:default}
@@ -591,33 +592,85 @@
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-box" role="dialog" aria-modal="true">
       <button class="auth-x" id="authClose" aria-label="닫기">×</button>
-      <div id="authLogin">
-        <h3 id="authTitle">로그인</h3>
-        <p id="authDesc">이메일과 비밀번호로 로그인하세요.</p>
-        <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
-        <input type="password" id="authPassword" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" />
-        <button class="auth-btn" id="authSend">로그인</button>
-        <div class="auth-msg" id="authMsg"></div>
+      <!-- 로그인 -->
+      <div class="auth-view" id="viewLogin">
+        <h3>로그인</h3>
+        <p>이메일과 비밀번호로 로그인하세요.</p>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+        <input type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password" />
+        <button class="auth-btn" id="loginBtn">로그인</button>
+        <div class="auth-msg" id="loginMsg"></div>
         <div class="auth-switch">
-          <span id="authSwitchText">처음이신가요?</span>
-          <button type="button" class="auth-link" id="authSwitch">회원가입</button>
+          <span>처음이신가요?</span>
+          <button type="button" class="auth-link" id="toSignup">회원가입</button>
         </div>
-        <div class="auth-or" id="authMagicWrap">
-          <span class="auth-or-line"></span><span class="auth-or-txt">또는</span><span class="auth-or-line"></span>
+        <div class="auth-switch">
+          <button type="button" class="auth-link" id="toReset">비밀번호를 잊으셨나요?</button>
         </div>
-        <button type="button" class="auth-btn ghost" id="authMagic">메일로 매직 링크 받기</button>
       </div>
-      <div id="authNick" hidden>
-        <h3>닉네임 설정</h3>
-        <p>리뷰에 표시될 이름이에요. 한 번 정하면 모든 리뷰에 사용됩니다. (1~24자)</p>
-        <input type="text" id="authNickInput" placeholder="예: vinyl_kid" maxlength="24" autocomplete="off" />
-        <button class="auth-btn" id="authNickSave">시작하기</button>
-        <div class="auth-msg" id="authNickMsg"></div>
+      <!-- 회원가입 ① 이메일 -->
+      <div class="auth-view" id="viewSignupEmail" hidden>
+        <h3>회원가입</h3>
+        <p>가입할 이메일을 입력하면 6자리 인증코드를 보내드려요.</p>
+        <input type="email" id="suEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+        <button class="auth-btn" id="suEmailBtn">인증코드 받기</button>
+        <div class="auth-msg" id="suEmailMsg"></div>
+        <div class="auth-switch">
+          <span>이미 계정이 있나요?</span>
+          <button type="button" class="auth-link" id="suToLogin">로그인</button>
+        </div>
+      </div>
+      <!-- 회원가입 ② 코드 -->
+      <div class="auth-view" id="viewSignupCode" hidden>
+        <h3>인증코드 입력</h3>
+        <p><b id="suCodeEmail"></b>(으)로 보낸 6자리 코드를 입력하세요.</p>
+        <input type="text" class="code" id="suCode" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
+        <button class="auth-btn" id="suCodeBtn">확인</button>
+        <button type="button" class="auth-btn ghost" id="suResend" disabled>재전송 (60초)</button>
+        <div class="auth-msg" id="suCodeMsg"></div>
+      </div>
+      <!-- 회원가입 ③ 비밀번호 + 닉네임 -->
+      <div class="auth-view" id="viewSignupPw" hidden>
+        <h3>비밀번호 설정</h3>
+        <p>로그인에 사용할 비밀번호와 리뷰에 표시될 닉네임을 정해주세요.</p>
+        <input type="password" id="suPw" placeholder="비밀번호 (8자 이상)" autocomplete="new-password" />
+        <input type="password" id="suPw2" placeholder="비밀번호 확인" autocomplete="new-password" />
+        <input type="text" id="suNick" placeholder="닉네임 (1~50자)" maxlength="50" autocomplete="off" />
+        <button class="auth-btn" id="suCompleteBtn">가입 완료</button>
+        <div class="auth-msg" id="suPwMsg"></div>
+      </div>
+      <!-- 비밀번호 재설정 ① 이메일 -->
+      <div class="auth-view" id="viewResetEmail" hidden>
+        <h3>비밀번호 재설정</h3>
+        <p>가입한 이메일로 6자리 인증코드를 보내드려요.</p>
+        <input type="email" id="rsEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+        <button class="auth-btn" id="rsEmailBtn">인증코드 받기</button>
+        <div class="auth-msg" id="rsEmailMsg"></div>
+        <div class="auth-switch">
+          <button type="button" class="auth-link" id="rsToLogin">로그인으로 돌아가기</button>
+        </div>
+      </div>
+      <!-- 비밀번호 재설정 ② 코드 -->
+      <div class="auth-view" id="viewResetCode" hidden>
+        <h3>인증코드 입력</h3>
+        <p><b id="rsCodeEmail"></b>(으)로 보낸 6자리 코드를 입력하세요.</p>
+        <input type="text" class="code" id="rsCode" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
+        <button class="auth-btn" id="rsCodeBtn">확인</button>
+        <button type="button" class="auth-btn ghost" id="rsResend" disabled>재전송 (60초)</button>
+        <div class="auth-msg" id="rsCodeMsg"></div>
+      </div>
+      <!-- 비밀번호 재설정 ③ 새 비밀번호 -->
+      <div class="auth-view" id="viewResetPw" hidden>
+        <h3>새 비밀번호</h3>
+        <p>새로 사용할 비밀번호를 입력하세요. 변경하면 모든 기기에서 다시 로그인해야 해요.</p>
+        <input type="password" id="rsPw" placeholder="새 비밀번호 (8자 이상)" autocomplete="new-password" />
+        <input type="password" id="rsPw2" placeholder="비밀번호 확인" autocomplete="new-password" />
+        <button class="auth-btn" id="rsResetBtn">비밀번호 변경</button>
+        <div class="auth-msg" id="rsPwMsg"></div>
       </div>
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- 런타임 환경설정 주입 (Next /env.js 라우트가 process.env에서 생성) -->
 <script src="env.js"></script>
 <script>
@@ -652,19 +705,69 @@ let guess=load(GUESS,{hit:0,total:0});
 let streak=load(STREAK,{last:'',count:0});
 let recent=load(RECENT,[]); if(!Array.isArray(recent)) recent=[];
 
-/* ===================== Supabase (auth + shared reviews) ===================== */
+/* ===================== 백엔드 설정 (자체 인증 + 공유 리뷰) ===================== */
 /* 설정 우선순위: /env.js 런타임 주입(Next/Vercel) → 정적 호스팅(GitHub Pages) 폴백.
-   정적 호스팅엔 /env.js 서버 라우트가 없으므로 publishable(anon, 클라 노출 안전) 키를 폴백으로 둔다.
-   실시크릿(service_role 등)은 절대 여기 두지 않음 — 백엔드 전용. */
+   정적 호스팅엔 /env.js 서버 라우트가 없으므로 라이브 API base를 폴백으로 둔다. */
 const ENV = window.__ENV__ || {};
-const SUPA_URL = ENV.SUPABASE_URL || 'https://ctyktludgsbnzqrxviyz.supabase.co';
-const SUPA_KEY = ENV.SUPABASE_ANON_KEY || 'sb_publishable_DKpYErSKF4W_VKQIrkDfIQ_D28dywqc';
-/* 백엔드(§4) base. Vercel은 /env.js로 주입, 정적 호스팅(GitHub Pages)은 아래 라이브 URL 폴백.
-   백엔드 실패(다운/CORS/오류) 시 각 호출부가 Supabase 직접호출로 폴백한다. */
 const API_BASE = ENV.API_BASE_URL || 'https://music-api-o7d8.onrender.com/api/v1';
-const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-let session=null, myProfile=null;          // myProfile = { id, nickname }
+let myProfile=null;          // 로그인 상태: { id, nickname, email }  / 비로그인: null
 const myUid=()=>myProfile?myProfile.id:null;
+
+/* ===================== 토큰 / 세션 관리 ===================== */
+/* accessToken(15분)·refreshToken(30일)·캐시 유저를 localStorage에 보관.
+   apiFetch가 401을 받으면 refresh(단일 비행)로 새 토큰쌍을 저장하고 원요청을 1회 재시도한다. */
+const TK_ACCESS='auth_access', TK_REFRESH='auth_refresh', TK_USER='auth_user';
+const getAccess =()=>{ try{ return localStorage.getItem(TK_ACCESS)||null; }catch(e){ return null; } };
+const getRefresh=()=>{ try{ return localStorage.getItem(TK_REFRESH)||null; }catch(e){ return null; } };
+function getCachedUser(){ try{ return JSON.parse(localStorage.getItem(TK_USER)||'null'); }catch(e){ return null; } }
+function setTokens(access,refresh){ try{ localStorage.setItem(TK_ACCESS,access); localStorage.setItem(TK_REFRESH,refresh); }catch(e){} }
+function setCachedUser(u){ try{ localStorage.setItem(TK_USER,JSON.stringify(u)); }catch(e){} }
+function clearSession(){ try{ localStorage.removeItem(TK_ACCESS); localStorage.removeItem(TK_REFRESH); localStorage.removeItem(TK_USER); }catch(e){} }
+
+/* 단일 비행 refresh: 동시 401이 여러 개여도 refresh 요청은 하나만 나간다. */
+let refreshInFlight=null;
+function refreshTokens(){
+  if(refreshInFlight) return refreshInFlight;
+  const rt=getRefresh();
+  if(!rt) return Promise.resolve(false);
+  refreshInFlight=(async()=>{
+    try{
+      const res=await fetch(API_BASE+'/auth/refresh',{ method:'POST',
+        headers:{'content-type':'application/json'}, body:JSON.stringify({ refreshToken:rt }) });
+      if(!res.ok) return false;
+      const j=await res.json(); const d=j&&j.data;
+      if(!d||!d.accessToken||!d.refreshToken) return false;
+      setTokens(d.accessToken,d.refreshToken);   // 회전: 이전 refresh 토큰은 즉시 무효 → 항상 새 쌍 저장
+      return true;
+    }catch(e){ return false; }
+    finally{ refreshInFlight=null; }
+  })();
+  return refreshInFlight;
+}
+
+/* Bearer 부착 + 401 시 refresh 후 1회 재시도. opts.requireAuth=true면 만료 시 로그인 모달을 연다. */
+async function apiFetch(path, opts={}, _retried=false){
+  const url = /^https?:/.test(path) ? path : API_BASE+path;
+  const access=getAccess();
+  const headers={ ...(opts.headers||{}) };
+  if(access) headers['Authorization']='Bearer '+access;
+  const res=await fetch(url, { ...opts, headers });
+  if(res.status===401 && !_retried && getRefresh()){
+    const ok=await refreshTokens();
+    if(ok) return apiFetch(path, opts, true);
+    handleAuthExpired(!!opts.requireAuth);   // refresh 실패 → 로그아웃 처리
+  }
+  return res;
+}
+/* 서버 에러 봉투에서 사용자용 메시지 추출({ error:{ code, message } }) */
+async function apiError(res, fallback){
+  try{ const j=await res.json(); const e=j&&j.error; if(e&&e.message) return { code:e.code, message:e.message }; }catch(_){}
+  return { code:'UNKNOWN', message:fallback||('요청에 실패했어요 (HTTP '+res.status+')') };
+}
+function handleAuthExpired(showModal){
+  clearSession(); myProfile=null; renderAuthUI();
+  if(showModal){ showToast('세션이 만료되어 로그아웃되었어요'); openAuth(); }
+}
 
 function relTime(iso){
   const t=new Date(iso).getTime(); const diff=Date.now()-t;
@@ -674,123 +777,192 @@ function relTime(iso){
   return Math.floor(day/30)+'개월 전';
 }
 
-/* auth modal control */
+/* ===================== 인증 UI (로그인 / 3단계 가입 / 비밀번호 재설정) ===================== */
 const authOverlay=document.getElementById('authOverlay');
-function openAuth(){
-  if(session && !myProfile){ showAuthStep('nick'); }
-  else {
-    showAuthStep('login');
-    setAuthMode('signin');
-    document.getElementById('authPassword').value='';
-    document.getElementById('authMsg').textContent='';
-  }
-  authOverlay.classList.add('open');
-  setTimeout(()=>{ const el=document.getElementById(session&&!myProfile?'authNickInput':'authEmail'); if(el) el.focus(); },50);
+const AUTH_VIEWS=['viewLogin','viewSignupEmail','viewSignupCode','viewSignupPw','viewResetEmail','viewResetCode','viewResetPw'];
+const AUTH_FOCUS={ viewLogin:'loginEmail', viewSignupEmail:'suEmail', viewSignupCode:'suCode', viewSignupPw:'suPw', viewResetEmail:'rsEmail', viewResetCode:'rsCode', viewResetPw:'rsPw' };
+function showView(id){
+  AUTH_VIEWS.forEach(v=>{ const el=document.getElementById(v); if(el) el.hidden = v!==id; });
+  setTimeout(()=>{ const el=document.getElementById(AUTH_FOCUS[id]); if(el) el.focus(); },50);
 }
-function closeAuth(){ authOverlay.classList.remove('open'); }
-function showAuthStep(step){
-  document.getElementById('authLogin').hidden = step!=='login';
-  document.getElementById('authNick').hidden  = step!=='nick';
-}
+function openAuth(){ showView('viewLogin'); document.getElementById('loginPassword').value=''; setMsg('loginMsg',''); authOverlay.classList.add('open'); }
+function closeAuth(){ authOverlay.classList.remove('open'); clearAuthTimers(); }
 document.getElementById('authClose').addEventListener('click',closeAuth);
 authOverlay.addEventListener('click',e=>{ if(e.target===authOverlay) closeAuth(); });
 
-/* sign in / sign up mode toggle */
-let authMode='signin';   // 'signin' | 'signup'
-function setAuthMode(mode){
-  authMode=mode;
-  const signup=mode==='signup';
-  document.getElementById('authTitle').textContent = signup?'회원가입':'로그인';
-  document.getElementById('authDesc').textContent  = signup?'이메일과 비밀번호로 가입하세요. 인증 메일 없이 바로 시작됩니다.':'이메일과 비밀번호로 로그인하세요.';
-  document.getElementById('authSend').textContent  = signup?'회원가입':'로그인';
-  document.getElementById('authPassword').autocomplete = signup?'new-password':'current-password';
-  document.getElementById('authSwitchText').textContent = signup?'이미 계정이 있나요?':'처음이신가요?';
-  document.getElementById('authSwitch').textContent = signup?'로그인':'회원가입';
-  // 매직 링크는 로그인 모드에서만 노출(계약: 이메일·비번 + 매직링크 공존)
-  document.getElementById('authMagicWrap').style.display = signup?'none':'';
-  document.getElementById('authMagic').style.display = signup?'none':'';
-  const msg=document.getElementById('authMsg'); msg.className='auth-msg'; msg.textContent='';
-}
-document.getElementById('authSwitch').addEventListener('click',()=>{ setAuthMode(authMode==='signin'?'signup':'signin'); });
+/* 인라인 메시지 헬퍼 (kind: 'ok' | 'err' | 없음) */
+function setMsg(id,text,kind){ const el=document.getElementById(id); if(!el) return; el.className='auth-msg'+(kind?(' '+kind):''); el.textContent=text||''; }
+const EMAIL_RE=/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-/* sign in / sign up with email + password */
-function friendlyAuthError(error,signup){
-  const m=(error&&error.message||'').toLowerCase();
-  if(m.includes('invalid login')) return '이메일 또는 비밀번호가 올바르지 않아요.';
-  if(m.includes('already registered')||m.includes('already been registered')) return '이미 가입된 이메일이에요. 로그인해주세요.';
-  if(m.includes('email not confirmed')) return '이메일 인증이 필요해요. 메일함을 확인해주세요.';
-  if(m.includes('password')&&m.includes('least')) return '비밀번호는 6자 이상이어야 해요.';
-  if(m.includes('rate limit')) return '잠시 후 다시 시도해주세요.';
-  return (signup?'가입 실패: ':'로그인 실패: ')+(error&&error.message||'알 수 없는 오류');
-}
-async function submitAuth(){
-  const email=document.getElementById('authEmail').value.trim();
-  const password=document.getElementById('authPassword').value;
-  const msg=document.getElementById('authMsg');
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.className='auth-msg err'; msg.textContent='올바른 이메일을 입력해주세요.'; return; }
-  if((password||'').length<6){ msg.className='auth-msg err'; msg.textContent='비밀번호는 6자 이상이어야 해요.'; return; }
-  const signup=authMode==='signup';
-  const btn=document.getElementById('authSend'); btn.disabled=true; msg.className='auth-msg'; msg.textContent=signup?'가입 중…':'로그인 중…';
-  const {data,error}= signup
-    ? await sb.auth.signUp({ email, password })
-    : await sb.auth.signInWithPassword({ email, password });
-  btn.disabled=false;
-  if(error){ msg.className='auth-msg err'; msg.textContent=friendlyAuthError(error,signup); return; }
-  if(signup && (!data.session)){
-    // "Confirm email" still ON in Supabase, or email already existed (identities empty)
-    if(data.user && Array.isArray(data.user.identities) && data.user.identities.length===0){
-      msg.className='auth-msg err'; msg.textContent='이미 가입된 이메일이에요. 로그인해주세요.'; return;
-    }
-    msg.className='auth-msg ok'; msg.textContent='확인 메일을 보냈어요. 메일의 링크를 눌러 가입을 완료해주세요.'; return;
-  }
-  // success: onAuthStateChange handles profile load / nickname step
-}
-document.getElementById('authSend').addEventListener('click',submitAuth);
-document.getElementById('authEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('authPassword').focus(); });
-document.getElementById('authPassword').addEventListener('keydown',e=>{ if(e.key==='Enter') submitAuth(); });
+/* 진행 중 상태(티켓·이메일) */
+let signupEmail='', signupTicket='';
+let resetEmail='', resetTicket='';
 
-/* magic link (보조 로그인 — 비밀번호 없이 메일 링크로) */
-async function sendMagicLink(){
-  const email=document.getElementById('authEmail').value.trim();
-  const msg=document.getElementById('authMsg');
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.className='auth-msg err'; msg.textContent='매직 링크를 받을 이메일을 입력해주세요.'; return; }
-  const btn=document.getElementById('authMagic'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='전송 중…';
-  const {error}=await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
-  btn.disabled=false;
-  if(error){ msg.className='auth-msg err'; msg.textContent=friendlyAuthError(error,false); }
-  else { msg.className='auth-msg ok'; msg.textContent='메일을 확인하세요! 링크를 누르면 자동 로그인됩니다.'; }
+/* 재전송 60초 카운트다운(가입/재설정 공용) */
+let resendTimers={};
+function clearAuthTimers(){ Object.values(resendTimers).forEach(t=>clearInterval(t)); resendTimers={}; }
+function startResend(btnId, key){
+  const btn=document.getElementById(btnId); if(!btn) return;
+  let left=60; btn.disabled=true; btn.textContent='재전송 ('+left+'초)';
+  clearInterval(resendTimers[key]);
+  resendTimers[key]=setInterval(()=>{
+    left--;
+    if(left<=0){ clearInterval(resendTimers[key]); btn.disabled=false; btn.textContent='인증코드 재전송'; }
+    else btn.textContent='재전송 ('+left+'초)';
+  },1000);
 }
-document.getElementById('authMagic').addEventListener('click',sendMagicLink);
 
-/* save nickname (creates the profile row) */
-document.getElementById('authNickSave').addEventListener('click',async()=>{
-  const nick=document.getElementById('authNickInput').value.trim();
-  const msg=document.getElementById('authNickMsg');
-  if(nick.length<1||nick.length>24){ msg.className='auth-msg err'; msg.textContent='닉네임은 1~24자로 입력해주세요.'; return; }
-  if(!session){ msg.className='auth-msg err'; msg.textContent='세션이 만료되었어요. 다시 로그인해주세요.'; return; }
-  const btn=document.getElementById('authNickSave'); btn.disabled=true; msg.className='auth-msg'; msg.textContent='저장 중…';
-  const {data,error}=await sb.from('profiles').insert({ id:session.user.id, nickname:nick }).select('id,nickname').single();
-  btn.disabled=false;
-  if(error){ msg.className='auth-msg err'; msg.textContent='저장 실패: '+error.message; return; }
-  myProfile=data; closeAuth(); renderAuthUI(); showToast('환영해요, '+nick+' 님!');
-  await syncMyReviews();
-  if(current) loadReviewsUI(current);
-});
-document.getElementById('authNickInput').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('authNickSave').click(); });
+/* 로그인 완료 처리 (login / signup complete 응답 공통: { accessToken, refreshToken, user }) */
+function onAuthenticated(payload){
+  setTokens(payload.accessToken, payload.refreshToken);
+  const u={ id:payload.user.id, email:payload.user.email, nickname:payload.user.nickname };
+  setCachedUser(u); myProfile=u;
+  closeAuth(); renderAuthUI(); showToast('환영해요, '+u.nickname+' 님!');
+  syncMyReviews(); if(current) loadReviewsUI(current);
+}
 
-/* nav button + menu */
+/* --- 로그인 --- */
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!EMAIL_RE.test(email)){ setMsg('loginMsg','올바른 이메일을 입력해주세요.','err'); return; }
+  if(!password){ setMsg('loginMsg','비밀번호를 입력해주세요.','err'); return; }
+  const btn=document.getElementById('loginBtn'); btn.disabled=true; setMsg('loginMsg','로그인 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/login',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email, password }) });
+    if(!res.ok){ const e=await apiError(res,'로그인에 실패했어요.'); setMsg('loginMsg',e.message,'err'); return; }
+    const { data }=await res.json();
+    setMsg('loginMsg',''); onAuthenticated(data);
+  }catch(e){ console.error('[TMT] 로그인 실패:', e); setMsg('loginMsg','네트워크 오류로 로그인에 실패했어요.','err'); }
+  finally{ btn.disabled=false; }
+}
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('loginEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('loginPassword').focus(); });
+document.getElementById('loginPassword').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('toSignup').addEventListener('click',()=>{ signupEmail=''; signupTicket=''; document.getElementById('suEmail').value=''; setMsg('suEmailMsg',''); showView('viewSignupEmail'); });
+document.getElementById('toReset').addEventListener('click',()=>{ resetEmail=''; resetTicket=''; document.getElementById('rsEmail').value=''; setMsg('rsEmailMsg',''); showView('viewResetEmail'); });
+document.getElementById('suToLogin').addEventListener('click',()=>showView('viewLogin'));
+document.getElementById('rsToLogin').addEventListener('click',()=>showView('viewLogin'));
+
+/* --- 회원가입 ① 이메일 → signup/request-code --- */
+async function signupRequestCode(isResend){
+  const email=isResend?signupEmail:document.getElementById('suEmail').value.trim();
+  const msgId=isResend?'suCodeMsg':'suEmailMsg';
+  if(!EMAIL_RE.test(email)){ setMsg(msgId,'올바른 이메일을 입력해주세요.','err'); return; }
+  const btn=document.getElementById(isResend?'suResend':'suEmailBtn'); btn.disabled=true;
+  setMsg(msgId, isResend?'재전송 중…':'인증코드 전송 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/signup/request-code',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email }) });
+    if(!res.ok){ const e=await apiError(res,'인증코드 전송에 실패했어요.'); setMsg(msgId,e.message,'err'); if(isResend) startResend('suResend','signup'); else btn.disabled=false; return; }
+    signupEmail=email; document.getElementById('suCodeEmail').textContent=email; setMsg(msgId,'');
+    if(!isResend){ document.getElementById('suCode').value=''; setMsg('suCodeMsg','인증코드를 보냈어요. 메일함을 확인해주세요.','ok'); showView('viewSignupCode'); }
+    else setMsg('suCodeMsg','인증코드를 다시 보냈어요.','ok');
+    startResend('suResend','signup');
+  }catch(e){ console.error('[TMT] 가입 코드요청 실패:', e); setMsg(msgId,'네트워크 오류가 발생했어요.','err'); btn.disabled=false; }
+}
+document.getElementById('suEmailBtn').addEventListener('click',()=>signupRequestCode(false));
+document.getElementById('suEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') signupRequestCode(false); });
+document.getElementById('suResend').addEventListener('click',()=>signupRequestCode(true));
+
+/* --- 회원가입 ② 코드 → signup/verify-code --- */
+async function signupVerifyCode(){
+  const code=document.getElementById('suCode').value.trim();
+  if(!/^\d{6}$/.test(code)){ setMsg('suCodeMsg','6자리 숫자 코드를 입력해주세요.','err'); return; }
+  const btn=document.getElementById('suCodeBtn'); btn.disabled=true; setMsg('suCodeMsg','확인 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/signup/verify-code',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email:signupEmail, code }) });
+    if(!res.ok){ const e=await apiError(res,'인증에 실패했어요.'); setMsg('suCodeMsg',e.message,'err'); return; }
+    const { data }=await res.json(); signupTicket=data.signupTicket;
+    document.getElementById('suPw').value=''; document.getElementById('suPw2').value=''; document.getElementById('suNick').value='';
+    setMsg('suPwMsg',''); showView('viewSignupPw');
+  }catch(e){ console.error('[TMT] 가입 코드확인 실패:', e); setMsg('suCodeMsg','네트워크 오류가 발생했어요.','err'); }
+  finally{ btn.disabled=false; }
+}
+document.getElementById('suCodeBtn').addEventListener('click',signupVerifyCode);
+document.getElementById('suCode').addEventListener('keydown',e=>{ if(e.key==='Enter') signupVerifyCode(); });
+
+/* --- 회원가입 ③ 비밀번호 + 닉네임 → signup/complete --- */
+async function signupComplete(){
+  const pw=document.getElementById('suPw').value, pw2=document.getElementById('suPw2').value;
+  const nick=document.getElementById('suNick').value.trim();
+  if(pw.length<8||pw.length>72){ setMsg('suPwMsg','비밀번호는 8자 이상이어야 해요.','err'); return; }
+  if(pw!==pw2){ setMsg('suPwMsg','비밀번호가 일치하지 않아요.','err'); return; }
+  if(nick.length<1||nick.length>50){ setMsg('suPwMsg','닉네임은 1~50자로 입력해주세요.','err'); return; }
+  const btn=document.getElementById('suCompleteBtn'); btn.disabled=true; setMsg('suPwMsg','가입 완료 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/signup/complete',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ signupTicket, password:pw, nickname:nick }) });
+    if(!res.ok){ const e=await apiError(res,'가입에 실패했어요.'); setMsg('suPwMsg',e.message,'err'); return; }
+    const { data }=await res.json();
+    setMsg('suPwMsg',''); onAuthenticated(data);
+  }catch(e){ console.error('[TMT] 가입 완료 실패:', e); setMsg('suPwMsg','네트워크 오류가 발생했어요.','err'); }
+  finally{ btn.disabled=false; }
+}
+document.getElementById('suCompleteBtn').addEventListener('click',signupComplete);
+document.getElementById('suNick').addEventListener('keydown',e=>{ if(e.key==='Enter') signupComplete(); });
+
+/* --- 비밀번호 재설정 ① 이메일 → password/request-code --- */
+async function resetRequestCode(isResend){
+  const email=isResend?resetEmail:document.getElementById('rsEmail').value.trim();
+  const msgId=isResend?'rsCodeMsg':'rsEmailMsg';
+  if(!EMAIL_RE.test(email)){ setMsg(msgId,'올바른 이메일을 입력해주세요.','err'); return; }
+  const btn=document.getElementById(isResend?'rsResend':'rsEmailBtn'); btn.disabled=true;
+  setMsg(msgId, isResend?'재전송 중…':'인증코드 전송 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/password/request-code',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email }) });
+    if(!res.ok){ const e=await apiError(res,'인증코드 전송에 실패했어요.'); setMsg(msgId,e.message,'err'); if(isResend) startResend('rsResend','reset'); else btn.disabled=false; return; }
+    resetEmail=email; document.getElementById('rsCodeEmail').textContent=email; setMsg(msgId,'');
+    if(!isResend){ document.getElementById('rsCode').value=''; setMsg('rsCodeMsg','인증코드를 보냈어요. 메일함을 확인해주세요.','ok'); showView('viewResetCode'); }
+    else setMsg('rsCodeMsg','인증코드를 다시 보냈어요.','ok');
+    startResend('rsResend','reset');
+  }catch(e){ console.error('[TMT] 재설정 코드요청 실패:', e); setMsg(msgId,'네트워크 오류가 발생했어요.','err'); btn.disabled=false; }
+}
+document.getElementById('rsEmailBtn').addEventListener('click',()=>resetRequestCode(false));
+document.getElementById('rsEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') resetRequestCode(false); });
+document.getElementById('rsResend').addEventListener('click',()=>resetRequestCode(true));
+
+/* --- 비밀번호 재설정 ② 코드 → password/verify-code --- */
+async function resetVerifyCode(){
+  const code=document.getElementById('rsCode').value.trim();
+  if(!/^\d{6}$/.test(code)){ setMsg('rsCodeMsg','6자리 숫자 코드를 입력해주세요.','err'); return; }
+  const btn=document.getElementById('rsCodeBtn'); btn.disabled=true; setMsg('rsCodeMsg','확인 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/password/verify-code',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email:resetEmail, code }) });
+    if(!res.ok){ const e=await apiError(res,'인증에 실패했어요.'); setMsg('rsCodeMsg',e.message,'err'); return; }
+    const { data }=await res.json(); resetTicket=data.resetTicket;
+    document.getElementById('rsPw').value=''; document.getElementById('rsPw2').value='';
+    setMsg('rsPwMsg',''); showView('viewResetPw');
+  }catch(e){ console.error('[TMT] 재설정 코드확인 실패:', e); setMsg('rsCodeMsg','네트워크 오류가 발생했어요.','err'); }
+  finally{ btn.disabled=false; }
+}
+document.getElementById('rsCodeBtn').addEventListener('click',resetVerifyCode);
+document.getElementById('rsCode').addEventListener('keydown',e=>{ if(e.key==='Enter') resetVerifyCode(); });
+
+/* --- 비밀번호 재설정 ③ 새 비밀번호 → password/reset --- */
+async function resetPassword(){
+  const pw=document.getElementById('rsPw').value, pw2=document.getElementById('rsPw2').value;
+  if(pw.length<8||pw.length>72){ setMsg('rsPwMsg','비밀번호는 8자 이상이어야 해요.','err'); return; }
+  if(pw!==pw2){ setMsg('rsPwMsg','비밀번호가 일치하지 않아요.','err'); return; }
+  const btn=document.getElementById('rsResetBtn'); btn.disabled=true; setMsg('rsPwMsg','변경 중…');
+  try{
+    const res=await fetch(API_BASE+'/auth/password/reset',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ resetTicket, password:pw }) });
+    if(!res.ok){ const e=await apiError(res,'비밀번호 변경에 실패했어요.'); setMsg('rsPwMsg',e.message,'err'); return; }
+    // 성공 → 로그인 뷰로 (모든 세션 무효화됨)
+    document.getElementById('loginEmail').value=resetEmail; document.getElementById('loginPassword').value='';
+    showView('viewLogin'); setMsg('loginMsg','비밀번호를 변경했어요. 새 비밀번호로 로그인해주세요.','ok');
+  }catch(e){ console.error('[TMT] 비밀번호 변경 실패:', e); setMsg('rsPwMsg','네트워크 오류가 발생했어요.','err'); }
+  finally{ btn.disabled=false; }
+}
+document.getElementById('rsResetBtn').addEventListener('click',resetPassword);
+document.getElementById('rsPw2').addEventListener('keydown',e=>{ if(e.key==='Enter') resetPassword(); });
+
+/* --- 네비 버튼 + 메뉴 --- */
 const authMenu=document.getElementById('authMenu');
 document.getElementById('btnAuth').addEventListener('click',e=>{
   e.stopPropagation();
-  if(!session){ openAuth(); return; }
   if(!myProfile){ openAuth(); return; }
   authMenu.classList.toggle('show');
 });
-document.getElementById('authLogout').addEventListener('click',async()=>{
-  authMenu.classList.remove('show');
-  await sb.auth.signOut();
-  showToast('로그아웃했어요');
-});
+document.getElementById('authLogout').addEventListener('click',async()=>{ authMenu.classList.remove('show'); await doLogout(); });
 document.addEventListener('click',()=>authMenu.classList.remove('show'));
 
 function renderAuthUI(){
@@ -798,44 +970,44 @@ function renderAuthUI(){
   if(myProfile){
     btn.classList.add('signed');
     btn.innerHTML=`<span class="who">${escapeHtml(myProfile.nickname)}</span>`;
-    document.getElementById('authMenuEmail').textContent=(session&&session.user&&session.user.email)||'';
-  } else if(session){
-    btn.classList.remove('signed'); btn.textContent='닉네임 설정';
+    document.getElementById('authMenuEmail').textContent=myProfile.email||'';
   } else {
     btn.classList.remove('signed'); btn.textContent='로그인';
   }
 }
 
-/* react to auth changes (initial session + sign-in/sign-up + logout) */
-sb.auth.onAuthStateChange(async (_event, sess)=>{
-  session=sess;
-  if(sess){
-    const {data}=await sb.from('profiles').select('id,nickname').eq('id',sess.user.id).maybeSingle();
-    myProfile=data||null;
-    renderAuthUI();
-    if(!myProfile){ openAuth(); }      // logged in but no nickname yet
-    else {
-      // 로그인 성공 → 모달이 열려 있으면 닫고 메시지 정리
-      if(authOverlay.classList.contains('open')){ closeAuth(); document.getElementById('authMsg').textContent=''; }
-      await syncMyReviews(); if(current) loadReviewsUI(current);
-    }
-  } else {
-    myProfile=null; renderAuthUI();
+/* --- 로그아웃: refresh 토큰 폐기(실패 무시) 후 로컬 정리 --- */
+async function doLogout(){
+  const rt=getRefresh();
+  if(rt){
+    try{ await fetch(API_BASE+'/auth/logout',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ refreshToken:rt }) }); }
+    catch(e){ /* 서버 폐기 실패해도 로컬 세션은 정리 */ }
   }
-});
+  clearSession(); myProfile=null; renderAuthUI(); showToast('로그아웃했어요');
+}
+
+/* --- 페이지 로드 시 세션 복원: 토큰이 있으면 /me로 프로필 하이드레이트 --- */
+async function restoreSession(){
+  if(!getAccess() && !getRefresh()) return;
+  const cached=getCachedUser();
+  if(cached){ myProfile=cached; renderAuthUI(); }   // 낙관적 표시(깜빡임 방지)
+  try{
+    const res=await apiFetch('/me');
+    if(!res.ok){ if(res.status===401) handleAuthExpired(false); return; }
+    const { data }=await res.json();
+    myProfile={ id:data.id, nickname:data.nickname, email:(cached&&cached.email)||'' };
+    setCachedUser(myProfile); renderAuthUI();
+    syncMyReviews(); if(current) loadReviewsUI(current);
+  }catch(e){ console.error('[TMT] 세션 복원 실패:', e); }
+}
+restoreSession();
 
 /* pull the signed-in user's own reviews from DB into local state (cross-device) */
 async function syncMyReviews(){
   if(!myProfile) return;
   let rows=null;   // 정규화 형태: {collection_id,stars,text,created_at}
-  if(API_BASE){
-    try{ const d=await apiMyReviews(); rows=(d||[]).map(r=>({ collection_id:r.collectionId, stars:r.stars, text:r.text, created_at:r.createdAt })); }
-    catch(e){ console.error('[TMT] /me/reviews 실패, Supabase 폴백:', e); }
-  }
-  if(rows===null){
-    const {data,error}=await sb.from('reviews').select('collection_id,stars,text,created_at').eq('user_id',myProfile.id);
-    if(error||!data) return; rows=data;
-  }
+  try{ const d=await apiMyReviews(); rows=(d||[]).map(r=>({ collection_id:r.collectionId, stars:r.stars, text:r.text, created_at:r.createdAt })); }
+  catch(e){ console.error('[TMT] /me/reviews 불러오기 실패:', e); return; }
   rows.forEach(r=>{ state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
   persist();
   try{ renderLevel(); }catch(e){}
@@ -843,25 +1015,19 @@ async function syncMyReviews(){
 }
 
 /* fetch shared reviews for one album and merge into the in-memory album object
-   NOTE: 백엔드 GET /albums/:id/reviews는 현재 profiles(nickname) 조인을 제공하지 않아
-   (리뷰어 이름이 모두 "익명"이 되는 회귀) 이 읽기 경로는 Supabase 직접호출을 유지한다.
-   백엔드가 응답에 nickname을 포함하면 API_BASE로 전환 예정. (오케스트레이터 보고됨) */
+   백엔드 GET /albums/:id/reviews (공개, author.nickname 포함) */
 async function loadReviewsUI(al){
   let rows=null;
-  try{
-    const res=await sb.from('reviews')
-      .select('user_id,stars,text,created_at,profiles(nickname)')
-      .eq('collection_id', al.id).order('created_at',{ascending:false});
-    rows=res.data;
-  }catch(e){ rows=null; }
+  try{ rows=await apiAlbumReviews(al.id); }
+  catch(e){ console.error('[TMT] 공유 리뷰 불러오기 실패:', e); rows=null; }
   if(!current || current.id!==al.id) return;
   if(rows && rows.length){
     const mine=myUid();
-    al.reviews = rows.filter(r=>r.user_id!==mine).map(r=>({
-      name:(r.profiles&&r.profiles.nickname)||'익명', stars:r.stars, text:r.text, when:relTime(r.created_at)
+    al.reviews = rows.filter(r=>r.userId!==mine).map(r=>({
+      name:(r.author&&r.author.nickname)||'익명', stars:r.stars, text:r.text, when:relTime(r.createdAt)
     }));
-    const myRow=mine?rows.find(r=>r.user_id===mine):null;
-    if(myRow){ state[al.id]={ stars:myRow.stars, text:myRow.text, ts:new Date(myRow.created_at).getTime() }; persist(); }
+    const myRow=mine?rows.find(r=>r.userId===mine):null;
+    if(myRow){ state[al.id]={ stars:myRow.stars, text:myRow.text, ts:new Date(myRow.createdAt).getTime() }; persist(); }
     al._dbReal=true;
   } else {
     al._dbReal=false;   // no shared reviews yet -> keep the genReviews seed already on al.reviews
@@ -1167,58 +1333,45 @@ function renderProfile(list){
   document.getElementById('pfClear').addEventListener('click',clearData);
 }
 
-/* ===================== 백엔드 API 클라이언트 (§4, Supabase JWT Bearer) ===================== */
-async function apiAuthHeader(){
-  const { data } = await sb.auth.getSession();
-  const token = data && data.session && data.session.access_token;
-  return token ? { Authorization: 'Bearer '+token } : null;
+/* ===================== 백엔드 API 클라이언트 (§4, 자체 인증 JWT Bearer via apiFetch) ===================== */
+/* 앨범 공유 리뷰(공개, 인증 불필요) — author.nickname 포함 */
+async function apiAlbumReviews(collectionId){
+  const res=await apiFetch('/albums/'+encodeURIComponent(String(collectionId))+'/reviews?limit=100');
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const j=await res.json(); return (j&&j.data)||[];
 }
-/* reviews 전환: API_BASE 설정 시 백엔드 사용, 미설정 시 호출부가 Supabase 직접호출로 폴백 */
 async function apiMyReviews(){
-  const auth=await apiAuthHeader(); if(!auth) return null;
-  const res=await fetch(API_BASE+'/me/reviews?limit=100',{ headers:auth });
+  if(!getAccess()) return null;
+  const res=await apiFetch('/me/reviews?limit=100');
   if(!res.ok) throw new Error('HTTP '+res.status);
   const j=await res.json(); return (j&&j.data)||[];
 }
 async function apiUpsertReview(collectionId,stars,text){
-  const auth=await apiAuthHeader(); if(!auth) throw new Error('로그인이 필요해요');
-  const res=await fetch(API_BASE+'/reviews',{ method:'PUT',
-    headers:{...auth,'content-type':'application/json'},
+  if(!getAccess()) throw new Error('로그인이 필요해요');
+  const res=await apiFetch('/reviews',{ method:'PUT', requireAuth:true,
+    headers:{'content-type':'application/json'},
     body:JSON.stringify({ collectionId:String(collectionId), stars, text }) });
-  if(!res.ok) throw new Error('HTTP '+res.status);
+  if(!res.ok){ const e=await apiError(res,'저장에 실패했어요.'); throw new Error(e.message); }
   return (await res.json()).data;
 }
 async function apiDeleteReview(collectionId){
-  const auth=await apiAuthHeader(); if(!auth) throw new Error('로그인이 필요해요');
-  const res=await fetch(API_BASE+'/reviews/'+encodeURIComponent(String(collectionId)),{ method:'DELETE', headers:auth });
-  if(!res.ok) throw new Error('HTTP '+res.status);
+  if(!getAccess()) throw new Error('로그인이 필요해요');
+  const res=await apiFetch('/reviews/'+encodeURIComponent(String(collectionId)),{ method:'DELETE', requireAuth:true });
+  if(!res.ok){ const e=await apiError(res,'삭제에 실패했어요.'); throw new Error(e.message); }
   return true;
 }
-/* 백엔드 우선, 실패(다운/CORS/오류) 시 Supabase 직접호출 폴백 */
+/* API 전용(폴백 없음): 실패 시 예외를 던져 호출부의 기존 에러 토스트로 노출 */
 async function upsertReviewRemote(collectionId,stars,text){
-  if(API_BASE){
-    try{ await apiUpsertReview(collectionId,stars,text); return; }
-    catch(e){ console.error('[TMT] 저장 API 실패, Supabase 폴백:', e); }
-  }
-  const {error}=await sb.from('reviews').upsert(
-    { collection_id:collectionId, user_id:myProfile.id, stars, text },
-    { onConflict:'collection_id,user_id' });
-  if(error) throw error;
+  await apiUpsertReview(collectionId,stars,text);
 }
 async function deleteReviewRemote(collectionId){
-  if(API_BASE){
-    try{ await apiDeleteReview(collectionId); return; }
-    catch(e){ console.error('[TMT] 삭제 API 실패, Supabase 폴백:', e); }
-  }
-  const {error}=await sb.from('reviews').delete().eq('collection_id',collectionId).eq('user_id',myProfile.id);
-  if(error) throw error;
+  await apiDeleteReview(collectionId);
 }
 async function loadMyCharts(){
   const box=document.getElementById('pfCharts'); if(!box) return;
-  if(!API_BASE){ box.hidden=true; return; }            // 백엔드 미연결 → 섹션 숨김(기존 UX 유지)
-  const auth=await apiAuthHeader(); if(!auth){ box.hidden=true; return; }   // 비로그인 → 숨김
+  if(!getAccess()){ box.hidden=true; return; }   // 비로그인 → 숨김
   try{
-    const res=await fetch(API_BASE+'/me/charts', { headers: auth });
+    const res=await apiFetch('/me/charts');
     if(!res.ok) throw new Error('HTTP '+res.status);
     const json=await res.json();
     renderMyCharts(box, (json && json.data) || []);
@@ -1451,7 +1604,7 @@ document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
   const al=current; const wasEditing=editing; const text=textEl.value.trim();
   const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
-  // save to shared DB first (백엔드 우선, 실패 시 Supabase 폴백)
+  // save to shared DB first (백엔드 API)
   try{ await upsertReviewRemote(al.id, pendingStars, text); }
   catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
   submitBtn.disabled=false;
