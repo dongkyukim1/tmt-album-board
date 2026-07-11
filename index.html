@@ -498,8 +498,8 @@
   .hrank-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.25,1)}
   .hrank-item:hover .hrank-cover img{transform:scale(1.07)}
   .hrank-num{position:absolute;left:-4px;bottom:-10px;z-index:2;font-size:64px;font-weight:800;line-height:.8;
-    font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#fff;
-    text-shadow:0 3px 14px rgba(0,0,0,.85);-webkit-text-stroke:2px rgba(0,0,0,.55);pointer-events:none}
+    font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:var(--primary);
+    text-shadow:0 3px 14px rgba(0,0,0,.85);-webkit-text-stroke:2px rgba(0,0,0,.6);pointer-events:none}
   .hrank-num.d2{font-size:52px;left:-2px}
   .hrank-t{font-size:13px;font-weight:600;margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hrank-a{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1151,8 +1151,8 @@ async function syncMyReviews(){
 /* fetch shared reviews for one album and merge into the in-memory album object
    백엔드 GET /albums/:id/reviews (공개, author.nickname 포함) */
 async function loadReviewsUI(al){
-  let rows=null;
-  try{ rows=await apiAlbumReviews(al.id); }
+  let rows=null, canComment;
+  try{ const r=await apiAlbumReviews(al.id); rows=r.rows; canComment=r.canComment; }
   catch(e){ console.error('[TMT] 공유 리뷰 불러오기 실패:', e); rows=null; }
   if(!current || current.id!==al.id) return;
   if(rows && rows.length){
@@ -1162,8 +1162,11 @@ async function loadReviewsUI(al){
     }));
     const myRow=mine?rows.find(r=>r.userId===mine):null;
     if(myRow){ state[al.id]={ stars:myRow.stars, text:myRow.text, ts:new Date(myRow.createdAt).getTime() }; persist(); }
+    // 서버 권위(canComment=false=미평가): 로컬에 남은 평가가 있으면 재잠금 (교차기기 삭제 등)
+    else if(myProfile && canComment===false && state[al.id]){ delete state[al.id]; persist(); }
     al._dbReal=true;
   } else {
+    if(myProfile && canComment===false && state[al.id]){ delete state[al.id]; persist(); }
     al._dbReal=false;   // no shared reviews yet -> keep the genReviews seed already on al.reviews
   }
   if(current && current.id===al.id){ renderModal(false); updateOwnerLine(al); }
@@ -1445,6 +1448,23 @@ async function fetchDiscoverTop(genre,limit){
   }
   return [];
 }
+/* 홈 HOT 20 — 백엔드 랭킹(GET /rankings/hot) 우선, 실패/빈 응답이면 null 반환 → iTunes 차트 폴백 */
+async function fetchHotRankings(limit){
+  try{
+    const res=await apiFetch('/rankings/hot?limit='+(limit||20));
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const j=await res.json();
+    const rows=(j&&j.data)||[];
+    if(!rows.length) return null;
+    return rows
+      .slice().sort((a,b)=>(a.rank||0)-(b.rank||0))
+      .map(r=>{
+        const a=mkAlbum(String(r.albumId), r.title, r.artist, r.artworkUrl, '', '', '', r.rank||0);
+        if(r.artworkUrl){ a.cover=r.artworkUrl; a.coverHi=r.artworkUrl; }
+        return a;
+      });
+  }catch(e){ console.error('[TMT] HOT 랭킹 실패, iTunes 폴백:', e); return null; }
+}
 function discoverSkeleton(){
   const items=n=>Array.from({length:n}).map(()=>'<div class="hrank-item"><div class="skel"></div></div>').join('');
   discoverEl.innerHTML=`
@@ -1492,11 +1512,13 @@ async function loadDiscover(){
   if(discoverLoaded||discoverLoading) return;
   discoverLoading=true; discoverSkeleton();
   try{
-    const [top,...genreLists]=await Promise.all([
-      fetchDiscoverTop(null,20),
+    const [hotTop,...genreLists]=await Promise.all([
+      fetchHotRankings(20),
       ...DISCOVER_GENRES.map(g=>fetchDiscoverTop(g.id,12)),
     ]);
-    if(!top||!top.length){ discoverEl.hidden=true; discoverEl.innerHTML=''; return; }   // 실패 시 조용히 숨김
+    let top=hotTop;
+    if(!top||!top.length) top=await fetchDiscoverTop(null,20);   // 랭킹 API 실패/빈 응답 → iTunes 차트 폴백
+    if(!top||!top.length){ discoverEl.hidden=true; discoverEl.innerHTML=''; return; }   // 둘 다 실패 시 조용히 숨김
     top.forEach(a=>{ if(!albumIndex[a.id]) albumIndex[a.id]=a; });
     genreLists.forEach(l=>(l||[]).forEach(a=>{ if(!albumIndex[a.id]) albumIndex[a.id]=a; }));
     discoverEl.innerHTML=discoverHTML(top,genreLists);
@@ -1584,7 +1606,10 @@ function renderProfile(list){
 async function apiAlbumReviews(collectionId){
   const res=await apiFetch('/albums/'+encodeURIComponent(String(collectionId))+'/reviews?limit=100');
   if(!res.ok) throw new Error('HTTP '+res.status);
-  const j=await res.json(); return (j&&j.data)||[];
+  const j=await res.json();
+  // canComment(=has_rated): true면 뷰어가 이미 평가함 → 코멘트/타인 평점 잠금 해제 (설계 §5.3)
+  const canComment = j ? (j.canComment!==undefined ? j.canComment : (j.meta&&j.meta.canComment)) : undefined;
+  return { rows:(j&&j.data)||[], canComment };
 }
 async function apiMyReviews(){
   if(!getAccess()) return null;
@@ -1592,11 +1617,21 @@ async function apiMyReviews(){
   if(!res.ok) throw new Error('HTTP '+res.status);
   const j=await res.json(); return (j&&j.data)||[];
 }
-async function apiUpsertReview(collectionId,stars,text){
+/* 신규 리뷰 생성 — POST /reviews {albumId,stars,text}. 이미 있으면 409 COMMENT_ALREADY_EXISTS. */
+async function apiCreateReview(collectionId,stars,text){
+  if(!getAccess()) throw new Error('로그인이 필요해요');
+  const res=await apiFetch('/reviews',{ method:'POST', requireAuth:true,
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({ albumId:String(collectionId), stars, text }) });
+  if(!res.ok){ const e=await apiError(res,'저장에 실패했어요.'); const err=new Error(e.message); err.code=e.code; throw err; }
+  return (await res.json()).data;
+}
+/* 기존 리뷰 수정 — PUT /reviews {albumId,stars,text}. */
+async function apiUpdateReview(collectionId,stars,text){
   if(!getAccess()) throw new Error('로그인이 필요해요');
   const res=await apiFetch('/reviews',{ method:'PUT', requireAuth:true,
     headers:{'content-type':'application/json'},
-    body:JSON.stringify({ collectionId:String(collectionId), stars, text }) });
+    body:JSON.stringify({ albumId:String(collectionId), stars, text }) });
   if(!res.ok){ const e=await apiError(res,'저장에 실패했어요.'); throw new Error(e.message); }
   return (await res.json()).data;
 }
@@ -1606,9 +1641,12 @@ async function apiDeleteReview(collectionId){
   if(!res.ok){ const e=await apiError(res,'삭제에 실패했어요.'); throw new Error(e.message); }
   return true;
 }
-/* API 전용(폴백 없음): 실패 시 예외를 던져 호출부의 기존 에러 토스트로 노출 */
-async function upsertReviewRemote(collectionId,stars,text){
-  await apiUpsertReview(collectionId,stars,text);
+/* 저장 배선(폴백 없음, 실패 시 기존 에러 토스트): 신규는 POST, 수정은 PUT.
+   POST가 409(이미 평가함 · 교차기기 등)면 details.existingReviewId 대상 리뷰를 PUT으로 갱신. */
+async function upsertReviewRemote(collectionId,stars,text,wasEditing){
+  if(wasEditing){ await apiUpdateReview(collectionId,stars,text); return; }
+  try{ await apiCreateReview(collectionId,stars,text); }
+  catch(e){ if(e&&e.code==='COMMENT_ALREADY_EXISTS'){ await apiUpdateReview(collectionId,stars,text); } else throw e; }
 }
 async function deleteReviewRemote(collectionId){
   await apiDeleteReview(collectionId);
@@ -1857,8 +1895,8 @@ document.getElementById('mSubmit').addEventListener('click',async()=>{
   if(!myProfile){ showToast('🔒 로그인하고 평가를 남겨보세요'); openAuth(); return; }
   const al=current; const wasEditing=editing; const text=textEl.value.trim();
   const submitBtn=document.getElementById('mSubmit'); submitBtn.disabled=true;
-  // save to shared DB first (백엔드 API)
-  try{ await upsertReviewRemote(al.id, pendingStars, text); }
+  // save to shared DB first (백엔드 API) — 신규는 POST, 수정은 PUT (409는 PUT 폴백)
+  try{ await upsertReviewRemote(al.id, pendingStars, text, wasEditing); }
   catch(e){ submitBtn.disabled=false; showToast('저장 실패: '+(e.message||e)); return; }
   submitBtn.disabled=false;
   // prediction game (only on first rating)
