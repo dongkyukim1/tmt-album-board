@@ -842,6 +842,8 @@ const STORE='tmt_reviews_v1', PREFS='tmt_prefs_v1', GUESS='tmt_guess_v1', STREAK
 function load(k,d){ try{ return JSON.parse(localStorage.getItem(k)||'null') ?? d; }catch(e){ return d; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 let state=load(STORE,{}); if(typeof state!=='object'||!state) state={};
+// 과거 albumId 필드명 불일치로 저장된 'undefined'/'null' 키 정리(renderProfile 크래시 방지)
+['undefined','null',''].forEach(k=>{ if(k in state){ delete state[k]; } });
 function persist(){ save(STORE,state); }
 function getPrefs(){ return load(PREFS,null); }
 function setPrefs(p){ save(PREFS,p); }
@@ -1150,9 +1152,9 @@ restoreSession();
 async function syncMyReviews(){
   if(!myProfile) return;
   let rows=null;   // 정규화 형태: {collection_id,stars,text,created_at}
-  try{ const d=await apiMyReviews(); rows=(d||[]).map(r=>({ collection_id:r.collectionId, stars:r.stars, text:r.text, created_at:r.createdAt })); }
+  try{ const d=await apiMyReviews(); rows=(d||[]).map(r=>({ collection_id:r.albumId??r.collectionId, stars:r.stars, text:r.text, created_at:r.createdAt })); }
   catch(e){ console.error('[TMT] /me/reviews 불러오기 실패:', e); return; }
-  rows.forEach(r=>{ state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
+  rows.forEach(r=>{ if(r.collection_id==null) return; state[r.collection_id]={ stars:r.stars, text:r.text, ts:new Date(r.created_at).getTime() }; });
   persist();
   try{ renderLevel(); }catch(e){}
   if(viewMode==='mine'){ try{ showMine(); }catch(e){} }
