@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sync-spa": "node -e \"require('fs').copyFileSync('index.html','public/index.html')\"",
+    "sync-spa": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});fs.copyFileSync('index.html','public/index.html')\"",
     "predev": "npm run sync-spa",
     "prebuild": "npm run sync-spa",
     "dev": "next dev",
