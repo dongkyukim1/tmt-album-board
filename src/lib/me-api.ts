@@ -66,7 +66,6 @@ async function fetchPage<T>(path: string, cursor?: string | null): Promise<Page<
 
   const res = await fetch(`${API_BASE}${path}?${qs.toString()}`, {
     headers: authHeaders(),
-    credentials: 'include',
   })
   if (!res.ok) throw new Error(`${path} failed: ${res.status}`)
   const json = (await res.json()) as { data?: T[]; nextCursor?: string | null }
