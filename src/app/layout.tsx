@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'TMT — Album Board',
@@ -12,13 +13,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" />
+      </head>
       <body
         style={{
           margin: 0,
-          background: '#0b0b0c',
-          color: '#f2f2f2',
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+          background: 'var(--bg)',
+          color: 'var(--txt)',
+          fontFamily: 'var(--sans)',
         }}
       >
         {children}

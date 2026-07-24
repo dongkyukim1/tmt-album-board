@@ -57,16 +57,16 @@ export default async function AlbumPage({ params }: Props) {
           alt={`${album.collectionName} 앨범 커버`}
           width={300}
           height={300}
-          style={{ borderRadius: 16, boxShadow: '0 16px 48px rgba(0,0,0,.5)' }}
+          style={{ borderRadius: 'var(--r-cover)', border: '2px solid #000', boxShadow: 'var(--hard-shadow)' }}
         />
       ) : null}
 
       <h1 style={{ fontSize: 28, margin: '28px 0 6px', letterSpacing: '-0.02em' }}>
         {album.collectionName}
       </h1>
-      <p style={{ fontSize: 18, color: '#b8b8bd', margin: 0 }}>{album.artistName}</p>
+      <p style={{ fontSize: 18, color: 'var(--muted)', margin: 0 }}>{album.artistName}</p>
 
-      <p style={{ fontSize: 14, color: '#88888d', marginTop: 12 }}>
+      <p style={{ fontSize: 14, color: 'var(--muted2)', marginTop: 12 }}>
         {[album.genre, album.releaseDate?.slice(0, 4), album.trackCount ? `${album.trackCount}곡` : null]
           .filter(Boolean)
           .join(' · ')}
@@ -76,11 +76,13 @@ export default async function AlbumPage({ params }: Props) {
         href={appLink}
         style={{
           marginTop: 32,
-          background: '#f2f2f2',
-          color: '#000',
+          background: 'var(--cta-bg)',
+          color: 'var(--cta-fg)',
           padding: '14px 28px',
-          borderRadius: 12,
+          borderRadius: 'var(--r-sm)',
+          fontFamily: 'var(--pixel)',
           fontWeight: 600,
+          boxShadow: 'var(--hard-shadow)',
           textDecoration: 'none',
         }}
       >

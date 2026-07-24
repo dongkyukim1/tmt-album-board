@@ -39,13 +39,13 @@ export default async function ChartPage({ params }: Props) {
   const textColor = cssColor(s.textColor, STYLE_DEFAULTS.textColor)
 
   return (
-    <main style={{ minHeight: '100vh', background: '#0b0b0c', padding: '24px 16px 64px' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--txt)', padding: '24px 16px 64px' }}>
       <div style={{ maxWidth: 920, margin: '0 auto' }}>
         <header style={{ textAlign: 'center', margin: '8px 0 24px' }}>
           <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em', margin: 0 }}>
             {chart.name}
           </h1>
-          <p style={{ color: '#88888d', fontSize: 13, marginTop: 6 }}>
+          <p style={{ color: 'var(--muted2)', fontSize: 13, marginTop: 6 }}>
             {chart.rows}×{chart.cols} 토스터 · Topster
           </p>
         </header>
@@ -126,11 +126,13 @@ export default async function ChartPage({ params }: Props) {
           <a
             href={SITE_URL + '/'}
             style={{
-              background: '#f2f2f2',
-              color: '#000',
+              background: 'var(--cta-bg)',
+              color: 'var(--cta-fg)',
               padding: '12px 24px',
-              borderRadius: 12,
+              borderRadius: 'var(--r-sm)',
+              fontFamily: 'var(--pixel)',
               fontWeight: 600,
+              boxShadow: 'var(--hard-shadow)',
               textDecoration: 'none',
               fontSize: 14,
             }}

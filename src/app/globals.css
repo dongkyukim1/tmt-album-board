@@ -1,0 +1,77 @@
+/* 산성(acid) 디자인 시스템 토큰 — index.html :root 마스터 소스와 동일 네이밍.
+   앱(topster_flutter lib/core/theme/app_tokens.dart)과 통일. 네온 옐로 캔버스 + 블랙 잉크. */
+:root {
+  /* base — 산성 네온 옐로 캔버스 + 블랙 잉크 */
+  --bg: #F2FF00;
+  --txt: #000;
+  --muted: rgba(0, 0, 0, 0.62);
+  --muted2: rgba(0, 0, 0, 0.55);
+  --line: rgba(0, 0, 0, 0.16);
+  --line2: rgba(0, 0, 0, 0.32);
+
+  /* 다크 서피스(앨범 커버 보호용 블랙 카드) */
+  --surface-1: #141419;
+  --surface-2: #1a1a22;
+  --surface-3: #26262f;
+  /* 다크 서피스 컨텍스트 텍스트 토큰 */
+  --s-txt: #f5f5f7;
+  --s-muted: #8a8a94;
+  --s-muted2: #a8a8b3;
+  --s-line: #22222b;
+  --s-line2: #33333f;
+
+  /* 브랜드 액센트 — 옐로 위 글자는 항상 #000 (옐로 위 흰 글씨 금지) */
+  --primary: #F2FF00; /* 네온 옐로 — 다크 표면 위 CTA·활성 상태 */
+  --secondary: #FF00FB; /* 네온 핑크 — 내 것/좋아요/위시 */
+  --taste: #00FF00; /* 네온 그린 — TASTE!/비슷한 취향 */
+  --like: #FF00FB;
+  --wish: #F2FF00;
+  --dislike: #6b6b78;
+  --skip: #4a4a57;
+  --pill: var(--primary); /* 다크 컨텍스트 CTA·게이지 (하위 호환) */
+  --cta-bg: #000; /* 캔버스 위 CTA = 블랙 채움 + 옐로 글자 */
+  --cta-fg: #F2FF00;
+
+  /* 8비트 하드 블록 섀도 (blur 0) */
+  --hard-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+  --star-empty: rgba(0, 0, 0, 0.22);
+  --ring: 0 0 0 2px rgba(0, 0, 0, 0.8);
+
+  /* 폰트 — 본문은 시스템 산스, 로고/헤더/버튼/칩은 픽셀 폰트 */
+  --sans: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  --pixel: 'Galmuri11', 'DungGeunMo', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+
+  /* radii — 8비트 샤프 (앱 rSm3/rMd5/rCard8/rCover4). pill(980px) 금지 → 3px */
+  --r-sm: 3px;
+  --r-md: 5px;
+  --r-card: 8px;
+  --r-cover: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: #000;
+  color: var(--bg);
+}

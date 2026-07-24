@@ -31,8 +31,8 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 70,
-          background: 'linear-gradient(135deg, #111114 0%, #1c1c22 100%)',
-          color: '#f2f2f2',
+          background: '#F2FF00',
+          color: '#000',
           fontFamily: 'sans-serif',
         }}
       >
@@ -45,9 +45,9 @@ export default async function Image({ params }: Props) {
                 width: 150,
                 height: 150,
                 margin: 5,
-                borderRadius: 10,
+                borderRadius: 4,
                 overflow: 'hidden',
-                background: '#26262c',
+                background: '#1a1a22',
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -56,7 +56,7 @@ export default async function Image({ params }: Props) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 28, color: '#9a9aa2', marginBottom: 16 }}>TMT · 토스터</div>
+          <div style={{ fontSize: 28, color: 'rgba(0,0,0,.62)', marginBottom: 16 }}>TMT · 토스터</div>
           <div style={{ fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>{name}</div>
         </div>
       </div>

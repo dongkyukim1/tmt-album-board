@@ -24,8 +24,8 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 80,
-          background: 'linear-gradient(135deg, #111114 0%, #1c1c22 100%)',
-          color: '#f2f2f2',
+          background: '#F2FF00',
+          color: '#000',
           fontFamily: 'sans-serif',
         }}
       >
@@ -36,17 +36,17 @@ export default async function Image({ params }: Props) {
             alt=""
             width={420}
             height={420}
-            style={{ borderRadius: 24, boxShadow: '0 24px 64px rgba(0,0,0,.6)' }}
+            style={{ borderRadius: 4, border: '3px solid #000', boxShadow: '10px 10px 0 rgba(0,0,0,.35)' }}
           />
         ) : null}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 30, color: '#9a9aa2', marginBottom: 18 }}>
+          <div style={{ fontSize: 30, color: 'rgba(0,0,0,.62)', marginBottom: 18 }}>
             TMT · 블라인드 앨범 리뷰
           </div>
           <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>
             {title}
           </div>
-          <div style={{ fontSize: 40, color: '#c8c8ce', marginTop: 20 }}>
+          <div style={{ fontSize: 40, color: 'rgba(0,0,0,.55)', marginTop: 20 }}>
             {artist}
           </div>
         </div>
