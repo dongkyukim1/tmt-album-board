@@ -23,30 +23,29 @@
 - **프로필** — 내 평점 통계 + **내 토스터**(앱에서 만든 공개 차트) 표시
 - **공유 페이지(SSR)** — `/album/:id`(앨범), `/c/:id`(공개 토스터)에 동적 OG 카드 — 설치 없이 링크로 열람
 
-## 🔐 인증 (Supabase)
+## 🔐 인증 (자체 발급 JWT)
 
-- **이메일 + 비밀번호** 회원가입/로그인(기본) + **매직 링크**(보조) 공존.
-- 클라이언트는 Supabase 액세스 토큰(JWT)을 받아 백엔드 API 요청에 `Authorization: Bearer`로 전달.
-- 인증의 source of truth = Supabase `auth.users`. 도메인 데이터(리뷰/차트)는 전용 백엔드.
+- **이메일 + 비밀번호** 로그인(`/auth/login`)과 **코드 인증 3단계 가입**(`/auth/signup/request-code` → `verify-code` → `complete`).
+- **비밀번호 재설정**도 코드 인증 방식(`/auth/password/request-code` → `verify-code` → `reset`), 세션은 `/auth/refresh`로 갱신하고 `/auth/logout`으로 종료.
+- 인증의 source of truth = 전용 백엔드 **music-api**. 발급받은 액세스 토큰(JWT)을 API 요청에 `Authorization: Bearer`로 전달하며, SPA는 `localStorage`(`auth_access`)에 보관한다.
 
 ## 🏗 아키텍처 (하이브리드)
 
 ```
   웹(SPA + Next.js)            Flutter 앱(Topster)
-        │   Supabase SDK (인증)        │
-        │──────── JWT ─────────────────│
-        │     Bearer JWT + REST/JSON   │
-        └──────────────┬───────────────┘
+        │                             │
+        │     Bearer JWT + REST/JSON  │
+        └──────────────┬──────────────┘
                        ▼
-            전용 백엔드 (NestJS, music-api)
+            전용 백엔드 (music-api)
             - Postgres (리뷰/차트/프로필)
-            - Supabase JWT 검증
+            - 자체 JWT 발급·검증 (HS256 + argon2id)
             - iTunes 프록시 / R2 업로드
 ```
 
-- **SPA** (`index.html`) — 보드·모달·블라인드 리뷰. **GitHub Pages**(정적)에서 서빙. 데이터는 백엔드 API(`API_BASE`) 설정 시 백엔드, 미설정 시 Supabase 직접호출로 폴백.
+- **SPA** (`index.html`) — 보드·모달·블라인드 리뷰. **GitHub Pages**(정적)에서 서빙. 데이터·인증은 백엔드 API(`API_BASE`, 미설정 시 운영 URL 폴백)를 호출한다.
 - **Next.js(App Router)** — SEO/공유용 **SSR 페이지**(`/album/:id`, `/c/:id`)와 **동적 OG 이미지**. **Vercel** 배포 대상(SSR이 필요해 정적 호스팅 불가).
-- **설정 주입** — Vercel에선 `/env.js` 런타임 라우트가 `window.__ENV__`로 주입. 정적 호스팅(GitHub Pages)에선 publishable(anon) 키를 인라인 폴백으로 사용(실시크릿 아님).
+- **설정 주입** — Vercel에선 `/env.js` 런타임 라우트가 `window.__ENV__`로 `API_BASE_URL`을 주입. 정적 호스팅(GitHub Pages)에선 인라인 폴백으로 운영 백엔드 URL을 사용한다.
 
 ## 🚀 실행
 
