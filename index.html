@@ -2032,6 +2032,15 @@ async function loadRecs(){
   if(!list||!list.length) list=chartCache||await fetchChart(REGION);
   if(!list||!list.length) list=await fetchChart('us');
   recPool=list||[]; recOffset=0;
+  // 레거시 장르 RSS가 말라 풀이 작으면(리롤해도 같은 앨범 반복) 자체 HOT 랭킹·US 차트로 보충
+  if(recPool.length<27){
+    const seen=new Set(recPool.map(a=>String(a.id)));
+    const fills=[await fetchHotRankings(60), await fetchChart('us')];
+    for(const fill of fills){
+      for(const a of (fill||[])){ if(a&&!seen.has(String(a.id))){ seen.add(String(a.id)); recPool.push(a); } }
+      if(recPool.length>=27) break;
+    }
+  }
   if(!recPool.length){ box.innerHTML='<div class="countnote" style="grid-column:1/-1;padding:30px 0">추천을 불러오지 못했어요. 그냥 시작해도 돼요.</div>'; document.getElementById('onbStart').disabled=false; return; }
   renderRecs();
 }
