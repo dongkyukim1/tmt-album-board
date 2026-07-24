@@ -88,7 +88,6 @@ async function postJson(path: string, body: unknown): Promise<void> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
-    credentials: 'include',
   })
   if (!res.ok) throw new Error(`${path} failed: ${res.status}`)
 }
@@ -104,7 +103,6 @@ export const realAdapter: TasteAdapter = {
     if (params.limit) qs.set('limit', String(params.limit))
 
     const res = await fetch(`${API_BASE}/taste/feed?${qs.toString()}`, {
-      credentials: 'include',
     })
     if (!res.ok) throw new Error(`taste feed failed: ${res.status}`)
     // 백엔드 응답 필드가 내부 TasteCard(albumId/year)와 동일 — 매핑 불필요.
@@ -123,7 +121,6 @@ export const realAdapter: TasteAdapter = {
     if (!albumId) throw new Error('addWishlist: albumId required')
     const res = await fetch(`${API_BASE}/albums/${albumId}/wishlist`, {
       method: 'POST',
-      credentials: 'include',
     })
     if (!res.ok) throw new Error(`addWishlist failed: ${res.status}`)
   },
@@ -132,7 +129,6 @@ export const realAdapter: TasteAdapter = {
     if (!albumId) throw new Error('removeWishlist: albumId required')
     const res = await fetch(`${API_BASE}/albums/${albumId}/wishlist`, {
       method: 'DELETE',
-      credentials: 'include',
     })
     if (!res.ok) throw new Error(`removeWishlist failed: ${res.status}`)
   },
