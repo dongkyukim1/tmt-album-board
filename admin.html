@@ -332,8 +332,12 @@ async function loadAll() {
 
 function renderTiles(d) {
   const t = d.totals || {};
+  // 오늘 가입 = 가입 추이의 마지막 날(서버 기준일) 값.
+  const signups = d.signupsDaily || [];
+  const todaySignups = signups.length ? signups[signups.length - 1].count : 0;
   const tiles = [
-    ['총 사용자', t.users], ['총 평가 수', t.swipes], ['평가된 앨범', t.ratedAlbums],
+    ['총 사용자', t.users], ['오늘 가입', todaySignups],
+    ['총 평가 수', t.swipes], ['평가된 앨범', t.ratedAlbums],
     ['코멘트', t.comments], ['위시리스트', t.wishlistItems],
     ['탑스터(공개/전체)',
       `${nf.format(t.publicCharts ?? 0)} / ${nf.format(t.charts ?? 0)}`],
