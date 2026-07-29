@@ -163,7 +163,7 @@
       <table class="users-table">
         <thead><tr>
           <th>닉네임</th><th>이메일</th><th>가입일</th>
-          <th>평가</th><th>리뷰</th><th>탑스터</th>
+          <th>평가</th><th>코멘트</th><th>위시</th><th>탑스터</th>
         </tr></thead>
         <tbody id="usersBody"></tbody>
       </table>
@@ -305,7 +305,7 @@ async function enterDash() {
   } catch (err) {
     store.clear();
     $('loginError').textContent =
-      err.code === 'admin_only' ? '관리자 권한이 없는 계정입니다' : err.message;
+      err.code === 'forbidden' ? '관리자 권한이 없는 계정입니다' : err.message;
     throw err;
   }
 }
@@ -314,10 +314,10 @@ async function loadAll() {
   $('loading').style.display = 'flex';
   try {
     const [overview, users, comments, charts] = await Promise.all([
-      api('/admin/overview?days=30'),
+      api('/admin/overview'),
       api('/admin/users?limit=20'),
       api('/admin/comments?limit=15'),
-      api('/admin/charts?limit=8&visibility=public'),
+      api('/admin/charts?limit=8'),
     ]);
     renderTiles(overview.data);
     renderTrends(overview.data);
@@ -333,11 +333,10 @@ async function loadAll() {
 function renderTiles(d) {
   const t = d.totals || {};
   const tiles = [
-    ['총 사용자', d.users?.total], ['오늘 가입', d.users?.today],
-    ['최근 7일 가입', d.users?.last7d], ['총 평가 수', d.swipes?.total],
+    ['총 사용자', t.users], ['총 평가 수', t.swipes], ['평가된 앨범', t.ratedAlbums],
     ['코멘트', t.comments], ['위시리스트', t.wishlistItems],
     ['탑스터(공개/전체)',
-      `${nf.format(t.publicCharts ?? 0)} / ${nf.format(d.charts?.total ?? 0)}`],
+      `${nf.format(t.publicCharts ?? 0)} / ${nf.format(t.charts ?? 0)}`],
   ];
   $('tiles').innerHTML = tiles.map(([k, v]) => `
     <div class="tile"><div class="v">${typeof v === 'number' ? nf.format(v) : (v ?? '-')}</div>
@@ -347,13 +346,10 @@ function renderTiles(d) {
 function renderTrends(d) {
   chartInstances.forEach((c) => c.destroy());
   chartInstances.length = 0;
-  // overview.daily = [{date, users, swipes, reviews, charts}] — 지표별로 분해.
-  const daily = d.daily || [];
-  const pick = (key) => daily.map((r) => ({ date: r.date, count: r[key] || 0 }));
   const defs = [
-    ['새 가입', pick('users'), PALETTE.gold],
-    ['평가(스와이프)', pick('swipes'), PALETTE.taste],
-    ['리뷰·코멘트', pick('reviews'), PALETTE.respect],
+    ['새 가입', d.signupsDaily || [], PALETTE.gold],
+    ['평가(스와이프)', d.swipesDaily || [], PALETTE.taste],
+    ['리뷰·코멘트', d.reviewsDaily || [], PALETTE.respect],
   ];
   $('charts').innerHTML = defs.map(([title, rows, _], i) => {
     const total = (rows || []).reduce((s, r) => s + r.count, 0);
@@ -435,7 +431,7 @@ async function renderComments(list) {
         <div class="album">${esc(a.title || '앨범 ' + c.albumId)}
           <span style="color:var(--muted);font-weight:400"> — ${esc(a.artist || '')}</span></div>
         <div class="text">${esc(c.text)}</div>
-        <div class="meta">${tag(c.stars)} <span>${esc(c.author?.nickname || '익명')}</span>
+        <div class="meta">${tag(c.stars)} <span>${esc(c.user?.nickname || '익명')}</span>
           <span>${rel(c.createdAt)}</span></div>
       </div></div>`;
   }).join('');
@@ -443,14 +439,15 @@ async function renderComments(list) {
 
 async function renderCharts(list) {
   if (!list.length) { $('publicCharts').innerHTML = '<div class="card empty" style="grid-column:1/-1">공개된 탑스터가 없습니다</div>'; return; }
-  // coverUrls를 서버가 내려주므로 별도 자켓 조회가 필요 없다.
+  const art = await fetchArtworks(list.flatMap((c) => (c.albumIds || []).slice(0, 4)));
   $('publicCharts').innerHTML = list.map((c) => `
     <div class="card grid-card">
-      <div class="covers">${(c.coverUrls || []).slice(0, 4)
-        .map((u) => `<img src="${esc(u)}" alt="">`).join('')}</div>
-      <div class="t">${esc(c.name)}</div>
-      <div class="o">${esc(c.author?.nickname || '익명')} · ${fmtDate(c.updatedAt)}
-        · 평가 ${nf.format(c.verdictCount ?? 0)}</div>
+      <div class="covers">${(c.albumIds || []).slice(0, 4).map((id) => {
+        const a = art[String(id)];
+        return a ? `<img src="${a.art}" alt="">` : '<img alt="">';
+      }).join('')}</div>
+      <div class="t">${esc(c.title)}</div>
+      <div class="o">${esc(c.owner?.nickname || '익명')} · ${fmtDate(c.updatedAt)}</div>
     </div>`).join('');
 }
 
@@ -460,8 +457,8 @@ function renderUsers(body, reset) {
   const html = rows.map((u) => `
     <tr><td class="nick">${esc(u.nickname)}</td><td>${esc(u.email || '-')}</td>
     <td>${fmtDate(u.createdAt)}</td>
-    <td>${nf.format(u.swipeCount ?? 0)}</td><td>${nf.format(u.reviewCount ?? 0)}</td>
-    <td>${nf.format(u.chartCount ?? 0)}</td></tr>`).join('');
+    <td>${nf.format(u.counts?.swipes ?? 0)}</td><td>${nf.format(u.counts?.comments ?? 0)}</td>
+    <td>${nf.format(u.counts?.wishlist ?? 0)}</td><td>${nf.format(u.counts?.charts ?? 0)}</td></tr>`).join('');
   if (reset) $('usersBody').innerHTML = html; else $('usersBody').insertAdjacentHTML('beforeend', html);
   $('moreUsers').style.display = usersCursor ? 'inline-block' : 'none';
 }
