@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TMT 관리자</title>
+<script src="./env.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#14110D; --surface:#1B1712; --surface2:#221D16; --line:#2A241C;
+    --ink:#EDE7DB; --muted:#9E988D; --faint:#6E6558;
+    --gold:#E3B24E; --taste:#2E9A72; --hmm:#B8862F; --respect:#CE5F78;
+    --danger:#E5533D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"Apple SD Gothic Neo","Pretendard","Noto Sans KR",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:var(--gold)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+  /* ── 로그인 ─────────────────────────── */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .login-card{width:360px;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:32px}
+  .brand{font-size:14px;color:var(--gold);letter-spacing:.4px;margin-bottom:6px}
+  .login-card h1{font-size:24px;margin-bottom:20px}
+  .field{margin-bottom:12px}
+  .field input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+    background:var(--surface2);color:var(--ink);font-size:15px}
+  .field input:focus{outline:2px solid var(--gold);border-color:transparent}
+  .btn{width:100%;padding:12px;border:0;border-radius:10px;background:var(--gold);
+    color:#14110D;font-size:15px;font-weight:700;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:default}
+  .login-note{margin-top:14px;font-size:12px;color:var(--muted)}
+  .error{margin-top:10px;font-size:13px;color:var(--danger);min-height:18px}
+
+  /* ── 대시보드 공통 ───────────────────── */
+  header{display:flex;align-items:center;gap:12px;padding:22px 0 6px}
+  header h1{font-size:22px}
+  header .sub{color:var(--muted);font-size:13px;flex:1}
+  header button{background:var(--surface2);color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+  header button:hover{color:var(--ink)}
+  section{margin-top:28px}
+  h2{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:.4px;margin-bottom:12px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+
+  /* 지표 타일 */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .tile .v{font-size:26px;font-weight:800;letter-spacing:-.5px}
+  .tile .k{font-size:12px;color:var(--muted);margin-top:2px}
+
+  /* 추이 차트 */
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .chart-card h3{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:8px}
+  .chart-card .big{font-size:20px;font-weight:800;color:var(--ink);margin-left:6px}
+  .chart-box{height:150px;position:relative}
+  .table-toggle{font-size:12px;color:var(--faint);cursor:pointer;float:right}
+  table.data{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  table.data th,table.data td{padding:4px 6px;border-bottom:1px solid var(--line);
+    text-align:right;color:var(--muted)}
+  table.data th:first-child,table.data td:first-child{text-align:left}
+
+  /* 취향 분포 스택바 */
+  .verdict-bar{display:flex;height:34px;border-radius:8px;overflow:hidden;gap:2px;background:var(--bg)}
+  .verdict-bar .seg{display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;color:#14110D;min-width:0;white-space:nowrap;overflow:hidden}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+  .legend .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:1px}
+
+  /* 코멘트 리스트 */
+  .comment{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .comment:last-child{border-bottom:0}
+  .cover{width:44px;height:44px;border-radius:6px;background:var(--surface2);object-fit:cover;flex:none}
+  .comment .body{min-width:0;flex:1}
+  .comment .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+  .comment .album{font-size:13px;color:var(--ink);font-weight:700;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .comment .text{font-size:14px;margin-top:2px;word-break:break-all}
+  .tag{font-size:10px;font-weight:800;border-radius:4px;padding:1px 6px;color:#14110D}
+
+  /* 공개 탑스터 */
+  .grids{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .grid-card .covers{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;
+    border-radius:8px;overflow:hidden}
+  .grid-card .covers img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface2)}
+  .grid-card .t{font-size:14px;font-weight:700;margin-top:8px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grid-card .o{font-size:12px;color:var(--muted)}
+
+  /* 사용자 테이블 */
+  .users-table{width:100%;border-collapse:collapse;font-size:13px}
+  .users-table th{color:var(--faint);font-size:12px;text-align:right;
+    padding:8px 10px;border-bottom:1px solid var(--line)}
+  .users-table td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;color:var(--muted)}
+  .users-table th:nth-child(-n+2),.users-table td:nth-child(-n+2){text-align:left}
+  .users-table td.nick{color:var(--ink);font-weight:700}
+  .more{margin-top:12px;width:auto;padding:9px 18px;background:var(--surface2);
+    color:var(--muted);border:1px solid var(--line)}
+  .empty{color:var(--faint);font-size:13px;padding:16px 0;text-align:center}
+  #loading{position:fixed;inset:0;background:rgba(20,17,13,.7);display:none;
+    align-items:center;justify-content:center;color:var(--muted);font-size:14px;z-index:9}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <div class="brand">TMT — Taste My Taste</div>
+    <h1>관리자 대시보드</h1>
+    <div class="field"><input id="email" type="email" placeholder="이메일" autocomplete="username" required></div>
+    <div class="field"><input id="password" type="password" placeholder="비밀번호" autocomplete="current-password" required></div>
+    <button class="btn" id="loginBtn" type="submit">로그인</button>
+    <div class="error" id="loginError"></div>
+    <div class="login-note">TMT 앱 계정으로 로그인합니다. 관리자로 등록된 이메일만 접근할 수 있어요.</div>
+  </form>
+</div>
+
+<!-- 대시보드 -->
+<div class="wrap" id="dash" style="display:none">
+  <header>
+    <h1>TMT 관리자</h1>
+    <div class="sub" id="updatedAt"></div>
+    <button id="refreshBtn">새로고침</button>
+    <button id="logoutBtn">로그아웃</button>
+  </header>
+
+  <section>
+    <h2>한눈에 보기</h2>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section>
+    <h2>최근 30일 추이</h2>
+    <div class="charts" id="charts"></div>
+  </section>
+
+  <section>
+    <h2>취향 분포 <span style="font-weight:400">— 전체 평가 기준</span></h2>
+    <div class="card">
+      <div class="verdict-bar" id="verdictBar"></div>
+      <div class="legend" id="verdictLegend"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>최근 코멘트</h2>
+    <div class="card" id="comments"></div>
+  </section>
+
+  <section>
+    <h2>최근 공개 탑스터</h2>
+    <div class="grids" id="publicCharts"></div>
+  </section>
+
+  <section>
+    <h2>사용자</h2>
+    <div class="card" style="overflow-x:auto">
+      <table class="users-table">
+        <thead><tr>
+          <th>닉네임</th><th>이메일</th><th>가입일</th>
+          <th>평가</th><th>코멘트</th><th>위시</th><th>탑스터</th>
+        </tr></thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+      <button class="btn more" id="moreUsers" style="display:none">더 보기</button>
+    </div>
+  </section>
+</div>
+
+<div id="loading">불러오는 중…</div>
+
+<script>
+// API base: ?api= 오버라이드(로컬 테스트) → env.js → 운영 폴백.
+const API =
+  new URLSearchParams(location.search).get('api') ||
+  (window.__ENV__ && window.__ENV__.API_BASE_URL) ||
+  'https://music-api-o7d8.onrender.com/api/v1';
+const PALETTE = { taste:'#2E9A72', hmm:'#B8862F', respect:'#CE5F78', gold:'#B8862F' };
+const VERDICT_META = {
+  like:    { label:'TASTE! (내 취향)',   color:PALETTE.taste },
+  unknown: { label:'HMM.. (애매)',       color:PALETTE.hmm },
+  dislike: { label:'RESPECT (취향 존중)', color:PALETTE.respect },
+};
+
+// ── 인증 ────────────────────────────────────────────
+const store = {
+  get access(){ return sessionStorage.getItem('tmt_at'); },
+  get refresh(){ return sessionStorage.getItem('tmt_rt'); },
+  save(a, r){ sessionStorage.setItem('tmt_at', a); if (r) sessionStorage.setItem('tmt_rt', r); },
+  clear(){ sessionStorage.removeItem('tmt_at'); sessionStorage.removeItem('tmt_rt'); },
+};
+
+async function api(path, opts = {}, retried = false) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(store.access ? { Authorization: 'Bearer ' + store.access } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401 && !retried && store.refresh) {
+    const ok = await tryRefresh();
+    if (ok) return api(path, opts, true);
+  }
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(body?.error?.message || '요청에 실패했습니다');
+    err.code = body?.error?.code || res.status;
+    throw err;
+  }
+  return body;
+}
+
+async function tryRefresh() {
+  try {
+    const res = await fetch(API + '/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: store.refresh }),
+    });
+    if (!res.ok) return false;
+    const body = await res.json();
+    const d = body?.data || {};
+    if (!d.accessToken) return false;
+    store.save(d.accessToken, d.refreshToken);
+    return true;
+  } catch { return false; }
+}
+
+// ── 로그인 화면 ──────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('loginBtn').disabled = true;
+  $('loginError').textContent = '';
+  try {
+    const body = await api('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: $('email').value.trim(), password: $('password').value }),
+    });
+    const d = body.data || {};
+    store.save(d.accessToken, d.refreshToken);
+    await enterDash();
+  } catch (err) {
+    $('loginError').textContent =
+      err.code === 'invalid_credentials' ? '이메일 또는 비밀번호가 올바르지 않습니다'
+      : err.message;
+  } finally {
+    $('loginBtn').disabled = false;
+  }
+});
+
+$('logoutBtn').addEventListener('click', () => { store.clear(); location.reload(); });
+$('refreshBtn').addEventListener('click', () => loadAll());
+
+// ── 유틸 ───────────────────────────────────────────
+const nf = new Intl.NumberFormat('ko-KR');
+const fmtDate = (s) => { const d = new Date(s);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; };
+const rel = (s) => {
+  const diff = (Date.now() - new Date(s).getTime()) / 1000;
+  if (diff < 3600) return `${Math.max(1, Math.floor(diff/60))}분 전`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+  return `${Math.floor(diff/86400)}일 전`;
+};
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g,
+  (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// 앨범 자켓 일괄 조회(50개 청크) — collectionId → artworkUrl
+async function fetchArtworks(ids) {
+  const uniq = [...new Set(ids.filter(Boolean))];
+  const map = {};
+  for (let i = 0; i < uniq.length; i += 50) {
+    const chunk = uniq.slice(i, i + 50);
+    try {
+      const body = await api('/itunes/lookup?id=' + chunk.join(','));
+      for (const r of body?.data?.results || []) {
+        if (r.wrapperType !== 'collection' || !r.artworkUrl100) continue;
+        map[String(r.collectionId)] = {
+          art: r.artworkUrl100.replace('100x100bb', '300x300bb'),
+          title: r.collectionName, artist: r.artistName,
+        };
+      }
+    } catch { /* 청크 실패는 건너뜀 */ }
+  }
+  return map;
+}
+
+// ── 대시보드 로드 ────────────────────────────────────
+let usersCursor = null;
+const chartInstances = [];
+
+async function enterDash() {
+  try {
+    await loadAll();
+    $('login').style.display = 'none';
+    $('dash').style.display = 'block';
+  } catch (err) {
+    store.clear();
+    $('loginError').textContent =
+      err.code === 'forbidden' ? '관리자 권한이 없는 계정입니다' : err.message;
+    throw err;
+  }
+}
+
+async function loadAll() {
+  $('loading').style.display = 'flex';
+  try {
+    const [overview, users, comments, charts] = await Promise.all([
+      api('/admin/overview'),
+      api('/admin/users?limit=20'),
+      api('/admin/comments?limit=15'),
+      api('/admin/charts?limit=8'),
+    ]);
+    renderTiles(overview.data);
+    renderTrends(overview.data);
+    renderVerdicts(overview.data.verdictBreakdown || {});
+    renderUsers(users, true);
+    await Promise.all([renderComments(comments.data || []), renderCharts(charts.data || [])]);
+    $('updatedAt').textContent = '업데이트 ' + new Date().toLocaleTimeString('ko-KR');
+  } finally {
+    $('loading').style.display = 'none';
+  }
+}
+
+function renderTiles(d) {
+  const t = d.totals || {};
+  const tiles = [
+    ['총 사용자', t.users], ['총 평가 수', t.swipes], ['평가된 앨범', t.ratedAlbums],
+    ['코멘트', t.comments], ['위시리스트', t.wishlistItems],
+    ['탑스터(공개/전체)', `${nf.format(t.publicCharts ?? 0)} / ${nf.format(t.charts ?? 0)}`],
+  ];
+  $('tiles').innerHTML = tiles.map(([k, v]) => `
+    <div class="tile"><div class="v">${typeof v === 'number' ? nf.format(v) : (v ?? '-')}</div>
+    <div class="k">${k}</div></div>`).join('');
+}
+
+function renderTrends(d) {
+  chartInstances.forEach((c) => c.destroy());
+  chartInstances.length = 0;
+  const defs = [
+    ['새 가입', d.signupsDaily, PALETTE.gold],
+    ['평가(스와이프)', d.swipesDaily, PALETTE.taste],
+    ['리뷰·코멘트', d.reviewsDaily, PALETTE.respect],
+  ];
+  $('charts').innerHTML = defs.map(([title, rows, _], i) => {
+    const total = (rows || []).reduce((s, r) => s + r.count, 0);
+    const tid = `tbl${i}`;
+    return `<div class="card chart-card">
+      <h3>${title}<span class="big">${nf.format(total)}</span>
+        <span class="table-toggle" data-t="${tid}">표 보기</span></h3>
+      <div class="chart-box"><canvas id="c${i}"></canvas></div>
+      <div id="${tid}" style="display:none;max-height:180px;overflow:auto">
+        <table class="data"><tr><th>날짜</th><th>건수</th></tr>
+        ${(rows || []).map((r) => `<tr><td>${r.date}</td><td>${r.count}</td></tr>`).join('')}
+        </table></div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.table-toggle').forEach((el) =>
+    el.addEventListener('click', () => {
+      const t = $(el.dataset.t);
+      const open = t.style.display !== 'none';
+      t.style.display = open ? 'none' : 'block';
+      el.textContent = open ? '표 보기' : '표 닫기';
+    }));
+
+  defs.forEach(([_, rows, color], i) => {
+    const labels = (rows || []).map((r) => r.date.slice(5).replace('-', '/'));
+    chartInstances.push(new Chart($(`c${i}`), {
+      type: 'line',
+      data: { labels, datasets: [{
+        data: (rows || []).map((r) => r.count),
+        borderColor: color, borderWidth: 2,
+        pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: color,
+        fill: false, tension: 0.25,
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#221D16', borderColor: '#2A241C', borderWidth: 1,
+          titleColor: '#EDE7DB', bodyColor: '#9E988D', displayColors: false,
+        }},
+        scales: {
+          x: { grid: { display: false }, border: { color: '#2A241C' },
+               ticks: { color: '#6E6558', maxTicksLimit: 6, font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: '#221D16' }, border: { display: false },
+               ticks: { color: '#6E6558', maxTicksLimit: 4, precision: 0, font: { size: 10 } } },
+        },
+      },
+    }));
+  });
+}
+
+function renderVerdicts(b) {
+  const total = (b.like || 0) + (b.unknown || 0) + (b.dislike || 0);
+  if (!total) { $('verdictBar').innerHTML = '<div class="empty" style="flex:1">아직 평가가 없습니다</div>';
+    $('verdictLegend').innerHTML = ''; return; }
+  $('verdictBar').innerHTML = Object.entries(VERDICT_META).map(([k, m]) => {
+    const v = b[k] || 0; if (!v) return '';
+    const pct = Math.round((v / total) * 100);
+    return `<div class="seg" style="background:${m.color};flex:${v}" title="${m.label} ${nf.format(v)}건">
+      ${pct >= 8 ? pct + '%' : ''}</div>`;
+  }).join('');
+  $('verdictLegend').innerHTML = Object.entries(VERDICT_META).map(([k, m]) =>
+    `<span><span class="dot" style="background:${m.color}"></span>${m.label}
+     <b style="color:var(--ink)">${nf.format(b[k] || 0)}</b></span>`).join('');
+}
+
+async function renderComments(list) {
+  if (!list.length) { $('comments').innerHTML = '<div class="empty">아직 코멘트가 없습니다</div>'; return; }
+  const art = await fetchArtworks(list.map((c) => c.albumId));
+  const tag = (s) => s >= 4
+    ? `<span class="tag" style="background:${PALETTE.taste}">TASTE!</span>`
+    : s >= 2 ? `<span class="tag" style="background:${PALETTE.hmm}">HMM..</span>`
+    : `<span class="tag" style="background:${PALETTE.respect}">RESPECT</span>`;
+  $('comments').innerHTML = list.map((c) => {
+    const a = art[String(c.albumId)] || {};
+    return `<div class="comment">
+      ${a.art ? `<img class="cover" src="${a.art}" alt="">` : '<div class="cover"></div>'}
+      <div class="body">
+        <div class="album">${esc(a.title || '앨범 ' + c.albumId)}
+          <span style="color:var(--muted);font-weight:400"> — ${esc(a.artist || '')}</span></div>
+        <div class="text">${esc(c.text)}</div>
+        <div class="meta">${tag(c.stars)} <span>${esc(c.user?.nickname || '익명')}</span>
+          <span>${rel(c.createdAt)}</span></div>
+      </div></div>`;
+  }).join('');
+}
+
+async function renderCharts(list) {
+  if (!list.length) { $('publicCharts').innerHTML = '<div class="card empty" style="grid-column:1/-1">공개된 탑스터가 없습니다</div>'; return; }
+  const art = await fetchArtworks(list.flatMap((c) => (c.albumIds || []).slice(0, 4)));
+  $('publicCharts').innerHTML = list.map((c) => `
+    <div class="card grid-card">
+      <div class="covers">${(c.albumIds || []).slice(0, 4).map((id) => {
+        const a = art[String(id)];
+        return a ? `<img src="${a.art}" alt="">` : '<img alt="">';
+      }).join('')}</div>
+      <div class="t">${esc(c.title)}</div>
+      <div class="o">${esc(c.owner?.nickname || '익명')} · ${fmtDate(c.updatedAt)}</div>
+    </div>`).join('');
+}
+
+function renderUsers(body, reset) {
+  const rows = body.data || [];
+  usersCursor = body.hasMore ? body.nextCursor : null;
+  const html = rows.map((u) => `
+    <tr><td class="nick">${esc(u.nickname)}</td><td>${esc(u.email || '-')}</td>
+    <td>${fmtDate(u.createdAt)}</td>
+    <td>${nf.format(u.counts?.swipes ?? 0)}</td><td>${nf.format(u.counts?.comments ?? 0)}</td>
+    <td>${nf.format(u.counts?.wishlist ?? 0)}</td><td>${nf.format(u.counts?.charts ?? 0)}</td></tr>`).join('');
+  if (reset) $('usersBody').innerHTML = html; else $('usersBody').insertAdjacentHTML('beforeend', html);
+  $('moreUsers').style.display = usersCursor ? 'inline-block' : 'none';
+}
+
+$('moreUsers').addEventListener('click', async () => {
+  const body = await api('/admin/users?limit=20&cursor=' + encodeURIComponent(usersCursor));
+  renderUsers(body, false);
+});
+
+// 세션이 남아 있으면 바로 대시보드 진입 시도.
+if (store.access) enterDash().catch(() => { $('login').style.display = 'flex'; });
+</script>
+</body>
+</html>
