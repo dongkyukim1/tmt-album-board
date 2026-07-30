@@ -1,33 +1,43 @@
-# TMT — Taste My Taste 🎵
+# TMT — Topster Maker 🎵
 
-> 취향을 공유하고 싶은 사람들의 커뮤니티 — **Album Board** (블라인드 음악 리뷰)
+> 취향을 공유하고 싶은 사람들의 커뮤니티 — **토스터(Topster) 메이커**
 
-커버만 보고 들어와서, 들어봤으면 별점과 한 줄 평을 남기는 음악 취향 공유 보드.
-앨범 커버·수록곡·피처링·장르·발매연도는 **Apple iTunes API**에서 실시간으로 불러옵니다.
+빈 그리드를 눌러 앨범을 채우고, 한 줄 평과 함께 저장·공유하는 웹 메이커.
+앨범 커버·수록곡·장르·발매연도는 **Apple iTunes API**에서 실시간으로 불러옵니다.
 
 **🔗 Live:** https://dongkyukim1.github.io/tmt-album-board/
 
-## ✨ 핵심: 블라인드 리뷰
+## ✨ 핵심 플로우 (와이어프레임 기준)
 
-> **내 평점·평론을 남겨야 다른 사람의 의견이 열린다.**
-
-- 처음에는 평균 평점이 `?.?`로 잠겨 있고, 다른 멤버들의 평론은 블러 처리됩니다.
-- 별점(★ 1~5) + 한 줄 평(최소 10자)을 모두 작성해야 `잠금 해제`가 활성화됩니다.
-- 제출하면 평균 평점이 공개되고 다른 사람들의 평론이 드러납니다.
+1. **빈 그리드가 첫 화면** — 3×3 · 4×4 · 5×5 크기 선택
+2. 빈 칸을 **누르면 검색 오버레이** — 선택하면 그 칸에 바로 들어가고, 다음 빈 칸으로 이어짐
+3. 그리드를 **전부 채우고 + 한 줄 평**(가중길이 30 — 한글 15자·라틴 30자, 백엔드 규칙 동일)을 쓰면 **'저장하고 공유하기'** 활성화
+4. 비로그인 상태면 **로그인 팝업**(앱과 같은 계정) → 로그인하면 이어서 저장
+5. 저장 완료 팝업 — **앱에서 확인하기**(my Topsters 안내 + 공유 링크) / **다운로드**(그리드 + 앨범정보 PNG)
 
 ## 🎧 기능
 
-- **온보딩** — 장르 → 무드 선택 + 추천 앨범 별점(최소 3개) → 개인화 보드. (localStorage 저장)
-- **지역 기반 실시간 차트 / iTunes 검색 / 실시간 메타데이터**(커버·수록곡·피처링·장르·연도)
-- **계정 · 공유 리뷰** — 로그인하면 리뷰가 계정에 저장되어 기기 간 동기화되고, 다른 사용자와 공유됩니다.
-- **프로필** — 내 평점 통계 + **내 토스터**(앱에서 만든 공개 차트) 표시
-- **공유 페이지(SSR)** — `/album/:id`(앨범), `/c/:id`(공개 토스터)에 동적 OG 카드 — 설치 없이 링크로 열람
+- **토스터 메이커** — 클릭 삽입, 셀 간 드래그 스왑, 채운 칸 클릭 → 앨범 상세(수록곡·교체·제거), 앰비언트 커버 배경, 진행 링 저장 바, 드래프트 자동 보존(localStorage)
+- **내 토스터** — 앱 my Topsters와 같은 목록(GET `/me/charts`) · 웹에서 3×3/4×4/5×5 편집(PUT) · 삭제 · 공유 링크
+- **다른 사람들의 토스터** — 공개 피드(GET `/charts/public`) 레일 → 공유 페이지로 이동
+- **공유 페이지(SSR)** — `/c/:id`(공개 토스터), `/album/:id`(앨범) — Next.js + 동적 OG 카드
+- **디자인** — 앱(topster_flutter)과 동일한 "미드나잇 갤러리" 토큰(#14110D 잉크 캔버스 · #E3B24E 골드 · Song Myung 디스플레이) + Pretendard 본문
 
-## 🔐 인증 (자체 발급 JWT)
+## 🧪 로컬 목 모드 (배포 전 디자인 확인)
 
-- **이메일 + 비밀번호** 로그인(`/auth/login`)과 **코드 인증 3단계 가입**(`/auth/signup/request-code` → `verify-code` → `complete`).
-- **비밀번호 재설정**도 코드 인증 방식(`/auth/password/request-code` → `verify-code` → `reset`), 세션은 `/auth/refresh`로 갱신하고 `/auth/logout`으로 종료.
-- 인증의 source of truth = 전용 백엔드 **music-api**. 발급받은 액세스 토큰(JWT)을 API 요청에 `Authorization: Bearer`로 전달하며, SPA는 `localStorage`(`auth_access`)에 보관한다.
+백엔드 없이 전체 플로우(검색→채움→로그인→저장→다운로드)를 로컬에서 볼 수 있습니다.
+
+```bash
+npm run mock          # → http://localhost:8000/?mock=1
+```
+
+- `mock.js`가 `?mock=1`일 때만 `fetch`를 가로채는 MSW 스타일 인터셉터 (의존성 0, 배포 환경에선 비활성)
+- 검색어 예: `eminem` · `iu` · `radiohead` / 로그인: 아무 이메일·비번 / 인증코드: `000000`
+
+## 🔐 인증 (자체 발급 JWT — 앱과 공유)
+
+- 이메일+비밀번호 로그인, 코드 인증 3단계 가입, 코드 인증 비밀번호 재설정
+- 소스 오브 트루스 = 전용 백엔드 **music-api**. 액세스 토큰(15분)은 `Authorization: Bearer`, 401 시 refresh(30일, 회전) 후 1회 재시도. `localStorage`(`auth_access` 등) 보관
 
 ## 🏗 아키텍처 (하이브리드)
 
@@ -38,14 +48,15 @@
         └──────────────┬──────────────┘
                        ▼
             전용 백엔드 (music-api)
-            - Postgres (리뷰/차트/프로필)
+            - Postgres (charts/리뷰/프로필)
             - 자체 JWT 발급·검증 (HS256 + argon2id)
             - iTunes 프록시 / R2 업로드
 ```
 
-- **SPA** (`index.html`) — 보드·모달·블라인드 리뷰. **GitHub Pages**(정적)에서 서빙. 데이터·인증은 백엔드 API(`API_BASE`, 미설정 시 운영 URL 폴백)를 호출한다.
-- **Next.js(App Router)** — SEO/공유용 **SSR 페이지**(`/album/:id`, `/c/:id`)와 **동적 OG 이미지**. **Vercel** 배포 대상(SSR이 필요해 정적 호스팅 불가).
-- **설정 주입** — Vercel에선 `/env.js` 런타임 라우트가 `window.__ENV__`로 `API_BASE_URL`을 주입. 정적 호스팅(GitHub Pages)에선 인라인 폴백으로 운영 백엔드 URL을 사용한다.
+- **SPA** (`index.html`) — 토스터 메이커. **GitHub Pages**(정적) 서빙. 데이터·인증은 백엔드 API(`API_BASE`, 미설정 시 운영 URL 폴백)
+- **차트 계약** — `POST/PUT /charts` `{name, comment, rows, cols, style, cells[{index,item}], isPublic}` — 앱 Hive 구조와 동일 와이어 포맷이라 웹 저장분이 앱 my Topsters에 그대로 동기화
+- **Next.js(App Router)** — SEO/공유용 SSR 페이지와 동적 OG 이미지. **Vercel** 배포 대상
+- **설정 주입** — Vercel에선 `/env.js` 런타임 라우트가 `window.__ENV__` 주입, GitHub Pages에선 정적 `env.js` 폴백
 
 ## 🚀 실행
 
@@ -53,17 +64,21 @@
 # 정적 SPA만 (GitHub Pages와 동일)
 python3 -m http.server 8000          # http://localhost:8000
 
+# 목 모드 (백엔드 없이 전체 플로우)
+npm run mock                         # http://localhost:8000/?mock=1
+
 # Next.js 하이브리드(SSR/OG 포함) — 로컬
 cp .env.example .env.local           # 값 채우기(API_BASE_URL)
 npm install && npm run dev           # http://localhost:3000
 ```
 
-> `index.html`이 SPA 단일 소스이며, Next 빌드 시 `public/index.html`로 자동 복사됩니다(prebuild).
+> `index.html`·`mock.js`가 SPA 단일 소스이며, Next 빌드 시 `public/`으로 자동 복사됩니다(prebuild).
 
 ## 📁 구조
 
 ```
-index.html              # SPA (보드 + 블라인드 리뷰 + 인증 + iTunes 로딩) — 단일 파일, GitHub Pages 서빙
+index.html              # SPA (토스터 메이커 + 인증 + 다운로드) — 단일 파일, GitHub Pages 서빙
+mock.js                 # 로컬 목 모드 (?mock=1 전용 fetch 인터셉터)
 .nojekyll               # GitHub Pages Jekyll 우회(정적 서빙)
 src/app/album/[id]/     # 앨범 SSR 페이지 + 동적 OG
 src/app/c/[id]/         # 공개 토스터 공유 SSR 페이지 + 동적 OG
@@ -75,7 +90,7 @@ next.config.ts          # `/` → SPA 리라이트 등
 ## ⚠️ 참고
 
 - 앨범 데이터·커버·수록곡은 Apple iTunes 공개 API에서 가져오며 저작권은 각 권리자에게 있습니다.
-- 공유 리뷰가 아직 없는 앨범은 데모용 시드 평론(collectionId 시드)이 노출될 수 있습니다.
+- 이미지 다운로드는 mzstatic이 `Access-Control-Allow-Origin: *`를 반환해 캔버스 오염 없이 동작합니다.
 
 ## 📝 라이선스
 

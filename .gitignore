@@ -18,8 +18,10 @@
 *.tsbuildinfo
 next-env.d.ts
 
-# SPA는 루트 index.html이 단일 소스(GitHub Pages 서빙). Next/Vercel용 복사본은 빌드시 생성.
+# SPA는 루트 index.html·mock.js가 단일 소스(GitHub Pages 서빙). Next/Vercel용 복사본은 빌드시 생성.
 /public/index.html
+/public/mock.js
 
 # logs
 npm-debug.log*
+.playwright-mcp/
