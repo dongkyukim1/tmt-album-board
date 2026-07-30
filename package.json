@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sync-spa": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});fs.copyFileSync('index.html','public/index.html')\"",
+    "sync-spa": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});for(const f of ['index.html','mock.js'])fs.copyFileSync(f,'public/'+f)\"",
+    "mock": "echo '→ 목 모드: http://localhost:8000/?mock=1' && python3 -m http.server 8000",
     "predev": "npm run sync-spa",
     "prebuild": "npm run sync-spa",
     "dev": "next dev",
