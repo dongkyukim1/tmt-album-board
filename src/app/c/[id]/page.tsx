@@ -5,6 +5,7 @@ import {
   buildGrid,
   cssColor,
   STYLE_DEFAULTS,
+  type ChartItem,
 } from '@/lib/charts'
 
 type Props = { params: Promise<{ id: string }> }
@@ -14,10 +15,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const chart = await fetchPublicChart(id)
-  if (!chart) return { title: '토스터를 찾을 수 없어요 — TMT' }
+  if (!chart) return { title: '탑스터를 찾을 수 없어요 — TMT' }
 
-  const title = `${chart.name} — TMT 토스터`
-  const description = `${chart.rows}×${chart.cols} 앨범 토스터. TMT에서 보기.`
+  const title = `${chart.name} — TMT 탑스터`
+  const description = `${chart.rows}×${chart.cols} 앨범 탑스터. TMT에서 보기.`
   const url = `${SITE_URL}/c/${chart.id}`
   return {
     title,
@@ -40,16 +41,21 @@ export default async function ChartPage({ params }: Props) {
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--txt)', padding: '24px 16px 64px' }}>
-      <div style={{ maxWidth: 920, margin: '0 auto' }}>
+      <style>{`
+        .c-wrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+        @media (max-width:760px){.c-wrap{grid-template-columns:1fr}}
+      `}</style>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <header style={{ textAlign: 'center', margin: '8px 0 24px' }}>
           <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em', margin: 0 }}>
             {chart.name}
           </h1>
           <p style={{ color: 'var(--muted2)', fontSize: 13, marginTop: 6 }}>
-            {chart.rows}×{chart.cols} 토스터 · Topster
+            {chart.rows}×{chart.cols} 탑스터 · TMT
           </p>
         </header>
 
+        <div className="c-wrap">
         <div
           style={{
             background: bg,
@@ -122,6 +128,67 @@ export default async function ChartPage({ params }: Props) {
           ))}
         </div>
 
+        {/* 우측: 담긴 앨범 번호 리스트 (피드백 1-3 — 그리드 옆 앨범 정보 나열) */}
+        <aside>
+          <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {grid
+              .map((item, i) => ({ item, i }))
+              .filter((e): e is { item: ChartItem; i: number } => e.item != null)
+              .map((e, ord) => (
+                <li
+                  key={e.i}
+                  style={{
+                    display: 'flex',
+                    gap: 11,
+                    alignItems: 'baseline',
+                    padding: '7px 4px',
+                    borderBottom: '1px solid rgba(255,255,255,.07)',
+                  }}
+                >
+                  <span
+                    style={{
+                      color: 'var(--muted2)',
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      fontVariantNumeric: 'tabular-nums',
+                      minWidth: 20,
+                      flex: 'none',
+                    }}
+                  >
+                    {String(ord + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{ minWidth: 0 }}>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {e.item.title}
+                    </span>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: 11.5,
+                        color: 'var(--muted2)',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {e.item.artist}
+                    </span>
+                  </span>
+                </li>
+              ))}
+          </ol>
+        </aside>
+        </div>
+
         <div style={{ textAlign: 'center', marginTop: 28 }}>
           <a
             href={SITE_URL + '/'}
@@ -130,8 +197,7 @@ export default async function ChartPage({ params }: Props) {
               color: 'var(--cta-fg)',
               padding: '12px 24px',
               borderRadius: 'var(--r-sm)',
-              fontFamily: 'var(--pixel)',
-              fontWeight: 600,
+              fontWeight: 700,
               boxShadow: 'var(--hard-shadow)',
               textDecoration: 'none',
               fontSize: 14,

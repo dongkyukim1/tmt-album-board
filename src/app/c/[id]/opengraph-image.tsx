@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { fetchPublicChart, buildGrid } from '@/lib/charts'
 
-export const alt = 'TMT 토스터'
+export const alt = 'TMT 탑스터'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -11,7 +11,7 @@ export default async function Image({ params }: Props) {
   const { id } = await params
   const chart = await fetchPublicChart(id)
 
-  const name = chart?.name ?? '토스터를 찾을 수 없어요'
+  const name = chart?.name ?? '탑스터를 찾을 수 없어요'
   const covers = chart
     ? buildGrid(chart)
         .map((it) => it?.artworkUrl)
@@ -56,7 +56,7 @@ export default async function Image({ params }: Props) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 28, color: 'rgba(0,0,0,.62)', marginBottom: 16 }}>TMT · 토스터</div>
+          <div style={{ fontSize: 28, color: 'rgba(0,0,0,.62)', marginBottom: 16 }}>TMT · 탑스터</div>
           <div style={{ fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>{name}</div>
         </div>
       </div>
