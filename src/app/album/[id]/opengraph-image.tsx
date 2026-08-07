@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og'
 import { lookupAlbum } from '@/lib/itunes'
+import { loadKoreanFont } from '@/lib/og-font'
 
-export const alt = 'TMT 앨범 리뷰'
+export const alt = 'TMT 앨범'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -12,7 +13,8 @@ export default async function Image({ params }: Props) {
   const album = await lookupAlbum(id)
 
   const title = album?.collectionName ?? '앨범을 찾을 수 없어요'
-  const artist = album?.artistName ?? 'TMT — Album Board'
+  const artist = album?.artistName ?? 'TMT — 탑스터 메이커'
+  const fonts = await loadKoreanFont(`TMT · 앨범${title}${artist}`)
 
   return new ImageResponse(
     (
@@ -24,9 +26,10 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 80,
-          background: '#F2FF00',
-          color: '#000',
-          fontFamily: 'sans-serif',
+          // 미드나잇 갤러리 — 잉크 캔버스 + 아이보리 글자 + 골드 키커
+          background: '#14110D',
+          color: '#EDE7DB',
+          fontFamily: '"Noto Sans KR", sans-serif',
         }}
       >
         {album?.artworkUrl ? (
@@ -36,22 +39,26 @@ export default async function Image({ params }: Props) {
             alt=""
             width={420}
             height={420}
-            style={{ borderRadius: 4, border: '3px solid #000', boxShadow: '10px 10px 0 rgba(0,0,0,.35)' }}
+            style={{
+              borderRadius: 6,
+              border: '1px solid rgba(255,255,255,.08)',
+              boxShadow: '0 24px 60px rgba(0,0,0,.55)',
+            }}
           />
         ) : null}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 30, color: 'rgba(0,0,0,.62)', marginBottom: 18 }}>
-            TMT · 블라인드 앨범 리뷰
+          <div style={{ fontSize: 30, color: '#E3B24E', letterSpacing: 4, marginBottom: 18 }}>
+            TMT · 앨범
           </div>
           <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>
             {title}
           </div>
-          <div style={{ fontSize: 40, color: 'rgba(0,0,0,.55)', marginTop: 20 }}>
+          <div style={{ fontSize: 40, color: 'rgba(237,231,219,.62)', marginTop: 20 }}>
             {artist}
           </div>
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   )
 }

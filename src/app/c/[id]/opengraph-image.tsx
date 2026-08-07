@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { fetchPublicChart, buildGrid } from '@/lib/charts'
+import { loadKoreanFont } from '@/lib/og-font'
 
 export const alt = 'TMT 탑스터'
 export const size = { width: 1200, height: 630 }
@@ -20,6 +21,7 @@ export default async function Image({ params }: Props) {
     : []
   // 3x3 콜라주용으로 9칸 채움(부족하면 빈칸)
   const slots = Array.from({ length: 9 }, (_, i) => covers[i] ?? null)
+  const fonts = await loadKoreanFont(`TMT · 탑스터${name}`)
 
   return new ImageResponse(
     (
@@ -31,12 +33,13 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 70,
-          background: '#F2FF00',
-          color: '#000',
-          fontFamily: 'sans-serif',
+          // 미드나잇 갤러리 — 잉크 캔버스 + 아이보리 글자 + 골드 키커
+          background: '#14110D',
+          color: '#EDE7DB',
+          fontFamily: '"Noto Sans KR", sans-serif',
         }}
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', width: 490, height: 490, gap: 0 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', width: 470, height: 470, gap: 10 }}>
           {slots.map((u, i) => (
             <div
               key={i}
@@ -44,10 +47,10 @@ export default async function Image({ params }: Props) {
                 display: 'flex',
                 width: 150,
                 height: 150,
-                margin: 5,
-                borderRadius: 4,
+                borderRadius: 6,
                 overflow: 'hidden',
-                background: '#1a1a22',
+                background: '#221D16',
+                border: '1px solid rgba(255,255,255,.08)',
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -56,11 +59,13 @@ export default async function Image({ params }: Props) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 28, color: 'rgba(0,0,0,.62)', marginBottom: 16 }}>TMT · 탑스터</div>
+          <div style={{ fontSize: 28, color: '#E3B24E', letterSpacing: 4, marginBottom: 16 }}>
+            TMT · 탑스터
+          </div>
           <div style={{ fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>{name}</div>
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, fonts },
   )
 }

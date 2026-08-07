@@ -34,14 +34,15 @@ export type Chart = {
   isPublic: boolean
 }
 
+// 미드나잇 갤러리 기본값 — 앱이 style 없이 저장한 차트도 브랜드 색으로 렌더
 export const STYLE_DEFAULTS = {
-  backgroundColor: '#111114',
+  backgroundColor: '#14110D',
   cellGap: 8,
   padding: 24,
-  cornerRadius: 8,
+  cornerRadius: 6,
   showTitles: false,
   showNumbers: false,
-  textColor: '#ffffff',
+  textColor: '#EDE7DB',
   titleFontSize: 12,
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",

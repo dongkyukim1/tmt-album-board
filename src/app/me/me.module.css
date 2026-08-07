@@ -1,4 +1,4 @@
-/* MY 화면 — 설계 ⑭. 토큰은 globals.css(:root) 산성 시스템 사용. */
+/* MY 화면 — 설계 ⑭. 토큰은 globals.css(:root) 미드나잇 갤러리 사용. */
 .screen {
   min-height: 100dvh;
   background: var(--bg);
@@ -17,7 +17,7 @@
   margin-bottom: 18px;
 }
 .brand {
-  font-family: var(--pixel);
+  font-family: var(--logo);
   font-weight: 700;
   letter-spacing: 0.18em;
   font-size: 15px;
@@ -35,7 +35,7 @@
   gap: 4px;
   padding: 4px;
   background: transparent;
-  border: 2px solid #000;
+  border: 1px solid var(--s-line2);
   border-radius: var(--r-sm);
   margin-bottom: 20px;
 }
@@ -43,13 +43,13 @@
   border: none;
   background: none;
   color: var(--muted);
-  font-family: var(--pixel);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 16px;
   border-radius: var(--r-sm);
   cursor: pointer;
 }
+.seg:focus-visible { outline: none; box-shadow: var(--ring); }
 .segOn {
   background: var(--cta-bg);
   color: var(--cta-fg);
@@ -69,13 +69,14 @@
   color: var(--txt);
   cursor: pointer;
 }
+.card:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-cover); }
 .cover {
   aspect-ratio: 1;
   width: 100%;
   border-radius: var(--r-cover);
   object-fit: cover;
   background: var(--surface-2);
-  border: 2px solid #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: var(--hard-shadow);
 }
 .cardTitle {
@@ -108,7 +109,7 @@
   padding: 14px;
   background: var(--surface-2);
   color: var(--s-txt);
-  border: 2px solid #000;
+  border: 1px solid var(--s-line2);
   border-radius: var(--r-card);
   box-shadow: var(--hard-shadow);
 }
@@ -137,7 +138,7 @@
   text-overflow: ellipsis;
 }
 .stars {
-  color: var(--primary);
+  color: var(--star);
   font-size: 12px;
   flex: none;
   font-variant-numeric: tabular-nums;
@@ -154,15 +155,15 @@
   display: block;
   margin: 22px auto 0;
   background: none;
-  border: 2px solid #000;
+  border: 1px solid var(--s-line2);
   color: var(--txt);
   border-radius: var(--r-sm);
   padding: 11px 22px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  font-family: var(--pixel);
 }
+.more:focus-visible { outline: none; box-shadow: var(--ring); }
 .more:disabled {
   opacity: 0.5;
   cursor: default;
@@ -194,10 +195,10 @@
   padding: 11px 20px;
   font-size: 13px;
   font-weight: 700;
-  font-family: var(--pixel);
   box-shadow: var(--hard-shadow);
   text-decoration: none;
 }
+.cta:focus-visible { outline: none; box-shadow: var(--ring); }
 .skelGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -206,7 +207,7 @@
 .skel {
   aspect-ratio: 1;
   border-radius: var(--r-cover);
-  background: linear-gradient(100deg, var(--surface-2) 30%, #202028 50%, var(--surface-2) 70%);
+  background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface-3) 50%, var(--surface-2) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.3s infinite;
 }
@@ -219,5 +220,10 @@
   margin-bottom: 14px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .skel { animation: none; }
+  .screen *,
+  .screen {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

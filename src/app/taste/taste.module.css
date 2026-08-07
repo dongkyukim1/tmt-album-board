@@ -1,4 +1,4 @@
-/* 취향찾기 스와이프 화면 — 설계 5-1. 토큰은 globals.css(:root) 산성 시스템 사용. */
+/* 취향찾기 스와이프 화면 — 설계 5-1. 토큰은 globals.css(:root) 미드나잇 갤러리 사용. */
 .screen {
   min-height: 100dvh;
   background: var(--bg);
@@ -18,7 +18,7 @@
   margin-bottom: 8px;
 }
 .brand {
-  font-family: var(--pixel);
+  font-family: var(--logo);
   font-weight: 700;
   letter-spacing: 0.18em;
   font-size: 15px;
@@ -45,7 +45,7 @@
 }
 .mockNote {
   font-size: 11px;
-  color: var(--skip);
+  color: var(--muted);
   margin-top: 6px;
 }
 
@@ -65,7 +65,7 @@
   overflow: hidden;
   background: var(--surface-2);
   color: var(--s-txt);
-  border: 2px solid #000;
+  border: 1px solid var(--s-line2);
   box-shadow: var(--hard-shadow);
   user-select: none;
   touch-action: none;
@@ -109,7 +109,6 @@
 }
 .tag {
   font-size: 11px;
-  font-family: var(--pixel);
   color: var(--s-muted);
   border: 1px solid var(--s-line2);
   border-radius: var(--r-sm);
@@ -122,11 +121,10 @@
   top: 18px;
   padding: 6px 14px;
   border-radius: var(--r-sm);
-  font-family: var(--pixel);
   font-weight: 800;
   font-size: 15px;
   letter-spacing: 0.08em;
-  color: #000;
+  color: #14110D;
   opacity: 0;
   transition: opacity 0.12s;
 }
@@ -146,9 +144,9 @@
   width: 60px;
   height: 60px;
   border-radius: var(--r-sm);
-  border: 2px solid #000;
-  background: #fff;
-  color: var(--txt);
+  border: 1px solid var(--s-line2);
+  background: var(--surface-2);
+  color: var(--s-txt);
   font-size: 24px;
   cursor: pointer;
   display: flex;
@@ -165,15 +163,15 @@
 
 .undo {
   background: none;
-  border: 2px solid #000;
+  border: 1px solid var(--s-line2);
   color: var(--txt);
   border-radius: var(--r-sm);
   padding: 9px 16px;
   font-size: 13px;
-  font-family: var(--pixel);
   cursor: pointer;
 }
 .undo:disabled { opacity: 0.35; cursor: not-allowed; }
+.undo:focus-visible { outline: none; box-shadow: var(--ring); }
 
 /* 상태 (로딩/빈/에러) */
 .state {
@@ -194,16 +192,16 @@
   padding: 11px 20px;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--pixel);
   box-shadow: var(--hard-shadow);
   cursor: pointer;
 }
+.retry:focus-visible { outline: none; box-shadow: var(--ring); }
 .skel {
   width: 100%;
   max-width: 460px;
   aspect-ratio: 3 / 4;
   border-radius: var(--r-card);
-  background: linear-gradient(100deg, var(--surface-2) 30%, #202028 50%, var(--surface-2) 70%);
+  background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface-3) 50%, var(--surface-2) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.3s infinite;
 }
@@ -212,5 +210,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .btn, .skel { transition: none; animation: none; }
+  .screen *,
+  .screen {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

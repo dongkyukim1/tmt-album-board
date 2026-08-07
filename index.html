@@ -14,6 +14,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314110D'/%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='10.5' fill='none' stroke='%23E3B24E' stroke-width='3'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23E3B24E' text-anchor='middle'%3ETMT%3C/text%3E%3C/svg%3E" />
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314110D'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23E3B24E' text-anchor='middle'%3ETMT%3C/text%3E%3C/svg%3E" />
 <meta property="og:type" content="website" />
+<meta property="og:site_name" content="TMT" />
+<meta property="og:locale" content="ko_KR" />
 <meta property="og:title" content="TMT — 탑스터 메이커" />
 <meta property="og:description" content="앨범 그리드를 채우고 한 줄 평과 함께 저장·공유하는 탑스터 메이커." />
 <meta property="og:url" content="https://dongkyukim1.github.io/tmt-album-board/" />
@@ -21,13 +23,14 @@
 <style>
   :root{
     /* 미드나잇 갤러리 — 앱 app_tokens.dart 동기화 */
-    --bg:#14110D; --txt:#EDE7DB; --muted:rgba(237,231,219,.62); --muted2:rgba(237,231,219,.55);
-    --faint:rgba(237,231,219,.28);
-    --line:rgba(237,231,219,.09); --line2:rgba(237,231,219,.18);
+    --bg:#14110D; --txt:#EDE7DB; --muted:rgba(237,231,219,.62); --muted2:rgba(237,231,219,.76);
+    --faint:rgba(237,231,219,.26);
+    --line:rgba(237,231,219,.12); --line2:rgba(237,231,219,.18);
     --surface-1:#1B1712; --surface-2:#221D16; --surface-3:#2E271E;
     --glass:rgba(27,23,18,.72);
     --primary:#E3B24E; --primary-2:#EFC366; --on-primary:#14110D;
     --secondary:#E1738A; --taste:#63C39A; --danger:#E5533D;
+    --star:#F0C24E; --artwork-border:rgba(255,255,255,.08);
     --shadow:0 10px 30px rgba(0,0,0,.5);
     --shadow-lg:0 24px 60px rgba(0,0,0,.55);
     --ring:0 0 0 2px rgba(227,178,78,.85);
@@ -80,7 +83,8 @@
   .auth-menu{position:absolute;top:calc(100% + 10px);right:0;min-width:200px;background:var(--surface-2);border:1px solid var(--line2);
     border-radius:14px;padding:7px;box-shadow:var(--shadow-lg);display:none;z-index:200;animation:pop .18s var(--ease)}
   .auth-menu.show{display:block}
-  .auth-menu .mi{font-size:13.5px;color:var(--muted2);padding:10px 12px;border-radius:9px;cursor:pointer}
+  .auth-menu .mi{display:block;width:100%;text-align:left;background:none;border:none;font-family:inherit;
+    font-size:13.5px;color:var(--muted2);padding:10px 12px;border-radius:9px;cursor:pointer}
   .auth-menu .mi:hover{background:rgba(237,231,219,.07);color:var(--txt)}
   .auth-menu .mi-email{font-size:11.5px;color:var(--muted);padding:7px 12px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;word-break:break-all}
 
@@ -114,10 +118,9 @@
   .search-box.flash{border-color:var(--primary);box-shadow:0 0 0 3px rgba(227,178,78,.22)}
   .search-box svg{stroke:var(--muted);flex:none}
   .search-box input{flex:1;min-width:0;border:none;background:none;color:var(--txt);font-size:14.5px;font-family:inherit;padding:12px 0}
-  .search-box input::placeholder{color:var(--faint)}
-  .search-box input:focus{box-shadow:none}
+  .search-box input::placeholder{color:var(--muted)}
   .search-box input::-webkit-search-cancel-button,.search-box input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
-  .search-box .clr{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center}
+  .search-box .clr{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;width:36px;height:36px;margin-right:-8px;border-radius:50%;display:none;align-items:center;justify-content:center}
   .search-box .clr:hover{color:var(--txt)}
   .search-box.hasq .clr{display:flex}
   .results{max-height:calc(100vh - 260px);min-height:300px;overflow-y:auto;padding:6px 10px 14px;
@@ -152,14 +155,14 @@
     color:var(--txt);font-family:var(--display);font-weight:700;font-size:clamp(23px,3.4vw,31px);letter-spacing:.02em;padding:4px 8px;
     border-bottom:1px solid transparent;transition:border-color .25s}
   .name-in:hover{border-bottom-color:var(--line2)}
-  .name-in:focus{border-bottom-color:var(--primary);box-shadow:none}
-  .name-in::placeholder{color:var(--faint)}
+  .name-in:focus{border-bottom-color:var(--primary)}
+  .name-in::placeholder{color:var(--muted)}
   .stage-meta{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap}
   .stage-sub{font-size:12.5px;color:var(--muted)}
   .stage-sub b{color:var(--muted2);font-weight:600}
   .size-seg{display:inline-flex;gap:2px;background:rgba(237,231,219,.06);border:1px solid var(--line);border-radius:999px;padding:3px}
   .size-seg button{background:none;border:none;border-radius:999px;color:var(--muted2);font-size:12px;font-weight:600;
-    font-variant-numeric:tabular-nums;padding:6px 14px;cursor:pointer;transition:all .22s var(--ease)}
+    font-variant-numeric:tabular-nums;padding:9px 14px;cursor:pointer;transition:all .22s var(--ease)}
   .size-seg button:hover{color:var(--txt)}
   .size-seg button.on{background:var(--txt);color:var(--bg)}
   .edit-badge{display:none;align-items:center;gap:7px;font-size:11.5px;letter-spacing:.05em;color:var(--primary);
@@ -177,7 +180,7 @@
   .cell{position:relative;aspect-ratio:1;border-radius:10px;background:rgba(237,231,219,.045);cursor:pointer;overflow:hidden;
     border:1px dashed rgba(237,231,219,.16);transition:transform .25s var(--ease),border-color .2s,background .2s,box-shadow .25s}
   .cell:hover{border-color:rgba(227,178,78,.6);background:rgba(237,231,219,.08);transform:translateY(-2px)}
-  .cell .ph{position:absolute;inset:0;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;color:var(--faint)}
+  .cell .ph{position:absolute;inset:0;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;color:var(--muted)}
   .cell .ph svg{stroke:currentColor;transition:transform .25s var(--ease)}
   .cell:hover .ph{color:var(--primary)}
   .cell:hover .ph svg{transform:scale(1.15)}
@@ -189,15 +192,17 @@
   .cell.target{border:1px dashed var(--primary);background:rgba(227,178,78,.08)}
   .cell.dragover{border:2px solid var(--primary);transform:scale(1.04);z-index:2}
   .cell.pulse{animation:pop .3s var(--ease)}
-  .cell .rm{position:absolute;top:6px;right:6px;z-index:3;width:23px;height:23px;border-radius:50%;border:none;
-    background:rgba(0,0,0,.66);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;
-    backdrop-filter:blur(4px)}
-  .cell:hover .rm{display:flex}
+  .cell .rm{position:absolute;top:4px;right:4px;z-index:3;width:30px;height:30px;border-radius:50%;border:none;
+    background:rgba(0,0,0,.66);color:var(--txt);font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .15s}
+  .cell:hover .rm,.cell:focus-within .rm{opacity:1;pointer-events:auto}
+  @media (hover:none){.cell.filled .rm{opacity:1;pointer-events:auto}}
   .cell .hoverbar{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 8px 6px;
     background:linear-gradient(transparent,rgba(0,0,0,.78));opacity:0;transition:opacity .2s;pointer-events:none}
-  .cell:hover .hoverbar{opacity:1}
-  .hoverbar .ht{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hoverbar .ha{font-size:10px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell:hover .hoverbar,.cell:focus-within .hoverbar{opacity:1}
+  @media (hover:none){.cell.filled .hoverbar{opacity:1}}
+  .hoverbar .ht{font-size:11px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hoverbar .ha{font-size:10px;color:rgba(237,231,219,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   /* 한줄평 + 저장 (그리드 하단 — PDF 레이아웃) */
   .maker-foot{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:14px 16px;
@@ -214,8 +219,7 @@
   .prog.done .pt{color:var(--primary)}
   .cmt-wrap{flex:1;min-width:0}
   .cmt-in{width:100%;border:none;background:none;color:var(--txt);font-family:inherit;font-size:14.5px;padding:2px 0}
-  .cmt-in::placeholder{color:var(--faint)}
-  .cmt-in:focus{box-shadow:none}
+  .cmt-in::placeholder{color:var(--muted)}
   .cmt-meta{display:flex;gap:8px;font-size:11px;color:var(--muted);margin-top:1px}
   .cmt-meta .cnt{font-variant-numeric:tabular-nums}
   .cmt-meta .cnt.over{color:var(--danger)}
@@ -240,7 +244,7 @@
   .info-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(46px) saturate(150%);opacity:.35;transform:scale(1.5)}
   .info-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(27,23,18,.95))}
   .info-cover{position:relative;width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;background:var(--surface-3);
-    box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.08)}
+    box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 0 0 1px var(--artwork-border)}
   .info-body{padding:16px 18px 18px}
   .info-pos{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--primary)}
   .info-title{font-size:17.5px;font-weight:700;letter-spacing:-.015em;line-height:1.3;margin-top:6px}
@@ -258,7 +262,7 @@
   .tracks{margin-top:14px;border-top:1px solid var(--line);padding-top:8px}
   .trk{display:flex;gap:11px;align-items:baseline;padding:7px 2px;font-size:13px;color:var(--muted2);border-bottom:1px solid var(--line)}
   .trk:last-child{border-bottom:none}
-  .trk .n{color:var(--faint);font-variant-numeric:tabular-nums;min-width:18px;text-align:right;flex:none}
+  .trk .n{color:var(--muted);font-variant-numeric:tabular-nums;min-width:18px;text-align:right;flex:none}
   .trk .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
   .trk-more{font-size:11.5px;color:var(--muted);padding:10px 2px 2px}
   /* 그리드에 담긴 앨범 번호 리스트 (선택 없음 상태 기본 뷰) */
@@ -297,7 +301,7 @@
   .ovl.open{display:flex}
   .sheet{position:relative;width:100%;background:var(--surface-1);border:1px solid var(--line2);border-radius:20px;
     box-shadow:var(--shadow-lg);animation:pop .24s var(--ease) backwards}
-  .x{position:absolute;top:14px;right:14px;z-index:5;width:32px;height:32px;border-radius:50%;border:none;
+  .x{position:absolute;top:10px;right:10px;z-index:5;width:44px;height:44px;border-radius:50%;border:none;
     background:rgba(237,231,219,.08);color:var(--muted2);font-size:19px;line-height:1;cursor:pointer;
     display:flex;align-items:center;justify-content:center;transition:background .15s}
   .x:hover{background:rgba(237,231,219,.16);color:var(--txt)}
@@ -319,7 +323,7 @@
   .mc-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
   .mc-actions{display:flex;gap:6px;flex:none}
   .mc-btn{background:rgba(237,231,219,.07);border:none;border-radius:9px;color:var(--muted2);
-    font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;transition:all .15s;white-space:nowrap}
+    font-size:12px;font-weight:600;padding:11px 13px;cursor:pointer;transition:all .15s;white-space:nowrap}
   .mc-btn:hover{background:rgba(237,231,219,.14);color:var(--txt)}
   .mc-btn.warn{color:var(--danger)}
   .mc-btn.warn:hover{background:rgba(229,83,61,.12)}
@@ -331,7 +335,7 @@
   .auth-box p{font-size:13.5px;color:var(--muted2);margin:10px 0 20px;line-height:1.6}
   .auth-box input{width:100%;border:1px solid var(--line2);background:rgba(237,231,219,.05);color:var(--txt);font-family:inherit;
     font-size:15px;border-radius:11px;padding:13px 15px;transition:border-color .2s}
-  .auth-box input:focus{border-color:var(--primary);box-shadow:none}
+  .auth-box input:focus{border-color:var(--primary)}
   .auth-box input + input{margin-top:10px}
   .auth-box input.code{letter-spacing:.3em;text-align:center;font-size:20px;font-variant-numeric:tabular-nums}
   .auth-btn{width:100%;margin-top:14px;background:linear-gradient(180deg,var(--primary-2),var(--primary));color:var(--on-primary);
@@ -397,11 +401,11 @@
   </div>
   <div style="position:relative">
     <button class="btn-auth" id="btnAuth">로그인</button>
-    <div class="auth-menu" id="authMenu">
+    <div class="auth-menu" id="authMenu" role="menu" aria-label="계정 메뉴">
       <div class="mi-email" id="authMenuEmail"></div>
-      <div class="mi" id="menuMine">내 탑스터</div>
-      <div class="mi" id="menuNew">새로 만들기</div>
-      <div class="mi" id="authLogout">로그아웃</div>
+      <button type="button" class="mi" id="menuMine" role="menuitem">내 탑스터</button>
+      <button type="button" class="mi" id="menuNew" role="menuitem">새로 만들기</button>
+      <button type="button" class="mi" id="authLogout" role="menuitem">로그아웃</button>
     </div>
   </div>
 </header>
@@ -430,10 +434,10 @@
       <input class="name-in" id="nameInput" maxlength="100" placeholder="나의 탑스터" value="나의 탑스터" aria-label="탑스터 이름" />
       <div class="stage-meta">
         <span class="stage-sub" id="stageSub">검색에서 앨범을 골라 <b>그리드를 채워보세요</b></span>
-        <div class="size-seg" id="sizeChips" role="tablist" aria-label="그리드 크기">
-          <button class="on" data-size="3" role="tab" aria-selected="true">3×3</button>
-          <button data-size="4" role="tab" aria-selected="false">4×4</button>
-          <button data-size="5" role="tab" aria-selected="false">5×5</button>
+        <div class="size-seg" id="sizeChips" role="radiogroup" aria-label="그리드 크기">
+          <button class="on" data-size="3" role="radio" aria-checked="true">3×3</button>
+          <button data-size="4" role="radio" aria-checked="false">4×4</button>
+          <button data-size="5" role="radio" aria-checked="false">5×5</button>
         </div>
         <span class="edit-badge" id="editBadge"><span id="editBadgeTxt"></span><button id="editBadgeNew">새로 만들기</button></span>
       </div>
@@ -478,7 +482,7 @@
   앨범 데이터 © Apple iTunes · 저장한 탑스터는 TMT 앱 탑스터 목록과 동기화돼요
 </footer>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- 내 탑스터 시트 -->
 <div class="ovl" id="mineOverlay">
@@ -613,6 +617,35 @@ function showToast(msg){
   t.textContent=msg; t.classList.add('show');
   clearTimeout(showToast._tm); showToast._tm=setTimeout(()=>t.classList.remove('show'),2600);
 }
+
+/* 모달 공통 접근성 — Escape 닫기 · 열릴 때 포커스 이동 · 닫힐 때 트리거로 복원 · Tab 순환 */
+let _ovlTrigger=null;
+function ovlOpened(ovl){
+  _ovlTrigger=document.activeElement;
+  const f=ovl.querySelector('input:not([disabled]):not([hidden]),button:not([disabled])');
+  if(f) f.focus();
+}
+function ovlClosed(){
+  if(_ovlTrigger&&document.body.contains(_ovlTrigger)) _ovlTrigger.focus();
+  _ovlTrigger=null;
+}
+document.addEventListener('keydown',e=>{
+  const open=document.querySelector('.ovl.open');
+  if(!open) return;
+  if(e.key==='Escape'){
+    e.preventDefault();
+    if(open.id==='authOverlay') closeAuth(); else { open.classList.remove('open'); ovlClosed(); }
+    return;
+  }
+  if(e.key==='Tab'){
+    const els=[...open.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+      .filter(el=>el.offsetParent!==null);
+    if(!els.length) return;
+    const first=els[0],last=els[els.length-1];
+    if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
 function regionCode(){
   const langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||'en-US'];
   for(const l of langs){ const m=/[-_]([A-Za-z]{2})$/.exec(l||''); if(m) return m[1].toUpperCase(); }
@@ -697,8 +730,8 @@ function showView(id){
   AUTH_VIEWS.forEach(v=>{ const el=document.getElementById(v); if(el) el.hidden=v!==id; });
   setTimeout(()=>{ const el=document.getElementById(AUTH_FOCUS[id]); if(el) el.focus(); },50);
 }
-function openAuth(){ showView('viewLogin'); document.getElementById('loginPassword').value=''; setMsg('loginMsg',''); authOverlay.classList.add('open'); }
-function closeAuth(){ authOverlay.classList.remove('open'); clearAuthTimers(); }
+function openAuth(){ showView('viewLogin'); document.getElementById('loginPassword').value=''; setMsg('loginMsg',''); authOverlay.classList.add('open'); ovlOpened(authOverlay); }
+function closeAuth(){ authOverlay.classList.remove('open'); clearAuthTimers(); ovlClosed(); }
 document.getElementById('authClose').addEventListener('click',closeAuth);
 authOverlay.addEventListener('click',e=>{ if(e.target===authOverlay) closeAuth(); });
 
@@ -939,7 +972,7 @@ function loadDraft(){
     renderEditBadge();
     document.querySelectorAll('#sizeChips button').forEach(c=>{
       const on=+c.dataset.size===gridSize;
-      c.classList.toggle('on',on); c.setAttribute('aria-selected',on?'true':'false');
+      c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
     });
   }catch(e){}
 }
@@ -1072,7 +1105,7 @@ document.getElementById('sizeChips').addEventListener('click',e=>{
   selected=null; insertTarget=null;
   document.querySelectorAll('#sizeChips button').forEach(c=>{
     const on=+c.dataset.size===size;
-    c.classList.toggle('on',on); c.setAttribute('aria-selected',on?'true':'false');
+    c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
   });
   renderGrid(); renderInfo();
 });
@@ -1345,7 +1378,7 @@ function resetEditor(){
   nameInput.value='나의 탑스터'; cmtInput.value='';
   document.querySelectorAll('#sizeChips button').forEach(c=>{
     const on=+c.dataset.size===3;
-    c.classList.toggle('on',on); c.setAttribute('aria-selected',on?'true':'false');
+    c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
   });
   renderEditBadge(); renderGrid(); renderInfo();
 }
@@ -1355,8 +1388,8 @@ document.getElementById('menuNew').addEventListener('click',()=>{ authMenu.class
 /* ===================== 내 탑스터 (앱 my Topsters와 동일 데이터) ===================== */
 const mineOverlay=document.getElementById('mineOverlay');
 const mineBody=document.getElementById('mineBody');
-document.getElementById('mineClose').addEventListener('click',()=>mineOverlay.classList.remove('open'));
-mineOverlay.addEventListener('click',e=>{ if(e.target===mineOverlay) mineOverlay.classList.remove('open'); });
+document.getElementById('mineClose').addEventListener('click',()=>{ mineOverlay.classList.remove('open'); ovlClosed(); });
+mineOverlay.addEventListener('click',e=>{ if(e.target===mineOverlay){ mineOverlay.classList.remove('open'); ovlClosed(); } });
 document.getElementById('menuMine').addEventListener('click',()=>{ authMenu.classList.remove('show'); openMine(); });
 
 function coversHTML(urls,cls){
@@ -1365,7 +1398,7 @@ function coversHTML(urls,cls){
 }
 async function openMine(){
   if(!myProfile){ openAuth(); return; }
-  mineOverlay.classList.add('open');
+  mineOverlay.classList.add('open'); ovlOpened(mineOverlay);
   mineBody.innerHTML='<div class="mine-hint">불러오는 중…</div>';
   try{
     const res=await apiFetch('/me/charts',{ requireAuth:true });
@@ -1421,7 +1454,7 @@ mineBody.addEventListener('click',async e=>{
       if(!res.ok){ const er=await apiError(res,'탑스터를 불러오지 못했어요.'); showToast(er.message); btn.disabled=false; return; }
       const { data }=await res.json();
       loadChartIntoEditor(data);
-      mineOverlay.classList.remove('open');
+      mineOverlay.classList.remove('open'); ovlClosed();
     }catch(err){ console.error('[TMT] 탑스터 불러오기 실패:', err); showToast('네트워크 오류가 발생했어요'); btn.disabled=false; }
   }
 });
@@ -1444,7 +1477,7 @@ function loadChartIntoEditor(chart){
   savedChart=chart;
   document.querySelectorAll('#sizeChips button').forEach(c=>{
     const on=+c.dataset.size===gridSize;
-    c.classList.toggle('on',on); c.setAttribute('aria-selected',on?'true':'false');
+    c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
   });
   renderEditBadge(); renderGrid(); renderInfo();
   showToast('"'+(chart.name||'탑스터')+'" 편집을 시작해요');
@@ -1482,10 +1515,10 @@ function openDone(){
   pv.style.gridTemplateColumns='repeat('+gridSize+',1fr)';
   pv.innerHTML=cells.map(c=>'<img src="'+escapeHtml(c.artworkUrl.replace('600x600','100x100'))+'" alt="" />').join('');
   document.getElementById('appGuide').classList.remove('show');
-  doneOverlay.classList.add('open');
+  doneOverlay.classList.add('open'); ovlOpened(doneOverlay);
 }
-document.getElementById('doneClose').addEventListener('click',()=>doneOverlay.classList.remove('open'));
-doneOverlay.addEventListener('click',e=>{ if(e.target===doneOverlay) doneOverlay.classList.remove('open'); });
+document.getElementById('doneClose').addEventListener('click',()=>{ doneOverlay.classList.remove('open'); ovlClosed(); });
+doneOverlay.addEventListener('click',e=>{ if(e.target===doneOverlay){ doneOverlay.classList.remove('open'); ovlClosed(); } });
 document.getElementById('btnViewApp').addEventListener('click',()=>{
   document.getElementById('appGuide').classList.toggle('show');
 });
@@ -1524,7 +1557,7 @@ async function downloadImage(){
     /* 배경 — 미드나잇 갤러리 */
     ctx.fillStyle='#14110D'; ctx.fillRect(0,0,W,H);
     /* 헤더: TMT 로고 + 이름 + 한 줄 평 */
-    ctx.fillStyle='#E3B24E'; ctx.font='700 30px Georgia,serif'; ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#E3B24E'; ctx.font="700 30px 'Song Myung',Georgia,serif"; ctx.textBaseline='alphabetic';
     ctx.fillText('TMT',PAD,54);
     ctx.fillStyle='#EDE7DB'; ctx.font='700 30px Pretendard,-apple-system,sans-serif';
     ctx.fillText(ellipsize(ctx,nameInput.value.trim(),W-PAD*2-120),PAD+96,54);
@@ -1547,7 +1580,7 @@ async function downloadImage(){
       ctx.fillText(String(i+1).padStart(2,'0'),ix,iy);
       ctx.fillStyle='#EDE7DB'; ctx.font='600 16px Pretendard,-apple-system,sans-serif';
       ctx.fillText(ellipsize(ctx,c.title,INFO_W-140),ix+34,iy);
-      ctx.fillStyle='rgba(237,231,219,.55)'; ctx.font='14px Pretendard,-apple-system,sans-serif';
+      ctx.fillStyle='rgba(237,231,219,.62)'; ctx.font='14px Pretendard,-apple-system,sans-serif';
       ctx.fillText(ellipsize(ctx,c.artist+(c.year?' · '+c.year:''),INFO_W-140),ix+34,iy+18);
       iy+=lineH+16;
     });
