@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'TMT — Album Board',
-  description: '블라인드 앨범 리뷰 + 소셜 허브',
+  title: 'TMT — 탑스터 메이커',
+  description: '앨범 그리드를 채우고 한 줄 평과 함께 저장·공유하는 탑스터(Topster) 메이커.',
 }
 
 export default function RootLayout({
@@ -20,6 +20,11 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Song+Myung&display=swap"
+        />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
       </head>
       <body

@@ -57,7 +57,7 @@ export default async function AlbumPage({ params }: Props) {
           alt={`${album.collectionName} 앨범 커버`}
           width={300}
           height={300}
-          style={{ borderRadius: 'var(--r-cover)', border: '2px solid #000', boxShadow: 'var(--hard-shadow)' }}
+          style={{ borderRadius: 'var(--r-cover)', border: '1px solid rgba(255,255,255,.08)', boxShadow: 'var(--hard-shadow)' }}
         />
       ) : null}
 
@@ -80,7 +80,6 @@ export default async function AlbumPage({ params }: Props) {
           color: 'var(--cta-fg)',
           padding: '14px 28px',
           borderRadius: 'var(--r-sm)',
-          fontFamily: 'var(--pixel)',
           fontWeight: 600,
           boxShadow: 'var(--hard-shadow)',
           textDecoration: 'none',

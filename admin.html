@@ -4,19 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TMT 관리자</title>
+<meta name="theme-color" content="#14110D" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314110D'/%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='10.5' fill='none' stroke='%23E3B24E' stroke-width='3'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23E3B24E' text-anchor='middle'%3ETMT%3C/text%3E%3C/svg%3E" />
 <script src="./env.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
-    --bg:#0F0D0A;
+    /* 미드나잇 갤러리 — 앱 app_tokens.dart와 동일 값 */
+    --bg:#14110D;
     --surface:rgba(255,251,240,.035);
     --surface-solid:#18150F;
     --line:rgba(237,231,219,.08);
     --line-strong:rgba(237,231,219,.16);
-    --ink:#F0EADF; --muted:#A79F90; --faint:#6F675A;
+    --ink:#F2ECE1; --muted:#9A9184; --faint:#6F675A;
     --gold:#E3B24E; --gold-soft:rgba(227,178,78,.14);
-    --taste:#2E9A72; --hmm:#B8862F; --respect:#CE5F78;
+    /* verdict — 앱과 동일: TASTE!=에메랄드 · HMM..=골드 · RESPECT=로즈 */
+    --taste:#63C39A; --hmm:#E3B24E; --respect:#E1738A;
     --danger:#E5533D;
     --r:18px;
   }
@@ -59,7 +63,7 @@
   .field input::placeholder{color:var(--faint)}
   .field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(227,178,78,.18)}
   .btn-primary{width:100%;margin-top:8px;padding:14px;border:0;border-radius:12px;cursor:pointer;
-    background:linear-gradient(180deg,#EFC066,#DBA53E);color:#191307;font-size:15px;font-weight:800;
+    background:var(--gold);color:#14110D;font-size:15px;font-weight:800;
     letter-spacing:-.2px;font-family:inherit;transition:transform .12s, box-shadow .15s;
     box-shadow:0 8px 24px rgba(227,178,78,.22)}
   .btn-primary:hover{transform:translateY(-1px)}
@@ -289,7 +293,15 @@ const API =
   new URLSearchParams(location.search).get('api') ||
   (window.__ENV__ && window.__ENV__.API_BASE_URL) ||
   'https://music-api-o7d8.onrender.com/api/v1';
-const PALETTE = { taste:'#2E9A72', hmm:'#B8862F', respect:'#CE5F78', gold:'#E3B24E' };
+// CSS :root 토큰에서 읽어 CSS/JS 팔레트 발산 차단
+const _rootStyle = getComputedStyle(document.documentElement);
+const _tok = (name, fallback) => (_rootStyle.getPropertyValue(name) || '').trim() || fallback;
+const PALETTE = {
+  taste: _tok('--taste', '#63C39A'),
+  hmm: _tok('--hmm', '#E3B24E'),
+  respect: _tok('--respect', '#E1738A'),
+  gold: _tok('--gold', '#E3B24E'),
+};
 const VERDICT_META = {
   like:    { label:'TASTE! (내 취향)',   color:PALETTE.taste },
   unknown: { label:'HMM.. (애매)',       color:PALETTE.hmm },
@@ -383,7 +395,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g,
   (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* 닉네임 → 아바타(이니셜 + 결정적 색상). */
-const AVATAR_COLORS = [PALETTE.taste, PALETTE.hmm, PALETTE.respect, '#7A8FC9', '#B07FC9'];
+const AVATAR_COLORS = [PALETTE.taste, PALETTE.hmm, PALETTE.respect, '#B8AF9F', '#6E6558'];
 function avatarHtml(name, size = 20) {
   const n = String(name || '?');
   let h = 0;
@@ -524,7 +536,7 @@ function renderTrends(d) {
         interaction: { mode: 'index', intersect: false },
         plugins: { legend: { display: false }, tooltip: {
           backgroundColor: '#221D16', borderColor: 'rgba(237,231,219,.15)', borderWidth: 1,
-          titleColor: '#F0EADF', bodyColor: '#A79F90', displayColors: false,
+          titleColor: '#F2ECE1', bodyColor: '#9A9184', displayColors: false,
           padding: 10, cornerRadius: 8,
         }},
         scales: {

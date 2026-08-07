@@ -1,13 +1,14 @@
-/* 산성(acid) 디자인 시스템 토큰 — index.html :root 마스터 소스와 동일 네이밍.
-   앱(topster_flutter lib/core/theme/app_tokens.dart)과 통일. 네온 옐로 캔버스 + 블랙 잉크. */
+/* "미드나잇 갤러리" 디자인 토큰 — index.html :root 마스터 소스와 동일 네이밍.
+   소스 오브 트루스: 앱 topster_flutter lib/core/theme/app_tokens.dart. */
 :root {
   /* base — 미드나잇 갤러리: 따뜻한 잉크 캔버스 + 아이보리 글자 */
   --bg: #14110D;
   --txt: #EDE7DB;
   --muted: rgba(237, 231, 219, 0.62);
-  --muted2: rgba(237, 231, 219, 0.55);
+  /* muted2 = muted보다 밝은 강조 톤(앱 #B8AF9F 역산) — muted보다 어두우면 안 됨 */
+  --muted2: rgba(237, 231, 219, 0.76);
   --line: rgba(237, 231, 219, 0.12);
-  --line2: rgba(237, 231, 219, 0.22);
+  --line2: rgba(237, 231, 219, 0.18);
 
   /* 살짝 떠오른 따뜻한 차콜 표면 */
   --surface-1: #1B1712;
@@ -24,10 +25,11 @@
   --primary: #E3B24E; /* 골드 — CTA·활성 상태 */
   --secondary: #E1738A; /* 더스티 로즈 — 내 것/좋아요/위시 */
   --taste: #63C39A; /* 에메랄드 — TASTE!/비슷한 취향 */
-  --like: #E1738A;
+  --like: #63C39A; /* verdict: TASTE!=에메랄드 (앱 like 토큰과 동일) */
   --wish: #E1738A;
   --dislike: #6E6558;
   --skip: #4A4338;
+  --star: #F0C24E; /* 별점 골드(앱 star 토큰) */
   --pill: var(--primary); /* CTA·게이지 (하위 호환) */
   --cta-bg: #E3B24E; /* CTA = 골드 채움 + 잉크 글자 */
   --cta-fg: #14110D;
@@ -37,9 +39,10 @@
   --star-empty: rgba(237, 231, 219, 0.22);
   --ring: 0 0 0 2px rgba(227, 178, 78, 0.85);
 
-  /* 폰트 — 본문은 시스템 산스, 로고/헤더/버튼/칩은 에디토리얼 명조 */
-  --sans: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-  --pixel: 'Song Myung', ui-serif, Georgia, 'Apple SD Gothic Neo', serif;
+  /* 폰트 — 한글 UI는 본문 산스, 세리프(--logo)는 라틴 로고/워드마크 전용 (index.html과 동일 원칙) */
+  --sans: 'Pretendard Variable', Pretendard, -apple-system, 'SF Pro Display', system-ui, 'Apple SD Gothic Neo', sans-serif;
+  --logo: 'Song Myung', ui-serif, Georgia, serif;
+  --pixel: var(--logo); /* 하위 호환 별칭 — 신규 코드는 --logo 사용 */
 
   /* radii — 갤러리 감성: 은은하게 부드럽게 (앱 rSm4/rMd8/rCard12/rCover6) */
   --r-sm: 4px;

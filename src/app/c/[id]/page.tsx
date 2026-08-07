@@ -77,7 +77,7 @@ export default async function ChartPage({ params }: Props) {
                   aspectRatio: '1 / 1',
                   borderRadius: s.cornerRadius,
                   overflow: 'hidden',
-                  background: 'rgba(255,255,255,.05)',
+                  background: 'rgba(237,231,219,.05)',
                 }}
               >
                 {item?.artworkUrl ? (
@@ -96,7 +96,7 @@ export default async function ChartPage({ params }: Props) {
                       left: 6,
                       fontSize: 11,
                       fontWeight: 700,
-                      color: '#fff',
+                      color: 'var(--txt)',
                       textShadow: '0 1px 3px rgba(0,0,0,.8)',
                     }}
                   >
@@ -142,7 +142,7 @@ export default async function ChartPage({ params }: Props) {
                     gap: 11,
                     alignItems: 'baseline',
                     padding: '7px 4px',
-                    borderBottom: '1px solid rgba(255,255,255,.07)',
+                    borderBottom: '1px solid var(--line)',
                   }}
                 >
                   <span
