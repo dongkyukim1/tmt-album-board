@@ -173,7 +173,7 @@
 
   /* 그리드가 스크롤 없이 화면 한 번에 들어오도록 세로 여백(헤더+타이틀+저장 바)을 뺀 높이로 폭 제한 */
   .board{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:clamp(12px,1.8vw,20px);
-    max-width:max(340px,calc(100vh - 330px));max-width:max(340px,calc(100dvh - 330px));margin-inline:auto;
+    max-width:max(340px,calc(100vh - 390px));max-width:max(340px,calc(100dvh - 390px));margin-inline:auto;
     box-shadow:var(--shadow-lg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:rise .55s var(--ease) .06s backwards}
   @media (max-width:820px){.board{max-width:none;margin-inline:0}}
   .tgrid{display:grid;gap:clamp(6px,1vw,9px)}
@@ -204,10 +204,25 @@
   .hoverbar .ht{font-size:11px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .hoverbar .ha{font-size:10px;color:rgba(237,231,219,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* 한줄평 + 저장 (그리드 하단 — PDF 레이아웃) */
+  /* 저장된 탑스터 편집: 제목만 수정 가능 — 그리드·크기·한줄평 잠금 표시 */
+  .board.locked .cell{cursor:default}
+  .board.locked .cell:hover{transform:none;background:rgba(237,231,219,.045);border-color:rgba(237,231,219,.16)}
+  .board.locked .cell.filled:hover{transform:none;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .board.locked .cell .rm{display:none}
+  .board.locked .cell .ph{opacity:.45}
+  .lock-note{display:none;align-items:center;justify-content:center;gap:7px;margin-top:12px;
+    font-size:11.5px;letter-spacing:.03em;color:var(--muted2)}
+  .lock-note svg{stroke:var(--primary);flex:none}
+  .board.locked .lock-note{display:flex}
+  .size-seg.locked{opacity:.45}
+  .size-seg.locked button{cursor:default}
+
+  /* 한줄평 + 저장 (그리드 하단 — PDF 레이아웃)
+     데스크톱에서 한줄평과 저장 버튼이 한 줄에서 서로를 밀어내던 문제 → 한줄평은 고정 높이 한 줄,
+     저장 버튼은 flex-basis:100%로 항상 아래 줄 전체 폭을 차지한다. */
   .maker-foot{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:14px 16px;
-    max-width:max(340px,calc(100vh - 330px));max-width:max(340px,calc(100dvh - 330px));margin-inline:auto;
-    display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    max-width:max(340px,calc(100vh - 390px));max-width:max(340px,calc(100dvh - 390px));margin-inline:auto;
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px;box-shadow:var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     animation:rise .55s var(--ease) .1s backwards}
   @media (max-width:820px){.maker-foot{max-width:none;margin-inline:0}}
   .prog{position:relative;width:44px;height:44px;flex:none}
@@ -217,22 +232,24 @@
   .prog .pt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted2)}
   .prog.done .pt{color:var(--primary)}
-  .cmt-wrap{flex:1;min-width:0}
+  .cmt-wrap{flex:1 1 auto;min-width:0;height:46px;display:flex;flex-direction:column;justify-content:center}
   .cmt-in{width:100%;border:none;background:none;color:var(--txt);font-family:inherit;font-size:14.5px;padding:2px 0}
   .cmt-in::placeholder{color:var(--muted)}
-  .cmt-meta{display:flex;gap:8px;font-size:11px;color:var(--muted);margin-top:1px}
-  .cmt-meta .cnt{font-variant-numeric:tabular-nums}
+  .cmt-in:read-only{color:var(--muted2);cursor:default}
+  .cmt-meta{display:flex;gap:8px;font-size:11px;color:var(--muted);margin-top:1px;min-width:0}
+  .cmt-meta .cnt{font-variant-numeric:tabular-nums;flex:none}
   .cmt-meta .cnt.over{color:var(--danger)}
+  .cmt-meta #saveHint{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .btn-save{background:linear-gradient(180deg,var(--primary-2),var(--primary));color:var(--on-primary);border:none;border-radius:13px;
     padding:13px 24px;font-family:var(--display);font-weight:700;font-size:14.5px;letter-spacing:.03em;cursor:pointer;white-space:nowrap;
-    transition:opacity .2s,transform .2s,box-shadow .2s;flex:none;box-shadow:0 8px 22px rgba(227,178,78,.22)}
+    transition:opacity .2s,transform .2s,box-shadow .2s;flex:1 0 100%;box-shadow:0 8px 22px rgba(227,178,78,.22)}
   .btn-save:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 26px rgba(227,178,78,.3)}
   .btn-save:disabled{background:rgba(237,231,219,.1);color:var(--muted);cursor:default;box-shadow:none}
   @media (max-width:640px){
-    .maker-foot{flex-wrap:wrap;gap:10px}
-    .cmt-wrap{order:1;flex:1 1 100%;border-bottom:1px solid var(--line);padding-bottom:8px}
+    .maker-foot{gap:10px}
+    .cmt-wrap{order:1;flex:1 1 100%;height:auto;border-bottom:1px solid var(--line);padding-bottom:8px}
     .prog{order:2}
-    .btn-save{order:3;flex:1}
+    .btn-save{order:3;flex:1 1 auto}
   }
 
   /* ===================== 우측: 앨범 정보 패널 (PDF: 아티스트명·앨범명·발매연도) ===================== */
@@ -253,6 +270,7 @@
   .itag{font-size:11.5px;color:var(--muted2);border:1px solid var(--line2);border-radius:999px;padding:3px 11px}
   .itag.gold{color:var(--primary);border-color:rgba(227,178,78,.45)}
   .info-actions{display:flex;gap:8px;margin-top:14px}
+  .lock-hint{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6}
   .btn-line{flex:1;background:none;border:1px solid var(--line2);border-radius:11px;color:var(--txt);
     font-size:12.5px;font-weight:600;padding:10px;cursor:pointer;transition:background .18s,border-color .18s}
   .btn-line:hover{background:rgba(237,231,219,.06)}
@@ -344,6 +362,8 @@
   .auth-btn:disabled{opacity:.5;cursor:default}
   .auth-btn.ghost{margin-top:10px;background:transparent;color:var(--txt);border:1px solid var(--line2)}
   .auth-btn.ghost:hover{background:rgba(237,231,219,.06);opacity:1}
+  .auth-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--muted2);cursor:pointer;user-select:none}
+  .auth-check input{width:auto;flex:none;margin:0;padding:0;accent-color:var(--primary);cursor:pointer}
   .auth-msg{font-size:12.5px;color:var(--muted2);margin-top:12px;min-height:16px;line-height:1.45}
   .auth-msg.ok{color:var(--taste)}.auth-msg.err{color:var(--danger)}
   .auth-switch{margin-top:16px;font-size:12.5px;color:var(--muted2);display:flex;gap:6px;justify-content:center}
@@ -360,6 +380,14 @@
   .done-preview img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;background:var(--surface-3)}
   .done-actions{display:flex;gap:10px;margin-top:22px}
   .done-actions .auth-btn{margin-top:0;flex:1}
+  /* SNS 아웃링크 공유 */
+  .share-h{margin-top:20px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .share-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+  @media (max-width:400px){.share-row{grid-template-columns:repeat(3,1fr)}}
+  .share-btn{min-width:0;background:rgba(237,231,219,.05);border:1px solid var(--line2);border-radius:11px;
+    color:var(--muted2);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:-.01em;padding:9px 3px;cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .18s,border-color .18s,color .18s}
+  .share-btn:hover{background:rgba(237,231,219,.1);border-color:var(--primary);color:var(--txt)}
   .done-link{margin-top:15px;font-size:12.5px;color:var(--muted)}
   .done-link button{background:none;border:none;color:var(--muted2);font-family:inherit;font-size:12.5px;cursor:pointer;
     text-decoration:underline;text-underline-offset:2px}
@@ -388,6 +416,7 @@
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></symbol>
     <symbol id="i-disc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 018 0v3"/></symbol>
   </defs>
 </svg>
 
@@ -431,7 +460,7 @@
   <section class="a-center">
     <div class="stage-head">
       <div class="kicker">Taste My Taste</div>
-      <input class="name-in" id="nameInput" maxlength="100" placeholder="나의 탑스터" value="나의 탑스터" aria-label="탑스터 이름" />
+      <input class="name-in" id="nameInput" maxlength="100" placeholder="나의 탑스터" aria-label="탑스터 이름" />
       <div class="stage-meta">
         <span class="stage-sub" id="stageSub">검색에서 앨범을 골라 <b>그리드를 채워보세요</b></span>
         <div class="size-seg" id="sizeChips" role="radiogroup" aria-label="그리드 크기">
@@ -443,7 +472,10 @@
       </div>
     </div>
 
-    <div class="board"><div class="tgrid" id="tgrid"></div></div>
+    <div class="board" id="board">
+      <div class="tgrid" id="tgrid"></div>
+      <div class="lock-note"><svg width="13" height="13"><use href="#i-lock"/></svg>저장된 탑스터예요 — 제목만 수정할 수 있어요</div>
+    </div>
 
     <div class="maker-foot">
       <div class="prog" id="prog" aria-hidden="true">
@@ -512,6 +544,14 @@
       <b class="gold">TMT 앱</b> → <b>탑스터</b> 메뉴에서 방금 만든 탑스터를 확인할 수 있어요.
       웹에서는 아래 공유 링크로 누구나 볼 수 있어요.
     </div>
+    <div class="share-h">SNS로 공유</div>
+    <div class="share-row" id="shareRow">
+      <button class="share-btn" data-share="x">X</button>
+      <button class="share-btn" data-share="facebook">Facebook</button>
+      <button class="share-btn" data-share="threads">Threads</button>
+      <button class="share-btn" data-share="instagram">Instagram</button>
+      <button class="share-btn" data-share="tiktok">TikTok</button>
+    </div>
     <div class="done-link">공유 링크 · <button id="btnCopyLink">복사하기</button> <button id="btnOpenLink">열기</button></div>
   </div>
 </div>
@@ -526,6 +566,7 @@
       <p>TMT 앱과 같은 계정이에요. 로그인하면 탑스터가 계정에 저장돼요.</p>
       <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" inputmode="email" />
       <input type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password" />
+      <label class="auth-check" for="loginRemember"><input type="checkbox" id="loginRemember" checked />로그인 정보 저장하기</label>
       <button class="auth-btn" id="loginBtn">로그인</button>
       <div class="auth-msg" id="loginMsg"></div>
       <div class="auth-switch">
@@ -653,19 +694,14 @@ function regionCode(){
 }
 const COUNTRY=regionCode();
 
-/* ===================== 한줄평 가중길이 (백엔드 charts.logic 동일 규칙) ===================== */
-const MAX_COMMENT_WEIGHT=30;
-function isWide(cp){
-  return (cp>=0x1100&&cp<=0x115F)||(cp>=0x2E80&&cp<=0x2FDF)||(cp>=0x3000&&cp<=0x303F)||
-    (cp>=0x3040&&cp<=0x30FF)||(cp>=0x3130&&cp<=0x318F)||(cp>=0x3400&&cp<=0x4DBF)||
-    (cp>=0x4E00&&cp<=0x9FFF)||(cp>=0xA960&&cp<=0xA97F)||(cp>=0xAC00&&cp<=0xD7A3)||
-    (cp>=0xD7B0&&cp<=0xD7FF)||(cp>=0xF900&&cp<=0xFAFF)||(cp>=0xFF00&&cp<=0xFF60)||
-    (cp>=0xFFE0&&cp<=0xFFE6)||(cp>=0x20000&&cp<=0x3FFFD);
-}
-function weightedLength(text){
-  let total=0;
-  for(const ch of text){ total+=isWide(ch.codePointAt(0))?2:1; }
-  return total;
+/* ===================== 한줄평 글자수 (사용자가 보는 그대로 — 한글 1음절 = 1자) =====================
+   '안녕하세요' = 5자. 이모지·결합 문자는 Intl.Segmenter가 있으면 1자로 묶고, 없으면 코드포인트 단위로 센다. */
+const MAX_COMMENT_LEN=30;
+const _graphemeSeg=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('ko',{granularity:'grapheme'}):null;
+function graphemeLength(text){
+  const s=text||'';
+  if(_graphemeSeg){ let n=0; for(const _ of _graphemeSeg.segment(s)) n++; return n; }
+  return Array.from(s).length;
 }
 
 /* ===================== 토큰 / 세션 관리 (앱과 같은 자체 발급 JWT) ===================== */
@@ -769,9 +805,11 @@ async function doLogin(){
   const password=document.getElementById('loginPassword').value;
   if(!EMAIL_RE.test(email)){ setMsg('loginMsg','올바른 이메일을 입력해주세요.','err'); return; }
   if(!password){ setMsg('loginMsg','비밀번호를 입력해주세요.','err'); return; }
+  /* 체크 시 백엔드가 장기(90일) 리프레시 토큰을 발급 — 필드를 모르는 구버전 서버와도 호환 */
+  const rememberMe=!!document.getElementById('loginRemember').checked;
   const btn=document.getElementById('loginBtn'); btn.disabled=true; setMsg('loginMsg','로그인 중…');
   try{
-    const res=await fetch(API_BASE+'/auth/login',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email, password }) });
+    const res=await fetch(API_BASE+'/auth/login',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ email, password, rememberMe }) });
     if(!res.ok){ const e=await apiError(res,'로그인에 실패했어요.'); setMsg('loginMsg',e.message,'err'); return; }
     const { data }=await res.json();
     setMsg('loginMsg',''); onAuthenticated(data);
@@ -956,6 +994,23 @@ const nameInput=document.getElementById('nameInput');
 const cmtInput=document.getElementById('cmtInput');
 const btnSave=document.getElementById('btnSave');
 
+/* --- 저장된 탑스터(editingChartId 있음)는 제목만 수정 가능 — 그리드·크기·한줄평은 잠긴다 --- */
+const EDIT_LOCK_MSG='저장된 탑스터는 제목만 수정할 수 있어요';
+function isEditLocked(){ return !!editingChartId; }
+function renderEditLock(){
+  const locked=isEditLocked();
+  document.getElementById('board').classList.toggle('locked',locked);
+  document.getElementById('sizeChips').classList.toggle('locked',locked);
+  cmtInput.readOnly=locked;
+}
+
+/* --- 제목을 비우고 저장하면 작성 날짜(YYYY.MM.DD)가 제목이 된다 --- */
+function todayTitle(){
+  const d=new Date(), pad=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'.'+pad(d.getMonth()+1)+'.'+pad(d.getDate());
+}
+nameInput.placeholder=todayTitle();
+
 /* --- 드래프트: 새로고침해도 작업 유지 --- */
 function saveDraft(){
   try{ localStorage.setItem(DRAFT_KEY,JSON.stringify({ gridSize, cells, name:nameInput.value, comment:cmtInput.value, editingChartId, editingChartName })); }catch(e){}
@@ -987,6 +1042,7 @@ function renderAmbient(){
 
 /* --- 그리드 렌더 --- */
 function renderGrid(){
+  const locked=isEditLocked();
   tgridEl.style.gridTemplateColumns='repeat('+gridSize+',1fr)';
   tgridEl.innerHTML='';
   cells.forEach((item,i)=>{
@@ -1001,8 +1057,8 @@ function renderGrid(){
     if(item){
       d.innerHTML='<img src="'+escapeHtml(item.artworkUrl)+'" alt="" loading="lazy" />'
         +'<div class="hoverbar"><div class="ht">'+escapeHtml(item.title)+'</div><div class="ha">'+escapeHtml(item.artist)+'</div></div>'
-        +'<button class="rm" aria-label="제거">×</button>';
-      d.draggable=true;
+        +(locked?'':'<button class="rm" aria-label="제거">×</button>');
+      d.draggable=!locked;
     } else {
       d.innerHTML='<span class="ph"><svg width="20" height="20"><use href="#i-plus"/></svg><small>'+(i+1)+'</small></span>';
     }
@@ -1019,6 +1075,9 @@ function firstEmpty(){ return cells.findIndex(c=>!c); }
 
 /* PDF 규칙: 클릭 → 첫 빈 칸(지정 칸 있으면 그 칸), 드래그 → 원하는 칸 */
 function placeItem(item,at){
+  if(isEditLocked()){ showToast(EDIT_LOCK_MSG); return -1; }
+  /* 같은 앨범은 한 칸에만 — 이미 그리드에 있으면 배치를 막는다 */
+  if(usedIds().has(item.id)){ showToast('이미 그리드에 담은 앨범이에요'); return -1; }
   let idx;
   if(at!=null) idx=at;
   else if(insertTarget!=null&&!cells[insertTarget]) idx=insertTarget;
@@ -1033,11 +1092,13 @@ function placeItem(item,at){
   return idx;
 }
 function removeAt(i){
+  if(isEditLocked()){ showToast(EDIT_LOCK_MSG); return; }
   cells=withCell(cells,i,null);
   if(selected&&selected.kind==='cell'&&selected.index===i) selected=null;
   renderGrid(); renderResults(); renderInfo();
 }
 function moveCell(from,to){
+  if(isEditLocked()){ showToast(EDIT_LOCK_MSG); return; }
   if(from===to) return;
   const next=cells.slice();
   const tmp=next[to]; next[to]=next[from]; next[from]=tmp;   // 스왑
@@ -1055,6 +1116,7 @@ function focusSearch(){
 }
 function handleCellActivate(i){
   if(cells[i]){ selected={ kind:'cell', index:i }; insertTarget=null; renderGrid(); renderInfo(); }
+  else if(isEditLocked()) showToast(EDIT_LOCK_MSG);
   else { insertTarget=i; selected=null; renderGrid(); renderInfo(); focusSearch(); }
 }
 tgridEl.addEventListener('click',e=>{
@@ -1097,6 +1159,7 @@ document.getElementById('sizeChips').addEventListener('click',e=>{
   const chip=e.target.closest('button'); if(!chip) return;
   const size=+chip.dataset.size;
   if(size===gridSize) return;
+  if(isEditLocked()){ showToast(EDIT_LOCK_MSG); return; }
   const filled=cells.filter(Boolean);
   const total=size*size;
   if(filled.length>total){ showToast(size+'×'+size+'로 줄이면 앨범 '+(filled.length-total)+'장이 빠져요 — 먼저 칸을 비워주세요'); return; }
@@ -1238,21 +1301,25 @@ function renderInfo(){
     +(it.genre?'<span class="itag">'+escapeHtml(it.genre)+'</span>':'')
     +(it.trackCount?'<span class="itag">'+it.trackCount+'곡</span>':'')
     +'</div>'
-    +(fromCell
-      ?'<div class="info-actions"><button class="btn-line" id="infoReplace">교체하기</button><button class="btn-line warn" id="infoRemove">빼기</button></div>'
-      :'<div class="info-actions"><button class="btn-line gold" id="infoAdd">그리드에 추가</button></div>')
+    +(isEditLocked()
+      ?'<div class="lock-hint">저장된 탑스터예요 — 제목만 수정할 수 있어요</div>'
+      :(fromCell
+        ?'<div class="info-actions"><button class="btn-line" id="infoReplace">교체하기</button><button class="btn-line warn" id="infoRemove">빼기</button></div>'
+        :'<div class="info-actions"><button class="btn-line gold" id="infoAdd">그리드에 추가</button></div>'))
     +'<div class="tracks" id="trackList"><div class="trk-more">수록곡 불러오는 중…</div></div>'
     +'</div>';
-  if(fromCell){
-    document.getElementById('infoRemove').addEventListener('click',()=>removeAt(selected.index));
-    document.getElementById('infoReplace').addEventListener('click',()=>{
-      const idx=selected.index;
-      removeAt(idx); insertTarget=idx; renderGrid(); focusSearch();
-    });
-  } else {
-    document.getElementById('infoAdd').addEventListener('click',()=>{
-      const st=selectedItem(); if(st) placeItem(st,null);
-    });
+  if(!isEditLocked()){
+    if(fromCell){
+      document.getElementById('infoRemove').addEventListener('click',()=>removeAt(selected.index));
+      document.getElementById('infoReplace').addEventListener('click',()=>{
+        const idx=selected.index;
+        removeAt(idx); insertTarget=idx; renderGrid(); focusSearch();
+      });
+    } else {
+      document.getElementById('infoAdd').addEventListener('click',()=>{
+        const st=selectedItem(); if(st) placeItem(st,null);
+      });
+    }
   }
   loadTracks(it);
 }
@@ -1300,29 +1367,29 @@ async function loadTracks(it){
   }
 }
 
-/* ===================== 저장 게이트 (그리드 전부 + 한줄평 + 이름) ===================== */
+/* ===================== 저장 게이트 (그리드 전부 + 한줄평 — 제목은 비면 날짜로 대체) ===================== */
 const cmtCount=document.getElementById('cmtCount');
 const PROG_C=119.4;   // 2πr, r=19
-function commentWeight(){ return weightedLength(cmtInput.value.trim()); }
+function commentLength(){ return graphemeLength(cmtInput.value.trim()); }
 function renderSaveState(){
-  const w=commentWeight();
-  cmtCount.textContent=w+' / '+MAX_COMMENT_WEIGHT;
-  cmtCount.classList.toggle('over',w>MAX_COMMENT_WEIGHT);
+  const w=commentLength();
+  cmtCount.textContent=w+' / '+MAX_COMMENT_LEN;
+  cmtCount.classList.toggle('over',w>MAX_COMMENT_LEN);
   const total=cells.length;
   const filled=cells.filter(Boolean).length;
   const filledAll=total>0&&filled===total;
-  const hasCmt=w>0&&w<=MAX_COMMENT_WEIGHT;
-  const hasName=!!nameInput.value.trim();
-  btnSave.disabled=!(filledAll&&hasCmt&&hasName);
+  const hasCmt=w>0&&w<=MAX_COMMENT_LEN;
+  btnSave.disabled=!(filledAll&&hasCmt);
   /* 진행 링 */
   document.getElementById('progTxt').textContent=filled+'/'+total;
   document.getElementById('progFg').style.strokeDashoffset=String(PROG_C*(1-filled/total));
   document.getElementById('prog').classList.toggle('done',filledAll);
   /* 힌트 */
   const hint=document.getElementById('saveHint');
-  if(!filledAll) hint.textContent='검색에서 앨범을 골라 채워보세요 ('+(total-filled)+'칸 남음)';
-  else if(!hasCmt) hint.textContent=w>MAX_COMMENT_WEIGHT?'한 줄 평이 너무 길어요 — 한글 15자·라틴 30자 이내':'한 줄 평을 쓰면 저장할 수 있어요';
-  else if(!hasName) hint.textContent='위에서 탑스터 이름을 입력해주세요';
+  if(isEditLocked()) hint.textContent='저장된 탑스터 — 제목만 수정할 수 있어요';
+  else if(!filledAll) hint.textContent='검색에서 앨범을 골라 채워보세요 ('+(total-filled)+'칸 남음)';
+  else if(!hasCmt) hint.textContent=w>MAX_COMMENT_LEN?('한 줄 평이 너무 길어요 — '+MAX_COMMENT_LEN+'자 이내'):'한 줄 평을 쓰면 저장할 수 있어요';
+  else if(!nameInput.value.trim()) hint.textContent='제목을 비우면 오늘 날짜('+todayTitle()+')가 제목이 돼요';
   else hint.textContent='준비 완료! 앱 탑스터 목록과 공유 페이지에 올라가요';
   const sub=document.getElementById('stageSub');
   if(filledAll) sub.innerHTML='완성! 아래에서 <b>한 줄 평</b>을 쓰고 저장해보세요';
@@ -1341,7 +1408,7 @@ btnSave.addEventListener('click',()=>{
 async function doSaveChart(){
   btnSave.disabled=true; btnSave.textContent='저장 중…';
   const body={
-    name:nameInput.value.trim(),
+    name:nameInput.value.trim()||todayTitle(),
     comment:cmtInput.value.trim(),
     rows:gridSize, cols:gridSize,
     style:{ backgroundColor:'#14110D', cellGap:8, padding:24, cornerRadius:8, showTitles:false, showNumbers:false, textColor:'#EDE7DB' },
@@ -1357,9 +1424,10 @@ async function doSaveChart(){
     if(!res.ok){ const e=await apiError(res,'저장에 실패했어요.'); showToast(e.message); return; }
     const { data }=await res.json();
     savedChart=data;
-    editingChartId=data.id;           // 같은 세션에서 다시 저장하면 덮어쓰기
+    editingChartId=data.id;           // 저장 후에는 편집 잠금 — 제목만 수정 가능
     editingChartName=data.name||'';
-    renderEditBadge(); saveDraft();
+    nameInput.value=data.name||body.name;   // 제목을 비웠으면 날짜 제목이 화면에도 반영된다
+    renderEditBadge(); renderGrid(); renderInfo(); saveDraft();
     openDone();
   }catch(e){ console.error('[TMT] 탑스터 저장 실패:', e); showToast('네트워크 오류로 저장에 실패했어요'); }
   finally{ btnSave.textContent='저장하고 공유하기'; renderSaveState(); }
@@ -1369,13 +1437,14 @@ async function doSaveChart(){
 function renderEditBadge(){
   const b=document.getElementById('editBadge');
   b.classList.toggle('show',!!editingChartId);
-  document.getElementById('editBadgeTxt').textContent=editingChartId?('편집 중 · '+(editingChartName||'내 탑스터')):'';
+  document.getElementById('editBadgeTxt').textContent=editingChartId?('편집 중 · '+(editingChartName||'내 탑스터')+' · 제목만 수정 가능'):'';
+  renderEditLock();
 }
 function resetEditor(){
   editingChartId=null; editingChartName=''; savedChart=null;
   gridSize=3; cells=Array(9).fill(null);
   selected=null; insertTarget=null;
-  nameInput.value='나의 탑스터'; cmtInput.value='';
+  nameInput.value=''; cmtInput.value='';
   document.querySelectorAll('#sizeChips button').forEach(c=>{
     const on=+c.dataset.size===3;
     c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
@@ -1471,7 +1540,7 @@ function loadChartIntoEditor(chart){
   });
   cells=next;
   selected=null; insertTarget=null;
-  nameInput.value=chart.name||'나의 탑스터';
+  nameInput.value=chart.name||'';
   cmtInput.value=chart.comment||'';
   editingChartId=chart.id; editingChartName=chart.name||'';
   savedChart=chart;
@@ -1480,7 +1549,7 @@ function loadChartIntoEditor(chart){
     c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
   });
   renderEditBadge(); renderGrid(); renderInfo();
-  showToast('"'+(chart.name||'탑스터')+'" 편집을 시작해요');
+  showToast('"'+(chart.name||'탑스터')+'" — 제목만 수정할 수 있어요');
 }
 
 /* ===================== 공개 탑스터 둘러보기 ===================== */
@@ -1528,6 +1597,40 @@ document.getElementById('btnCopyLink').addEventListener('click',async()=>{
 });
 document.getElementById('btnOpenLink').addEventListener('click',()=>{ window.open(shareUrl(),'_blank','noopener'); });
 
+/* --- SNS 아웃링크 공유 --- */
+function shareTitle(){ return (nameInput.value.trim()||'내 탑스터')+' — TMT 탑스터'; }
+function openShare(url){ window.open(url,'_blank','noopener,noreferrer'); }
+/* 웹 공유 인텐트를 제공하는 서비스 */
+const SHARE_INTENT={
+  x:url=>'https://twitter.com/intent/tweet?text='+encodeURIComponent(shareTitle())+'&url='+encodeURIComponent(url),
+  facebook:url=>'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url),
+  threads:url=>'https://www.threads.net/intent/post?text='+encodeURIComponent(shareTitle()+' '+url),
+};
+/* 인스타그램·틱톡은 웹 공유 인텐트가 없다 — 링크를 복사해 두고 앱(모바일)·웹으로 보낸다 */
+const SHARE_COPY={
+  instagram:{ label:'인스타그램', app:'instagram://app', web:'https://www.instagram.com/' },
+  tiktok:{ label:'틱톡', app:'snssdk1233://', web:'https://www.tiktok.com/upload' },
+};
+const isMobileUA=()=>/android|iphone|ipad|ipod/i.test(navigator.userAgent||'');
+async function shareByCopy(key,url){
+  const t=SHARE_COPY[key];
+  try{ await navigator.clipboard.writeText(shareTitle()+' '+url); showToast(t.label+'에 붙여넣을 링크를 복사했어요'); }
+  catch(e){ showToast(url); }
+  if(!isMobileUA()){ openShare(t.web); return; }
+  /* 앱 스킴 먼저 시도 → 앱이 없어 화면이 그대로면 웹으로 폴백 */
+  const fallback=setTimeout(()=>{ if(!document.hidden) openShare(t.web); },1200);
+  document.addEventListener('visibilitychange',()=>clearTimeout(fallback),{ once:true });
+  window.location.href=t.app;
+}
+document.getElementById('shareRow').addEventListener('click',e=>{
+  const btn=e.target.closest('.share-btn'); if(!btn) return;
+  const url=shareUrl();
+  if(!url){ showToast('먼저 탑스터를 저장해주세요'); return; }
+  const key=btn.dataset.share;
+  if(SHARE_INTENT[key]) openShare(SHARE_INTENT[key](url));
+  else if(SHARE_COPY[key]) shareByCopy(key,url);
+});
+
 /* ===================== 이미지 다운로드 (그리드 + 앨범정보 — PDF 최종 저장 형태) ===================== */
 function loadImage(src){
   return new Promise((resolve,reject)=>{
@@ -1560,7 +1663,7 @@ async function downloadImage(){
     ctx.fillStyle='#E3B24E'; ctx.font="700 30px 'Song Myung',Georgia,serif"; ctx.textBaseline='alphabetic';
     ctx.fillText('TMT',PAD,54);
     ctx.fillStyle='#EDE7DB'; ctx.font='700 30px Pretendard,-apple-system,sans-serif';
-    ctx.fillText(ellipsize(ctx,nameInput.value.trim(),W-PAD*2-120),PAD+96,54);
+    ctx.fillText(ellipsize(ctx,nameInput.value.trim()||todayTitle(),W-PAD*2-120),PAD+96,54);
     ctx.fillStyle='rgba(237,231,219,.62)'; ctx.font='20px Pretendard,-apple-system,sans-serif';
     ctx.fillText(ellipsize(ctx,'“'+cmtInput.value.trim()+'”',W-PAD*2),PAD,86);
     /* 그리드 */
@@ -1602,6 +1705,7 @@ document.getElementById('btnDownload').addEventListener('click',downloadImage);
 
 /* ===================== 초기화 ===================== */
 loadDraft();
+renderEditBadge();
 renderGrid();
 renderInfo();
 loadPublicCharts();
