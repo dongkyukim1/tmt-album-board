@@ -695,13 +695,14 @@ function regionCode(){
 const COUNTRY=regionCode();
 
 /* ===================== 한줄평 글자수 (사용자가 보는 그대로 — 한글 1음절 = 1자) =====================
-   '안녕하세요' = 5자. 이모지·결합 문자는 Intl.Segmenter가 있으면 1자로 묶고, 없으면 코드포인트 단위로 센다. */
+   '안녕하세요' = 5자. 백엔드 charts.logic도 같은 문자소(UAX #29) 기준 30자를 쓴다.
+   폴백은 NFC 정규화 후 센다 — macOS에서 복사한 조합형(NFD) 한글이 음절당 2~3자로 세지는 것을 막는다. */
 const MAX_COMMENT_LEN=30;
 const _graphemeSeg=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('ko',{granularity:'grapheme'}):null;
 function graphemeLength(text){
   const s=text||'';
   if(_graphemeSeg){ let n=0; for(const _ of _graphemeSeg.segment(s)) n++; return n; }
-  return Array.from(s).length;
+  return Array.from(s.normalize('NFC')).length;
 }
 
 /* ===================== 토큰 / 세션 관리 (앱과 같은 자체 발급 JWT) ===================== */
