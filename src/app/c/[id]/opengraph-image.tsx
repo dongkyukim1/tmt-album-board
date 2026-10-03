@@ -33,8 +33,8 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 70,
-          // 미드나잇 갤러리 — 잉크 캔버스 + 아이보리 글자 + 골드 키커
-          background: '#14110D',
+          // 딥블랙 캔버스 + 아이보리 글자 + 라임 키커
+          background: '#0A0A0A',
           color: '#EDE7DB',
           fontFamily: '"Noto Sans KR", sans-serif',
         }}
@@ -49,7 +49,7 @@ export default async function Image({ params }: Props) {
                 height: 150,
                 borderRadius: 6,
                 overflow: 'hidden',
-                background: '#221D16',
+                background: '#212121',
                 border: '1px solid rgba(255,255,255,.08)',
               }}
             >
@@ -59,7 +59,7 @@ export default async function Image({ params }: Props) {
           ))}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 28, color: '#E3B24E', letterSpacing: 4, marginBottom: 16 }}>
+          <div style={{ fontSize: 28, color: '#CFF730', letterSpacing: 4, marginBottom: 16 }}>
             TMT · 탑스터
           </div>
           <div style={{ fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>{name}</div>

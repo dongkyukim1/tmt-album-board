@@ -12,6 +12,7 @@ import {
   type WishlistItem,
 } from '@/lib/me-api'
 import { mockMeAdapter } from '@/lib/me-mock'
+import { DiscIcon, QuoteIcon } from '@/components/icons'
 
 type Segment = 'wishlist' | 'reviews'
 type Status = 'loading' | 'ready' | 'empty' | 'error'
@@ -136,15 +137,7 @@ export default function MePage() {
   return (
     <div className={styles.screen}>
       <div className={styles.inner}>
-        <div className={styles.top}>
-          <Link href="/" className={styles.brand}>
-            TMT
-          </Link>
-          <Link href="/taste" className={styles.brand} aria-label="취향찾기로 이동" style={{ fontSize: 20 }}>
-            🎮
-          </Link>
-        </div>
-        <h1 className={styles.h1}>My Taste</h1>
+        <h1 className={styles.h1}>마이</h1>
 
         <div className={styles.segments} role="tablist">
           <button
@@ -201,7 +194,7 @@ function WishlistView({
     return (
       <div className={styles.empty}>
         <h2>불러오지 못했어요</h2>
-        <button className={styles.cta} onClick={onRetry}>
+        <button className={`btn-primary ${styles.cta}`} onClick={onRetry}>
           다시 시도
         </button>
       </div>
@@ -210,10 +203,12 @@ function WishlistView({
   if (state.status === 'empty') {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>👾</div>
+        <div className={styles.emptyIcon}>
+          <DiscIcon size={44} />
+        </div>
         <h2>아직 찜한 앨범이 없어요</h2>
         <p>취향찾기 한 판 어때요?</p>
-        <Link href="/taste" className={styles.cta}>
+        <Link href="/taste" className={`btn-primary ${styles.cta}`}>
           취향찾기 시작
         </Link>
       </div>
@@ -236,7 +231,7 @@ function WishlistView({
         ))}
       </div>
       {state.cursor ? (
-        <button className={styles.more} onClick={onMore} disabled={state.loadingMore}>
+        <button className={`btn-neutral ${styles.more}`} onClick={onMore} disabled={state.loadingMore}>
           {state.loadingMore ? '불러오는 중…' : '더보기'}
         </button>
       ) : null}
@@ -258,7 +253,7 @@ function ReviewsView({
     return (
       <div className={styles.empty}>
         <h2>불러오지 못했어요</h2>
-        <button className={styles.cta} onClick={onRetry}>
+        <button className={`btn-primary ${styles.cta}`} onClick={onRetry}>
           다시 시도
         </button>
       </div>
@@ -267,12 +262,14 @@ function ReviewsView({
   if (state.status === 'empty') {
     return (
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>✍️</div>
+        <div className={styles.emptyIcon}>
+          <QuoteIcon size={44} />
+        </div>
         <h2>아직 남긴 코멘트가 없어요</h2>
         <p>앨범을 평가하면 여기에 한 줄 평이 쌓여요.</p>
-        <Link href="/" className={styles.cta}>
-          앨범 둘러보기
-        </Link>
+        <a href="/" className={`btn-primary ${styles.cta}`}>
+          탑스터 만들기
+        </a>
       </div>
     )
   }
@@ -298,7 +295,7 @@ function ReviewsView({
         ))}
       </div>
       {state.cursor ? (
-        <button className={styles.more} onClick={onMore} disabled={state.loadingMore}>
+        <button className={`btn-neutral ${styles.more}`} onClick={onMore} disabled={state.loadingMore}>
           {state.loadingMore ? '불러오는 중…' : '더보기'}
         </button>
       ) : null}

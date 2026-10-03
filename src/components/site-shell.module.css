@@ -1,0 +1,116 @@
+/* 웹 공통 셸 — index.html(.nav / .site-foot)과 동일 문법. */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 64px;
+  padding: 0 28px;
+  background: rgba(10, 10, 10, 0.82);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  flex: none;
+  border-radius: 8px;
+}
+.brand img {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.2s, background 0.2s;
+}
+.link:hover {
+  color: var(--white);
+  background: var(--fill);
+}
+.linkOn {
+  color: var(--white);
+  font-weight: 600;
+}
+.linkOn::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-right: 8px;
+}
+
+.foot {
+  border-top: 1px solid var(--line);
+}
+.footIn {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+}
+.footIn img {
+  display: block;
+  height: 28px;
+  width: auto;
+}
+.footNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.footNav a {
+  font-size: 13px;
+  color: var(--muted2);
+  padding: 6px 0;
+  border-radius: 4px;
+}
+.footNav a:hover {
+  color: var(--white);
+}
+.footNote {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .brand img {
+    height: 28px;
+  }
+  .link {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+  .footIn {
+    padding: 24px 16px 36px;
+  }
+  .footNote {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

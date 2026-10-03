@@ -1,88 +1,83 @@
-/* MY 화면 — 설계 ⑭. 토큰은 globals.css(:root) 미드나잇 갤러리 사용. */
+/* MY 화면 — 앱 마이/위시리스트/나의 코멘트 문법. 토큰은 globals.css(:root). */
 .screen {
-  min-height: 100dvh;
+  min-height: calc(100dvh - 64px);
   background: var(--bg);
   color: var(--txt);
-  padding: 20px 16px 48px;
+  padding: 24px 16px 56px;
 }
 .inner {
-  max-width: 760px;
+  max-width: 880px;
   margin: 0 auto;
 }
-
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.h1 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--white);
   margin-bottom: 18px;
 }
-.brand {
-  font-family: var(--logo);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  font-size: 15px;
-}
-.h1 {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 14px;
-}
 
-/* 세그먼트 컨트롤 */
+/* 세그먼트 컨트롤 — 앱 세그먼트(h40 · r8 · 선택=아이보리 채움) */
 .segments {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  background: transparent;
-  border: 1px solid var(--s-line2);
-  border-radius: var(--r-sm);
-  margin-bottom: 20px;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 22px;
 }
 .seg {
   border: none;
   background: none;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: var(--r-sm);
+  color: var(--txt);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 40px;
+  padding: 0 20px;
   cursor: pointer;
+  transition: background 0.26s var(--ease), color 0.26s var(--ease);
 }
-.seg:focus-visible { outline: none; box-shadow: var(--ring); }
-.segOn {
-  background: var(--cta-bg);
-  color: var(--cta-fg);
+.seg:hover {
+  background: var(--fill);
+}
+.segOn,
+.segOn:hover {
+  background: var(--txt);
+  color: var(--on-primary);
+  font-weight: 600;
 }
 
 /* 위시리스트 그리드 */
-.grid {
+.grid,
+.skelGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  gap: 20px 16px;
 }
 .card {
-  background: none;
-  border: none;
-  padding: 0;
-  text-align: left;
+  display: block;
   color: var(--txt);
-  cursor: pointer;
+  border-radius: var(--r-card);
+  transition: transform 0.22s var(--ease-out);
 }
-.card:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-cover); }
+.card:hover {
+  transform: translateY(-3px);
+}
 .cover {
+  display: block;
   aspect-ratio: 1;
   width: 100%;
-  border-radius: var(--r-cover);
+  border-radius: var(--r-card);
   object-fit: cover;
   background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--hard-shadow);
+  box-shadow: inset 0 0 0 1px var(--artwork-border);
 }
 .cardTitle {
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 9px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--white);
+  margin-top: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,24 +95,18 @@
 .reviewList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
-/* 다크 서피스 카드 — 앨범 커버 보호. 텍스트는 --s-txt 계열 사용. */
 .review {
   display: flex;
-  gap: 12px;
-  padding: 14px;
-  background: var(--surface-2);
-  color: var(--s-txt);
-  border: 1px solid var(--s-line2);
-  border-radius: var(--r-card);
-  box-shadow: var(--hard-shadow);
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
 }
 .reviewCover {
   width: 56px;
   height: 56px;
   flex: none;
-  border-radius: var(--r-cover);
+  border-radius: 14px;
   object-fit: cover;
   background: var(--surface-3);
 }
@@ -131,99 +120,66 @@
   gap: 8px;
 }
 .reviewTitle {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--white);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .stars {
   color: var(--star);
-  font-size: 12px;
+  font-size: 13px;
   flex: none;
   font-variant-numeric: tabular-nums;
 }
 .reviewText {
-  font-size: 13px;
-  color: var(--s-muted);
-  margin-top: 5px;
+  font-size: 14px;
+  color: var(--muted2);
+  margin-top: 4px;
   line-height: 1.5;
 }
 
 /* 더보기 / 상태 */
 .more {
-  display: block;
-  margin: 22px auto 0;
-  background: none;
-  border: 1px solid var(--s-line2);
-  color: var(--txt);
-  border-radius: var(--r-sm);
-  padding: 11px 22px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.more:focus-visible { outline: none; box-shadow: var(--ring); }
-.more:disabled {
-  opacity: 0.5;
-  cursor: default;
+  display: flex;
+  margin: 24px auto 0;
 }
 .empty {
   text-align: center;
-  padding: 60px 20px;
+  padding: 64px 20px;
   color: var(--muted);
 }
 .emptyIcon {
-  font-size: 34px;
+  display: flex;
+  justify-content: center;
+  color: var(--muted);
 }
 .empty h2 {
-  color: var(--txt);
-  font-size: 18px;
+  color: var(--white);
+  font-size: 17px;
   font-weight: 600;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .empty p {
-  font-size: 13px;
+  font-size: 14px;
   margin-top: 8px;
 }
 .cta {
-  display: inline-block;
-  margin-top: 18px;
-  background: var(--cta-bg);
-  color: var(--cta-fg);
-  border-radius: var(--r-sm);
-  padding: 11px 20px;
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: var(--hard-shadow);
-  text-decoration: none;
-}
-.cta:focus-visible { outline: none; box-shadow: var(--ring); }
-.skelGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  margin-top: 20px;
 }
 .skel {
   aspect-ratio: 1;
-  border-radius: var(--r-cover);
-  background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface-3) 50%, var(--surface-2) 70%);
+  border-radius: var(--r-card);
+  background: linear-gradient(100deg, var(--surface-2) 35%, var(--surface-3) 50%, var(--surface-2) 65%);
   background-size: 200% 100%;
-  animation: shimmer 1.3s infinite;
+  animation: shimmer 1.2s infinite;
 }
 @keyframes shimmer {
   to { background-position: -200% 0; }
 }
 .mockNote {
-  font-size: 11px;
-  color: var(--muted2);
-  margin-bottom: 14px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .screen *,
-  .screen {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 16px;
 }
