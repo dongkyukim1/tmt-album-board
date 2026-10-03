@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import SiteHeader from '@/components/SiteHeader'
+import SiteFooter from '@/components/SiteFooter'
 
 export const metadata: Metadata = {
   title: 'TMT — 탑스터 메이커',
@@ -14,13 +16,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <meta name="theme-color" content="#14110D" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Song+Myung&display=swap"
-        />
+        <meta name="theme-color" content="#0A0A0A" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
         <link
           rel="stylesheet"
@@ -35,7 +31,9 @@ export default function RootLayout({
           fontFamily: 'var(--sans)',
         }}
       >
+        <SiteHeader />
         {children}
+        <SiteFooter />
       </body>
     </html>
   )

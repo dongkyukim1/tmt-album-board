@@ -26,8 +26,8 @@ export default async function Image({ params }: Props) {
           alignItems: 'center',
           gap: 56,
           padding: 80,
-          // 미드나잇 갤러리 — 잉크 캔버스 + 아이보리 글자 + 골드 키커
-          background: '#14110D',
+          // 딥블랙 캔버스 + 아이보리 글자 + 라임 키커
+          background: '#0A0A0A',
           color: '#EDE7DB',
           fontFamily: '"Noto Sans KR", sans-serif',
         }}
@@ -47,7 +47,7 @@ export default async function Image({ params }: Props) {
           />
         ) : null}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 30, color: '#E3B24E', letterSpacing: 4, marginBottom: 18 }}>
+          <div style={{ fontSize: 30, color: '#CFF730', letterSpacing: 4, marginBottom: 18 }}>
             TMT · 앨범
           </div>
           <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>

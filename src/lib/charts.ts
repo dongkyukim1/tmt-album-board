@@ -27,6 +27,8 @@ export type ChartStyle = {
 export type Chart = {
   id: string
   name: string
+  /** 한줄평 — 구버전 차트는 없을 수 있다 */
+  comment?: string | null
   rows: number
   cols: number
   style: ChartStyle

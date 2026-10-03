@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import styles from './taste.module.css'
 import {
   backendConfigured,
@@ -12,6 +11,7 @@ import {
   type TasteCard,
 } from '@/lib/taste-api'
 import { mockAdapter } from '@/lib/taste-mock'
+import { HeartIcon, QuestionIcon, ThumbDownIcon, ThumbUpIcon, UndoIcon } from '@/components/icons'
 
 type Status = 'loading' | 'ready' | 'empty' | 'error'
 type Drag = { dx: number; dy: number; active: boolean }
@@ -139,17 +139,13 @@ export default function TastePage() {
 
   return (
     <div className={styles.screen}>
-      <div className={styles.top}>
-        <Link href="/" className={styles.brand}>
-          TMT
-        </Link>
-        <span className={styles.count}>
-          {status === 'ready' ? `${remaining}장 남음` : ''}
-        </span>
-      </div>
-
       <div className={styles.title}>
-        <h1>취향찾기</h1>
+        <div className={styles.titleRow}>
+          <h1>취향찾기</h1>
+          <span className={styles.count}>
+            {status === 'ready' ? `${remaining}장 남음` : ''}
+          </span>
+        </div>
         <p>커버를 넘기며 취향을 알려줘요. 오른쪽 좋아요 · 왼쪽 별로 · 위로 위시 · 아래 모름.</p>
         {usingMock ? (
           <p className={styles.mockNote}>* 데모 모드: iTunes 인기 앨범으로 미리 체험 중</p>
@@ -162,7 +158,7 @@ export default function TastePage() {
         <div className={styles.state}>
           <h2>불러오지 못했어요</h2>
           <p>네트워크 상태를 확인하고 다시 시도해 주세요.</p>
-          <button className={styles.retry} onClick={() => void loadFeed()}>
+          <button className={`btn-primary ${styles.retry}`} onClick={() => void loadFeed()}>
             다시 시도
           </button>
         </div>
@@ -170,9 +166,9 @@ export default function TastePage() {
 
       {status === 'empty' || (status === 'ready' && !current) ? (
         <div className={styles.state}>
-          <h2>오늘 취향찾기 끝! 👾</h2>
+          <h2>오늘 취향찾기 끝!</h2>
           <p>새로운 앨범을 더 불러올까요?</p>
-          <button className={styles.retry} onClick={() => void loadFeed()}>
+          <button className={`btn-primary ${styles.retry}`} onClick={() => void loadFeed()}>
             더 불러오기
           </button>
         </div>
@@ -252,33 +248,34 @@ export default function TastePage() {
               onClick={() => commit('dislike')}
               aria-label="별로"
             >
-              👎
+              <ThumbDownIcon size={20} />
             </button>
             <button
               className={`${styles.btn} ${styles.btnLike}`}
               onClick={() => commit('like')}
               aria-label="좋아요"
             >
-              💗
+              <ThumbUpIcon size={26} />
             </button>
             <button
               className={`${styles.btn} ${styles.btnWish}`}
               onClick={() => commit('wish')}
               aria-label="위시리스트"
             >
-              🤍
+              <HeartIcon size={26} />
             </button>
             <button
               className={`${styles.btn} ${styles.btnSmall}`}
               onClick={() => commit('skip')}
               aria-label="모름"
             >
-              ❓
+              <QuestionIcon size={20} />
             </button>
           </div>
 
           <button className={styles.undo} onClick={undo} disabled={!last}>
-            ↩ 되돌리기
+            <UndoIcon size={16} />
+            되돌리기
           </button>
         </>
       ) : null}

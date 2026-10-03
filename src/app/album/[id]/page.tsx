@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { lookupAlbum } from '@/lib/itunes'
+import styles from './album.module.css'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -38,55 +39,38 @@ export default async function AlbumPage({ params }: Props) {
 
   const appLink = `${SITE_URL}/?album=${album.collectionId}`
 
+  const meta = [album.releaseDate?.slice(0, 4), album.genre, album.trackCount ? `${album.trackCount}곡` : null]
+    .filter(Boolean)
+    .join(' • ')
+
   return (
-    <main
-      style={{
-        maxWidth: 720,
-        margin: '0 auto',
-        padding: '48px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}
-    >
+    <main className={styles.screen}>
       {album.artworkUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={album.artworkUrl}
-          alt={`${album.collectionName} 앨범 커버`}
-          width={300}
-          height={300}
-          style={{ borderRadius: 'var(--r-cover)', border: '1px solid rgba(255,255,255,.08)', boxShadow: 'var(--hard-shadow)' }}
-        />
+        <div className={styles.backdrop} style={{ backgroundImage: `url("${album.artworkUrl}")` }} aria-hidden="true" />
       ) : null}
-
-      <h1 style={{ fontSize: 28, margin: '28px 0 6px', letterSpacing: '-0.02em' }}>
-        {album.collectionName}
-      </h1>
-      <p style={{ fontSize: 18, color: 'var(--muted)', margin: 0 }}>{album.artistName}</p>
-
-      <p style={{ fontSize: 14, color: 'var(--muted2)', marginTop: 12 }}>
-        {[album.genre, album.releaseDate?.slice(0, 4), album.trackCount ? `${album.trackCount}곡` : null]
-          .filter(Boolean)
-          .join(' · ')}
-      </p>
-
-      <a
-        href={appLink}
-        style={{
-          marginTop: 32,
-          background: 'var(--cta-bg)',
-          color: 'var(--cta-fg)',
-          padding: '14px 28px',
-          borderRadius: 'var(--r-sm)',
-          fontWeight: 600,
-          boxShadow: 'var(--hard-shadow)',
-          textDecoration: 'none',
-        }}
-      >
-        TMT에서 이 앨범 리뷰 보기 →
-      </a>
+      <div className={styles.inner}>
+        <div className={styles.hero}>
+          {album.artworkUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              className={styles.cover}
+              src={album.artworkUrl}
+              alt={`${album.collectionName} 앨범 커버`}
+              width={220}
+              height={220}
+            />
+          ) : null}
+          <div>
+            <div className={styles.kicker}>Album</div>
+            <h1 className={styles.title}>{album.collectionName}</h1>
+            <p className={styles.artist}>{album.artistName}</p>
+            {meta ? <p className={styles.meta}>{meta}</p> : null}
+            <a href={appLink} className={`btn-primary ${styles.cta}`}>
+              TMT에서 탑스터 만들기
+            </a>
+          </div>
+        </div>
+      </div>
     </main>
   )
 }

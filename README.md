@@ -21,7 +21,7 @@
 - **내 토스터** — 앱 my Topsters와 같은 목록(GET `/me/charts`) · 웹에서 3×3/4×4/5×5 편집(PUT) · 삭제 · 공유 링크
 - **다른 사람들의 토스터** — 공개 피드(GET `/charts/public`) 레일 → 공유 페이지로 이동
 - **공유 페이지(SSR)** — `/c/:id`(공개 토스터), `/album/:id`(앨범) — Next.js + 동적 OG 카드
-- **디자인** — 앱(topster_flutter)과 동일한 "미드나잇 갤러리" 토큰(#14110D 잉크 캔버스 · #E3B24E 골드) + Pretendard 본문 · Song Myung은 라틴 워드마크 전용 — 상세는 [docs/BRAND.md](docs/BRAND.md)
+- **디자인** — 앱(topster_flutter) 2026-09 리디자인과 동일 토큰(#0A0A0A 딥블랙 캔버스 · #CFF730 라임) + Pretendard · 입술 로고 · 웹 공통 헤더/푸터 — 상세는 [docs/BRAND.md](docs/BRAND.md)
 
 ## 🧪 로컬 목 모드 (배포 전 디자인 확인)
 
