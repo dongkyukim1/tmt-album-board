@@ -384,6 +384,12 @@
   .auth-btn.ghost:disabled{background:var(--fill);color:var(--muted)}
   .auth-check{display:flex;align-items:center;gap:10px;margin-top:6px;min-height:44px;font-size:14px;color:var(--txt);cursor:pointer;user-select:none}
   .auth-box .auth-check input{width:20px;height:20px;flex:none;margin:0;padding:0;accent-color:var(--primary);cursor:pointer}
+  .consent{margin-top:14px;padding:2px 6px 2px 14px;background:var(--fill);border-radius:var(--r-field)}
+  .consent .auth-check{margin-top:0;flex:1}
+  .consent-all{font-weight:600;font-size:15px;border-bottom:1px solid var(--line2)}
+  .consent-row{display:flex;align-items:center}
+  .consent-view{color:var(--muted);font-size:13px;padding:12px 8px;text-decoration:underline;text-underline-offset:3px}
+  .consent-view:hover{color:var(--txt)}
   .auth-msg{font-size:13px;color:var(--muted2);margin-top:12px;min-height:18px;line-height:1.45}
   .auth-msg.ok{color:var(--primary)}.auth-msg.err{color:var(--danger)}
   .auth-switch{margin-top:14px;font-size:14px;color:var(--muted);display:flex;gap:6px;justify-content:center}
@@ -553,6 +559,8 @@
       <a href="./">탑스터 만들기</a>
       <a href="#" data-next="/taste">취향찾기</a>
       <a href="#" data-next="/me">마이</a>
+      <a href="terms.html">이용약관</a>
+      <a href="privacy.html"><b>개인정보 처리방침</b></a>
     </nav>
     <p>앨범 데이터 © Apple iTunes · 저장한 탑스터는 TMT 앱 탑스터 목록과 동기화돼요</p>
   </div>
@@ -657,7 +665,14 @@
       <input type="password" id="suPw" placeholder="비밀번호 (8자 이상)" autocomplete="new-password" />
       <input type="password" id="suPw2" placeholder="비밀번호 확인" autocomplete="new-password" />
       <input type="text" id="suNick" placeholder="닉네임 (1~50자)" maxlength="50" autocomplete="off" />
-      <button class="auth-btn" id="suCompleteBtn">가입 완료</button>
+      <!-- 필수 동의(이용약관 제4조) — 앱 가입 화면과 같은 3종 + 전체 동의 -->
+      <div class="consent" role="group" aria-label="약관 동의">
+        <label class="auth-check consent-all" for="suAgreeAll"><input type="checkbox" id="suAgreeAll" />전체 동의</label>
+        <label class="auth-check"><input type="checkbox" class="su-agree" />[필수] 만 14세 이상입니다</label>
+        <div class="consent-row"><label class="auth-check"><input type="checkbox" class="su-agree" />[필수] 이용약관 동의</label><a class="consent-view" href="terms.html" target="_blank" rel="noopener">보기</a></div>
+        <div class="consent-row"><label class="auth-check"><input type="checkbox" class="su-agree" />[필수] 개인정보 수집·이용 동의</label><a class="consent-view" href="privacy.html" target="_blank" rel="noopener">보기</a></div>
+      </div>
+      <button class="auth-btn" id="suCompleteBtn" disabled>가입 완료</button>
       <div class="auth-msg" id="suPwMsg"></div>
     </div>
     <!-- 비밀번호 재설정 ① 이메일 -->
@@ -925,6 +940,17 @@ async function signupVerifyCode(){
 document.getElementById('suCodeBtn').addEventListener('click',signupVerifyCode);
 document.getElementById('suCode').addEventListener('keydown',e=>{ if(e.key==='Enter') signupVerifyCode(); });
 
+/* --- 회원가입 ③ 필수 동의 — 셋 다 체크해야 '가입 완료'가 켜진다 --- */
+const suAgreeAll=document.getElementById('suAgreeAll');
+const suAgreeItems=[...document.querySelectorAll('.su-agree')];
+const suAgreed=()=>suAgreeItems.every(c=>c.checked);
+function syncConsent(){
+  suAgreeAll.checked=suAgreed();
+  document.getElementById('suCompleteBtn').disabled=!suAgreed();
+}
+suAgreeAll.addEventListener('change',()=>{ suAgreeItems.forEach(c=>{ c.checked=suAgreeAll.checked; }); syncConsent(); });
+suAgreeItems.forEach(c=>c.addEventListener('change',syncConsent));
+
 /* --- 회원가입 ③ 비밀번호 + 닉네임 → signup/complete --- */
 async function signupComplete(){
   const pw=document.getElementById('suPw').value, pw2=document.getElementById('suPw2').value;
@@ -932,14 +958,15 @@ async function signupComplete(){
   if(pw.length<8||pw.length>72){ setMsg('suPwMsg','비밀번호는 8자 이상이어야 해요.','err'); return; }
   if(pw!==pw2){ setMsg('suPwMsg','비밀번호가 일치하지 않아요.','err'); return; }
   if(nick.length<1||nick.length>50){ setMsg('suPwMsg','닉네임은 1~50자로 입력해주세요.','err'); return; }
+  if(!suAgreed()){ setMsg('suPwMsg','필수 항목에 모두 동의해주세요.','err'); return; }
   const btn=document.getElementById('suCompleteBtn'); btn.disabled=true; setMsg('suPwMsg','가입 완료 중…');
   try{
-    const res=await fetch(API_BASE+'/auth/signup/complete',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ signupTicket, password:pw, nickname:nick }) });
+    const res=await fetch(API_BASE+'/auth/signup/complete',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ signupTicket, password:pw, nickname:nick, agreements:{ terms:true, privacy:true, ageOver14:true } }) });
     if(!res.ok){ const e=await apiError(res,'가입에 실패했어요.'); setMsg('suPwMsg',e.message,'err'); return; }
     const { data }=await res.json();
     setMsg('suPwMsg',''); onAuthenticated(data);
   }catch(e){ console.error('[TMT] 가입 완료 실패:', e); setMsg('suPwMsg','네트워크 오류가 발생했어요.','err'); }
-  finally{ btn.disabled=false; }
+  finally{ syncConsent(); }
 }
 document.getElementById('suCompleteBtn').addEventListener('click',signupComplete);
 document.getElementById('suNick').addEventListener('keydown',e=>{ if(e.key==='Enter') signupComplete(); });

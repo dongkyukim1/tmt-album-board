@@ -11,6 +11,10 @@ export default function SiteFooter() {
           <a href="/">탑스터 만들기</a>
           <a href="/taste">취향찾기</a>
           <a href="/me">마이</a>
+          <a href="/terms.html">이용약관</a>
+          <a href="/privacy.html">
+            <b>개인정보 처리방침</b>
+          </a>
         </nav>
         <p className={styles.footNote}>앨범 데이터 © Apple iTunes</p>
       </div>
