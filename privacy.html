@@ -51,7 +51,7 @@
     <tr><td>Apple 로그인 (필수)</td><td>Apple 고유 식별자, 이메일 주소(Apple이 제공하는 가려진 이메일 포함)<br>· 이름은 Apple이 제공하는 경우 닉네임 초깃값으로만 사용</td><td>최초 로그인</td></tr>
     <tr><td>카카오 로그인 (필수)</td><td>카카오 회원번호, 이메일 주소(카카오 계정에서 제공에 동의한 경우), 카카오 프로필 닉네임</td><td>최초 로그인</td></tr>
     <tr><td>프로필 (선택)</td><td>프로필 사진, 소개글, 칭호</td><td>이용자가 직접 입력할 때</td></tr>
-    <tr><td>서비스 이용 기록</td><td>앨범 평가(내 취향·글쎄요·취향 존중), 별점·리뷰, 코멘트, 탑스터 차트, 위시리스트, 선호 장르</td><td>서비스 이용 중</td></tr>
+    <tr><td>서비스 이용 기록</td><td>앨범 평가(앱: 내 취향·글쎄요·취향 존중 / 웹: 좋아요·별로·모름), 별점·리뷰, 코멘트, 탑스터 차트, 위시리스트, 선호 장르</td><td>서비스 이용 중</td></tr>
     <tr><td>고객 문의 (선택)</td><td>문의 유형·제목·내용, 첨부 이미지</td><td>문의 작성 시</td></tr>
     <tr><td>신고·차단</td><td>신고 대상·사유·내용, 차단한 사용자 목록</td><td>신고·차단 시</td></tr>
     <tr><td>자동 수집</td><td>접속 IP 주소, 접속 일시, 기기·OS 정보(앱 버전 등), 서비스 이용 로그</td><td>서비스 이용 중 자동 생성</td></tr>
@@ -83,6 +83,8 @@
     <tr><td>Supabase, Inc.</td><td>데이터베이스 운영(회원 정보·서비스 이용 기록 저장)</td></tr>
     <tr><td>Cloudflare, Inc.</td><td>이미지 저장(프로필 사진, 문의 첨부 이미지)</td></tr>
     <tr><td>Sendinblue SAS (Brevo)</td><td>인증코드·안내 이메일 발송</td></tr>
+    <tr><td>Vercel Inc.</td><td>웹사이트 호스팅</td></tr>
+    <tr><td>GitHub, Inc.</td><td>웹사이트 호스팅(GitHub Pages)</td></tr>
   </table></div>
   <p>Apple 로그인과 카카오 로그인은 이용자가 해당 서비스에서 직접 인증하는 방식이며, 운영자는 로그인 결과로 위 2항의 정보를 받습니다.</p>
 
@@ -90,10 +92,12 @@
   <p>운영자는 위 수탁자의 해외 서버를 이용하므로, 다음과 같이 개인정보를 국외로 이전(보관)합니다. 이전은 서비스 이용 시 정보통신망을 통해 수시로 이루어집니다.</p>
   <div class="table"><table>
     <tr><th>이전받는 자 (연락처)</th><th>이전 국가</th><th>이전 항목</th><th>이용 목적</th><th>보유·이용 기간</th></tr>
-    <tr><td>Render Services, Inc.<br>(privacy@render.com)</td><td>싱가포르</td><td>2항의 모든 항목(처리 과정에서 일시 경유), 접속 기록</td><td>API 서버 운영</td><td rowspan="4">회원 탈퇴 시 또는 위탁 계약 종료 시까지</td></tr>
+    <tr><td>Render Services, Inc.<br>(privacy@render.com)</td><td>싱가포르</td><td>2항의 모든 항목(처리 과정에서 일시 경유), 접속 기록</td><td>API 서버 운영</td><td rowspan="6">회원 탈퇴 시 또는 위탁 계약 종료 시까지</td></tr>
     <tr><td>Supabase, Inc.<br>(privacy@supabase.io)</td><td>싱가포르 (AWS ap-southeast-1)</td><td>2항의 모든 항목</td><td>데이터베이스 운영</td></tr>
     <tr><td>Cloudflare, Inc.<br>(privacyquestions@cloudflare.com)</td><td>미국 등 Cloudflare 데이터센터 소재 국가</td><td>프로필 사진, 문의 첨부 이미지</td><td>이미지 저장·전송</td></tr>
     <tr><td>Sendinblue SAS (Brevo)<br>(dpo@brevo.com)</td><td>프랑스 등 EU</td><td>이메일 주소, 인증코드</td><td>이메일 발송</td></tr>
+    <tr><td>Vercel Inc.<br>(privacy@vercel.com)</td><td>미국 등 Vercel 데이터센터 소재 국가</td><td>웹사이트 접속 기록(IP 주소, 접속 일시, 브라우저 정보)</td><td>웹사이트 호스팅</td></tr>
+    <tr><td>GitHub, Inc.<br>(privacy@github.com)</td><td>미국</td><td>웹사이트 접속 기록(IP 주소, 접속 일시, 브라우저 정보)</td><td>웹사이트 호스팅</td></tr>
   </table></div>
   <p>이용자는 국외 이전을 거부할 수 있습니다. 다만 위 업체들은 서비스 운영에 꼭 필요하므로, 거부하면 회원가입과 서비스 이용이 불가능합니다. 거부는 회원 탈퇴로 할 수 있습니다.</p>
 
