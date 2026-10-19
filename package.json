@@ -1,0 +1,29 @@
+{
+  "name": "tmt-album-board",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync-spa": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});for(const f of ['index.html','mock.js','tmt-logo.png','terms.html','privacy.html','account-deletion.html','legal.css'])fs.copyFileSync(f,'public/'+f)\"",
+    "mock": "echo '→ 목 모드: http://localhost:8000/?mock=1' && python3 -m http.server 8000",
+    "predev": "npm run sync-spa",
+    "prebuild": "npm run sync-spa",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.7"
+  }
+}

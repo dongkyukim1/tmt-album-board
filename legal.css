@@ -1,11 +1,11 @@
 /* 이용약관 · 개인정보 처리방침 · 계정 삭제 안내 공용 스타일 (index.html 다크 톤과 맞춤) */
-:root{--bg:#000;--surface:#111113;--line:rgba(255,255,255,.09);--txt:#f5f5f7;--muted:#86868b;--muted2:#a1a1a6;--accent:#2997ff}
+:root{--bg:#0A0A0A;--surface:#181818;--line:rgba(237,231,219,.10);--txt:#EDE7DB;--muted:#8a857c;--muted2:#b3ada3;--accent:#CFF730}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.75 -apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Pretendard",system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-.top{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
 .top-in{max-width:760px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{font-weight:700;letter-spacing:.18em;color:var(--txt)}
 .top nav{display:flex;gap:16px;font-size:13px}

@@ -1,0 +1,147 @@
+/* TMT 2026-09 리디자인 토큰 — index.html :root 마스터 소스와 동일 네이밍.
+   소스 오브 트루스: 앱 topster_flutter lib/core/theme/app_tokens.dart. */
+:root {
+  /* base — 딥블랙 캔버스 + 아이보리 글자 */
+  --bg: #0A0A0A;
+  --txt: #EDE7DB;
+  --white: #FFFFFF;
+  --muted: rgba(237, 231, 219, 0.6);
+  /* muted2 = muted보다 밝은 강조 톤 — muted보다 어두우면 안 됨 */
+  --muted2: rgba(237, 231, 219, 0.76);
+  --line: rgba(237, 231, 219, 0.08);
+  --line2: rgba(237, 231, 219, 0.16);
+
+  /* 중립 그레이 표면 (카드 #181818 · 시트 #212121 · 보드 #2E2E2E · 알약 #393939) */
+  --surface-1: #181818;
+  --surface-2: #212121;
+  --surface-3: #2E2E2E;
+  --card: #393939;
+  --fill: rgba(255, 255, 255, 0.1);
+  --fill-hover: rgba(255, 255, 255, 0.16);
+
+  /* 브랜드 액센트 — 라임 단일 프라이머리, 골드/오렌지레드는 보조 */
+  --primary: #CFF730; /* 라임 — CTA·활성 상태 */
+  --on-primary: #14110D;
+  --gold: #E3B24E; /* 뱃지 등 보조 강조 */
+  --sub-red: #E83B25; /* 파괴적 액션 */
+  --secondary: #E1738A; /* 더스티 로즈 — 위시 */
+  --taste: #63C39A;
+  --like: #CFF730; /* verdict: 내 취향=라임 (앱 앨범 상세와 동일) */
+  --hmm: #FF8300; /* verdict: 글쎄요 */
+  --respect: #FF3BAA; /* verdict: 취향 존중 */
+  --wish: #E1738A;
+  --dislike: #6E6558;
+  --skip: #4A4338;
+  --star: #F0C24E; /* 별점 골드(앱 star 토큰) */
+  --danger: #E5533D;
+  --artwork-border: rgba(255, 255, 255, 0.08);
+
+  --shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+
+  /* 폰트 — 전 화면 Pretendard (앱 bodyFont와 동일) */
+  --sans: 'Pretendard Variable', Pretendard, -apple-system, 'SF Pro Display', system-ui, 'Apple SD Gothic Neo', sans-serif;
+
+  /* radii — 컨트롤 10 / 필드 14 / 카드 16 / 시트 30 / 캡슐 (앱 r10·r14·시트) */
+  --r-control: 10px;
+  --r-field: 14px;
+  --r-card: 16px;
+  --r-sheet: 30px;
+  --r-cover: 12px;
+  --r-pill: 999px;
+
+  /* 모션 — 앱 spring / easeOutQuart */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 공용 CTA — 라임 스타디움(앱 주요 버튼 58 스타디움) / 중립 채움 */
+.btn-primary,
+.btn-neutral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 28px;
+  border: none;
+  border-radius: var(--r-pill);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.22s var(--ease-out), filter 0.2s, background 0.2s;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+.btn-neutral {
+  background: var(--fill);
+  color: var(--white);
+}
+.btn-neutral:hover {
+  background: var(--fill-hover);
+}
+.btn-primary:active,
+.btn-neutral:active {
+  transform: scale(0.97);
+}
+.btn-primary:disabled,
+.btn-neutral:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

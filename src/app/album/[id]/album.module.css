@@ -1,0 +1,92 @@
+/* 앨범 공유 페이지 — 앱 앨범 상세 문법(커버 색이 번지는 배경 · r22 커버). */
+.screen {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  overflow: hidden;
+}
+/* 커버를 크게 흐려 깔아 앱의 포인트색 그라데이션을 재현 */
+.backdrop {
+  position: absolute;
+  inset: -20% -10% 30%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(90px) saturate(150%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent, var(--bg));
+}
+.inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 20px 64px;
+}
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.cover {
+  flex: none;
+  width: 220px;
+  height: 220px;
+  border-radius: 22px;
+  object-fit: cover;
+  background: var(--surface-2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), inset 0 0 0 1px var(--artwork-border);
+}
+.kicker {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.title {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--white);
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.artist {
+  font-size: 16px;
+  color: var(--txt);
+  margin-top: 6px;
+}
+.meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.cta {
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: 32px 16px 56px;
+  }
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .cover {
+    width: 180px;
+    height: 180px;
+  }
+  .title {
+    font-size: 24px;
+  }
+  .cta {
+    width: 100%;
+  }
+}
