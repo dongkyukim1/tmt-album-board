@@ -1,0 +1,165 @@
+/* 신고 관리 — 마이 화면과 같은 셸·세그먼트, 앱 문의/신고 카드 문법(반투명 r18). */
+.screen {
+  min-height: calc(100dvh - 64px);
+  background: var(--bg);
+  color: var(--txt);
+  padding: 24px 16px 56px;
+}
+.inner {
+  max-width: 880px;
+  margin: 0 auto;
+}
+.h1 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--white);
+}
+.lead {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 8px 0 18px;
+}
+
+.segments {
+  display: inline-flex;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+.seg {
+  border: none;
+  background: none;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 40px;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: background 0.26s var(--ease), color 0.26s var(--ease);
+}
+.seg:hover {
+  background: var(--fill);
+}
+.segOn,
+.segOn:hover {
+  background: var(--txt);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+.card {
+  background: var(--fill);
+  border-radius: 18px;
+  padding: 18px 16px 18px 20px;
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.title,
+.titleOpen {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--white);
+}
+.titleOpen {
+  color: var(--primary);
+}
+.meta {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.top .meta,
+.overdue {
+  margin-top: 0;
+  flex: none;
+  font-size: 14px;
+}
+.overdue {
+  color: var(--danger);
+  font-weight: 600;
+}
+.snippet {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--white);
+  margin-top: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.detail {
+  font-size: 14px;
+  color: var(--muted2);
+  margin-top: 8px;
+  white-space: pre-wrap;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+.actions :global(.btn-neutral),
+.danger {
+  min-height: 40px;
+  font-size: 15px;
+}
+/* 파괴적 액션 — 앱 확인 팝업 레드(--sub-red) 알약 */
+.danger {
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--sub-red);
+  color: var(--white);
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.22s var(--ease-out), filter 0.2s;
+}
+.danger:hover {
+  filter: brightness(1.06);
+}
+.danger:active {
+  transform: scale(0.97);
+}
+.danger:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.note {
+  color: var(--muted);
+  padding: 40px 0;
+  text-align: center;
+}
+.more {
+  display: flex;
+  margin: 24px auto 0;
+}
+.empty {
+  text-align: center;
+  padding: 64px 20px;
+  color: var(--muted);
+}
+.empty h2 {
+  color: var(--white);
+  font-size: 17px;
+  font-weight: 600;
+}
+.empty p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+.cta {
+  margin-top: 20px;
+}
