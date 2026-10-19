@@ -940,6 +940,8 @@ async function signupVerifyCode(){
 document.getElementById('suCodeBtn').addEventListener('click',signupVerifyCode);
 document.getElementById('suCode').addEventListener('keydown',e=>{ if(e.key==='Enter') signupVerifyCode(); });
 
+/* 동의한 약관 버전 — 서버 CURRENT_TERMS_VERSION · terms.html/privacy.html 시행일과 같게 */
+const TERMS_VERSION='2026-10-19';
 /* --- 회원가입 ③ 필수 동의 — 셋 다 체크해야 '가입 완료'가 켜진다 --- */
 const suAgreeAll=document.getElementById('suAgreeAll');
 const suAgreeItems=[...document.querySelectorAll('.su-agree')];
@@ -961,7 +963,7 @@ async function signupComplete(){
   if(!suAgreed()){ setMsg('suPwMsg','필수 항목에 모두 동의해주세요.','err'); return; }
   const btn=document.getElementById('suCompleteBtn'); btn.disabled=true; setMsg('suPwMsg','가입 완료 중…');
   try{
-    const res=await fetch(API_BASE+'/auth/signup/complete',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ signupTicket, password:pw, nickname:nick, agreements:{ terms:true, privacy:true, ageOver14:true } }) });
+    const res=await fetch(API_BASE+'/auth/signup/complete',{ method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ signupTicket, password:pw, nickname:nick, agreements:{ terms:true, privacy:true, ageOver14:true, version:TERMS_VERSION } }) });
     if(!res.ok){ const e=await apiError(res,'가입에 실패했어요.'); setMsg('suPwMsg',e.message,'err'); return; }
     const { data }=await res.json();
     setMsg('suPwMsg',''); onAuthenticated(data);
