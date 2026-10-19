@@ -30,3 +30,6 @@ next-env.d.ts
 # logs
 npm-debug.log*
 .playwright-mcp/
+
+# Claude Code 플러그인(bkit) 런타임 상태 — 커밋 금지
+.bkit/
