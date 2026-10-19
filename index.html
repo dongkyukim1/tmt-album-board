@@ -74,6 +74,7 @@
   .nav-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:var(--r-pill);
     font-size:15px;font-weight:500;color:var(--muted);transition:color .2s,background .2s}
   .nav-links a:hover{color:var(--white);background:var(--fill)}
+  .nav-links a[hidden]{display:none}
   .nav-links a[aria-current="page"]{color:var(--white);font-weight:600}
   .nav-links a[aria-current="page"]::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);margin-right:8px}
   @media (max-width:900px){.nav .tag{display:none}}
@@ -466,6 +467,8 @@
     <a href="./" aria-current="page">탑스터</a>
     <a href="#" data-next="/taste">취향찾기</a>
     <a href="#" data-next="/me">마이</a>
+    <!-- 운영자(GET /me isAdmin)에게만 보인다 — 신고 24시간 검토(이용약관 제9조) -->
+    <a href="#" data-next="/admin/reports" id="navAdmin" hidden>신고 관리</a>
   </nav>
   <div style="position:relative">
     <button class="btn-auth" id="btnAuth">로그인</button>
@@ -875,6 +878,7 @@ function onAuthenticated(payload){
   const u={ id:payload.user.id, email:payload.user.email, nickname:payload.user.nickname };
   setCachedUser(u); myProfile=u;
   closeAuth(); renderAuthUI(); showToast('환영해요, '+u.nickname+' 님!');
+  restoreSession(); // GET /me 로 isAdmin 을 받아 운영자 메뉴를 켠다
   if(pendingSave){ pendingSave=false; doSaveChart(); }
 }
 
@@ -1046,6 +1050,7 @@ function renderAuthUI(){
   } else {
     btn.classList.remove('signed'); btn.textContent='로그인';
   }
+  document.getElementById('navAdmin').hidden=!(myProfile&&myProfile.isAdmin);
 }
 
 async function doLogout(){
@@ -1065,7 +1070,7 @@ async function restoreSession(){
     const res=await apiFetch('/me');
     if(!res.ok){ if(res.status===401) handleAuthExpired(false); return; }
     const { data }=await res.json();
-    myProfile={ id:data.id, nickname:data.nickname, email:(cached&&cached.email)||'' };
+    myProfile={ id:data.id, nickname:data.nickname, email:(cached&&cached.email)||'', isAdmin:!!data.isAdmin };
     setCachedUser(myProfile); renderAuthUI();
   }catch(e){ console.error('[TMT] 세션 복원 실패:', e); }
 }
