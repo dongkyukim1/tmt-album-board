@@ -14,6 +14,10 @@ type Props = { params: Promise<{ id: string }> }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
+/** TMT 앱 스토어 링크(iOS 앱 ID 6795753990 · Android com.qjc.topster). */
+const APP_STORE_URL = 'https://apps.apple.com/app/id6795753990'
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.qjc.topster'
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const chart = await fetchPublicChart(id)
@@ -123,10 +127,19 @@ export default async function ChartPage({ params }: Props) {
           </aside>
         </div>
 
+        {/* 카카오톡·SNS 링크를 앱 없이(또는 PC에서) 연 사람 — 앱 설치로 안내 */}
         <div className={styles.cta}>
-          <p>나만의 탑스터를 만들고 공유해 보세요</p>
-          <a href={SITE_URL + '/'} className="btn-primary">
-            나도 TMT에서 만들기
+          <p>TMT 앱에서 탑스터를 만들고 친구와 취향을 나눠 보세요</p>
+          <div className={styles.stores}>
+            <a href={APP_STORE_URL} className="btn-primary" target="_blank" rel="noopener">
+              App Store에서 받기
+            </a>
+            <a href={PLAY_STORE_URL} className="btn-neutral" target="_blank" rel="noopener">
+              Google Play에서 받기
+            </a>
+          </div>
+          <a href={SITE_URL + '/'} className={styles.webLink}>
+            웹에서 나도 만들기
           </a>
         </div>
       </div>
