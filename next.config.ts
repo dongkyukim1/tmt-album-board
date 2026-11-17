@@ -6,6 +6,7 @@ import type { NextConfig } from 'next'
  * - 기존 SPA(`public/index.html`)는 루트(`/`)에서 그대로 서빙 → 점진적 이주.
  */
 const nextConfig: NextConfig = {
+  devIndicators: false,
   async rewrites() {
     return [{ source: '/', destination: '/index.html' }]
   },

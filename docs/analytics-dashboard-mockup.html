@@ -1,0 +1,521 @@
+<meta charset="UTF-8">
+<title>TMT Insights 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+KR:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0A0A0A; --ink:#EDE7DB; --ink-2:rgba(237,231,219,.62); --ink-3:rgba(237,231,219,.34);
+  --line:rgba(237,231,219,.10); --line-2:rgba(237,231,219,.18);
+  --surf:#141414; --surf-2:#1C1C1C; --card:#232323; --fill:rgba(255,255,255,.07);
+  --lime:#CFF730; --lime-dim:rgba(207,247,48,.14); --on-lime:#14110D;
+  --rose:#E1738A; --mint:#63C39A; --gold:#E3B24E; --red:#E83B25;
+  --sans:'Pretendard Variable',Pretendard,'Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;
+  --display:'Anton','VinaSans','Noto Sans KR',sans-serif;
+  --r:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.board{max-width:1280px;margin:0 auto;padding:28px 24px 64px}
+.board-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.board-head h1{font:400 26px/1.1 var(--sans);letter-spacing:-.02em;margin:0}
+.board-head h1 b{font-family:var(--display);font-weight:400;letter-spacing:.01em;color:var(--lime);font-size:30px}
+.board-head p{margin:6px 0 0;color:var(--ink-2);max-width:62ch}
+.tabs{display:flex;gap:6px;background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:500 13px var(--sans);padding:8px 16px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--lime);color:var(--on-lime)}
+.tabs button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.concept{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;margin:10px 0 14px}
+.concept h2{margin:0;font:600 17px var(--sans);letter-spacing:-.01em}
+.concept h2 span{color:var(--ink-3);font-weight:400;margin-left:8px}
+.concept p{margin:4px 0 0;color:var(--ink-2);max-width:78ch}
+.concept .tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.frame{border:1px solid var(--line-2);border-radius:14px;overflow:auto;background:var(--bg);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.frame .chrome{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0E0E0E;position:sticky;top:0;z-index:2}
+.chrome i{width:10px;height:10px;border-radius:50%;background:var(--fill);display:inline-block}
+.chrome span{margin-left:10px;font-size:12px;color:var(--ink-3)}
+.variant[hidden]{display:none}
+.mock{min-width:1180px}
+.num{font-variant-numeric:tabular-nums}
+.label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.up{color:var(--mint)} .down{color:var(--rose)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line-2);color:var(--ink-2)}
+.pill.on{background:var(--lime);color:var(--on-lime);border-color:var(--lime)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mint);display:inline-block}
+.lips{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-size:20px;letter-spacing:.02em}
+.lips svg{width:26px;height:19px}
+table{border-collapse:collapse;width:100%}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:left;padding:0 0 10px}
+td{padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+td.r,th.r{text-align:right}
+.bar{height:5px;border-radius:3px;background:var(--fill);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lime)}
+
+/* ---------- A : Console ---------- */
+.a{display:grid;grid-template-columns:232px 1fr;min-height:860px}
+.a aside{border-right:1px solid var(--line);padding:22px 18px;display:flex;flex-direction:column;gap:22px;background:#0C0C0C}
+.a nav{display:grid;gap:2px}
+.a nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;text-decoration:none;color:var(--ink-2);font-size:13.5px}
+.a nav a.on{background:var(--lime-dim);color:var(--lime)}
+.a nav a svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
+.a .conn{margin-top:auto;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12px;color:var(--ink-2)}
+.a .conn b{display:block;color:var(--ink);font-weight:500;margin-bottom:2px}
+.a main{padding:26px 32px 40px}
+.a .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.a h1{margin:4px 0 2px;font:600 24px/1.1 var(--sans);letter-spacing:-.02em}
+.a .top p{margin:0;color:var(--ink-2)}
+.a .ctl{display:flex;gap:8px;align-items:center}
+.a .ctl .seg{display:flex;border:1px solid var(--line-2);border-radius:999px;padding:3px;gap:2px}
+.a .ctl .seg span{padding:6px 12px;border-radius:999px;font-size:12.5px;color:var(--ink-2)}
+.a .ctl .seg span.on{background:var(--ink);color:var(--bg)}
+.a .kpis{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.a .kpi{padding:16px 18px 14px;border-right:1px solid var(--line)}
+.a .kpi:last-child{border-right:0}
+.a .kpi .v{font:500 28px/1 var(--sans);letter-spacing:-.03em;margin:10px 0 8px}
+.a .kpi small{font-size:12px}
+.a .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+.a .panel{border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;background:var(--surf)}
+.a .panel h3{margin:0;font:500 14px var(--sans)}
+.a .panel .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.a .trend svg{width:100%;height:210px;display:block}
+.a .cohort{display:grid;grid-template-columns:76px repeat(5,1fr);gap:4px;font-size:12px}
+.a .cohort .h{color:var(--ink-3);text-align:center;padding-bottom:4px}
+.a .cohort .k{color:var(--ink-2);display:flex;align-items:center}
+.a .cohort .c{height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.a .wide{grid-column:1/-1}
+.a .plat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+.a .plat div{border-top:2px solid var(--line-2);padding-top:8px}
+.a .plat div:first-child{border-top-color:var(--lime)}
+.a .plat .v{font-size:20px;font-weight:500;letter-spacing:-.02em}
+
+/* ---------- B : Editorial ---------- */
+.b{padding:0 0 48px}
+.b header{display:flex;justify-content:space-between;align-items:center;padding:18px 40px;border-bottom:1px solid var(--line)}
+.b header nav{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
+.b header nav b{color:var(--ink);font-weight:500;border-bottom:2px solid var(--lime);padding-bottom:3px}
+.b .hero{padding:44px 40px 30px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end;border-bottom:1px solid var(--line)}
+.b .hero .eyebrow{color:var(--ink-3);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.b .big{font-family:var(--display);font-size:168px;line-height:.88;letter-spacing:-.005em;margin:10px 0 0;color:var(--ink)}
+.b .big em{font-style:normal;color:var(--lime)}
+.b .hero .sub{font-size:15px;color:var(--ink-2);margin:10px 0 0;max-width:40ch}
+.b .hero .rule{width:120px;height:3px;background:var(--lime);margin:16px 0 10px}
+.b .side{display:grid;gap:14px}
+.b .side .row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding:10px 0}
+.b .side .row span{color:var(--ink-2);font-size:13px}
+.b .side .row b{font:400 30px/1 var(--display);letter-spacing:.01em}
+.b .side .row b small{font:400 12px var(--sans);margin-left:8px}
+.b .strip{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--line)}
+.b .strip > div{padding:26px 40px;border-right:1px solid var(--line)}
+.b .strip > div:last-child{border-right:0}
+.b .strip h3{margin:0 0 14px;font:500 13px var(--sans);display:flex;justify-content:space-between;color:var(--ink-2)}
+.b .strip h3 b{color:var(--ink);font-weight:500}
+.b .heat{display:grid;grid-template-columns:70px repeat(5,1fr);gap:3px;font-size:12px}
+.b .heat .h{color:var(--ink-3);text-align:center;padding-bottom:4px}
+.b .heat .k{color:var(--ink-2);display:flex;align-items:center}
+.b .heat .c{height:36px;display:flex;align-items:center;justify-content:center}
+.b .screens li{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
+.b .screens li:first-child{border-top:0}
+.b .screens ol{list-style:none;margin:0;padding:0}
+.b .screens .n{font-family:var(--display);color:var(--ink-3);font-size:15px}
+.b .screens .t{color:var(--ink-2);font-size:12.5px}
+.b .trend svg{width:100%;height:150px;display:block}
+.b .ev{display:grid;gap:9px}
+.b .ev div{display:grid;grid-template-columns:120px 1fr 56px;gap:12px;align-items:center;font-size:13px}
+.b .ev .bar{height:18px;border-radius:3px}
+.b .ev .bar i{background:var(--ink)}
+.b .ev div:first-child .bar i{background:var(--lime)}
+
+/* ---------- C : Bento ---------- */
+.c{padding:24px 32px 44px}
+.c .bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.c .bar-top .brand{display:flex;align-items:center;gap:14px}
+.c .bar-top .brand .ws{font-size:13px;color:var(--ink-2);padding-left:14px;border-left:1px solid var(--line-2)}
+.c .bar-top .right{display:flex;gap:8px;align-items:center}
+.c .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:150px;gap:14px}
+.c .t{border-radius:20px;background:var(--surf-2);padding:18px 20px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.c .t.lime{background:var(--lime);color:var(--on-lime)}
+.c .t.lime .label{color:rgba(20,17,13,.55)}
+.c .t.tint{background:var(--lime-dim);border:1px solid rgba(207,247,48,.22)}
+.c .t h4{margin:0;font:500 13px var(--sans);color:inherit}
+.c .t .v{font:500 36px/1 var(--sans);letter-spacing:-.035em;margin-top:auto}
+.c .t .v small{font-size:13px;letter-spacing:0;margin-left:6px;color:var(--ink-2)}
+.c .t.lime .v small{color:rgba(20,17,13,.6)}
+.c .t .spark{position:absolute;right:0;bottom:0;left:0;height:54px;width:100%}
+.c .s2{grid-column:span 2}.c .s3{grid-column:span 3}.c .s4{grid-column:span 4}.c .r2{grid-row:span 2}
+.c .t .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.c .t .hd .label{letter-spacing:.06em}
+.c .trend svg{width:100%;height:100%;flex:1;min-height:0;display:block}
+.c .donut{display:flex;gap:18px;align-items:center;margin-top:auto}
+.c .donut svg{width:96px;height:96px}
+.c .donut ul{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:12.5px}
+.c .donut li{display:flex;gap:8px;align-items:center}
+.c .donut li i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.c .cohort{display:grid;grid-template-columns:70px repeat(5,1fr);gap:4px;font-size:12px;margin-top:auto}
+.c .cohort .h{color:var(--ink-3);text-align:center}
+.c .cohort .k{color:var(--ink-2);display:flex;align-items:center}
+.c .cohort .c{height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.c .t table td{padding:7px 0;font-size:12.5px}
+.c .t table th{padding-bottom:6px}
+.c .ev{display:grid;gap:8px;margin-top:auto}
+.c .ev div{display:grid;grid-template-columns:100px 1fr 44px;gap:10px;align-items:center;font-size:12.5px}
+.foot{margin-top:22px;color:var(--ink-3);font-size:12px;display:flex;gap:18px;flex-wrap:wrap}
+.foot b{color:var(--ink-2);font-weight:500}
+
+/* ---------- D : Editorial + charts (final) ---------- */
+.d{padding:0 0 40px}
+.d header{display:flex;justify-content:space-between;align-items:center;padding:18px 40px;border-bottom:1px solid var(--line)}
+.d header nav{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
+.d header nav b{color:var(--ink);font-weight:500;border-bottom:2px solid var(--lime);padding-bottom:3px}
+.d .hero{padding:40px 40px 0;display:grid;grid-template-columns:420px 1fr;gap:40px;align-items:end}
+.d .eyebrow{color:var(--ink-3);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.d .big{font-family:var(--display);font-size:150px;line-height:.88;letter-spacing:-.005em;margin:10px 0 0}
+.d .big em{font-style:normal;color:var(--lime)}
+.d .rule{width:120px;height:3px;background:var(--lime);margin:14px 0 10px}
+.d .sub{font-size:14.5px;color:var(--ink-2);margin:0;max-width:38ch}
+.d .herochart{position:relative}
+.d .herochart svg{width:100%;height:250px;display:block}
+.d .legend{display:flex;gap:16px;font-size:12px;color:var(--ink-2);margin-bottom:6px;justify-content:flex-end}
+.d .legend i{display:inline-block;width:14px;height:2px;background:var(--lime);vertical-align:middle;margin-right:6px}
+.d .legend i.dash{background:repeating-linear-gradient(90deg,var(--ink-2) 0 3px,transparent 3px 6px)}
+.d .kpis{display:grid;grid-template-columns:repeat(4,1fr);margin:26px 40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.d .kpi{padding:18px 22px 16px;border-right:1px solid var(--line);display:grid;grid-template-columns:1fr 96px;gap:8px;align-items:end}
+.d .kpi:last-child{border-right:0}
+.d .kpi .v{font:400 34px/1 var(--display);letter-spacing:.01em;margin:8px 0 6px}
+.d .kpi small{font-size:12px}
+.d .kpi svg{width:96px;height:40px;display:block}
+.d .ring{display:flex;align-items:center;gap:12px}
+.d .ring svg{width:52px;height:52px}
+.d .sect{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border-bottom:1px solid var(--line);margin:0 40px}
+.d .sect > div{padding:26px 0 26px}
+.d .sect > div + div{padding-left:34px;border-left:1px solid var(--line);margin-left:34px}
+.d h3{margin:0 0 16px;font:500 13px var(--sans);display:flex;justify-content:space-between;color:var(--ink-2)}
+.d h3 b{color:var(--ink);font-weight:500}
+.d .heat{display:grid;grid-template-columns:70px repeat(5,1fr) 110px;gap:3px;font-size:12px;align-items:center}
+.d .heat .h{color:var(--ink-3);text-align:center;padding-bottom:4px}
+.d .heat .k{color:var(--ink-2)}
+.d .heat .c{height:38px;display:flex;align-items:center;justify-content:center}
+.d .heat svg{width:110px;height:38px;display:block}
+.d .hbars{display:grid;gap:10px}
+.d .hbars div{display:grid;grid-template-columns:110px 1fr 54px;gap:12px;align-items:center;font-size:13px}
+.d .hbars .bar{height:22px;border-radius:3px;background:var(--fill)}
+.d .hbars .bar i{background:var(--ink-3)}
+.d .hbars div:first-child .bar i{background:var(--lime)}
+.d .hbars .r{text-align:right}
+.d .hours{display:grid;grid-template-columns:34px repeat(24,1fr);gap:3px;font-size:10.5px;color:var(--ink-3)}
+.d .hours .k{display:flex;align-items:center;font-size:11px;color:var(--ink-2)}
+.d .hours .c{aspect-ratio:1;border-radius:3px}
+.d .hours .x{text-align:center;padding-top:4px}
+.d .hist svg{width:100%;height:150px;display:block}
+.d .plat{display:flex;gap:24px;align-items:center}
+.d .plat svg{width:120px;height:120px}
+.d .plat ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13px;flex:1}
+.d .plat li{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center}
+.d .plat li i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.d .plat li .bar{height:4px;margin-top:5px;grid-column:2/4}
+.d .ev{display:grid;gap:9px}
+.d .ev div{display:grid;grid-template-columns:120px 1fr 56px;gap:12px;align-items:center;font-size:13px}
+.d .ev .bar{height:18px;border-radius:3px}
+.d .ev .bar i{background:var(--ink-3)}
+.d .ev div:first-child .bar i{background:var(--lime)}
+.d .funnel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-items:end;height:150px}
+.d .funnel div{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;font-size:12px;color:var(--ink-2)}
+.d .funnel i{display:block;background:var(--fill);border-radius:4px 4px 0 0}
+.d .funnel div:first-child i{background:var(--lime)}
+.d .funnel b{color:var(--ink);font:400 22px/1 var(--display)}
+
+@media (prefers-reduced-motion:no-preference){.variant{animation:in .25s ease-out}}
+@keyframes in{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+
+<div class="board">
+  <div class="board-head">
+    <div>
+      <h1><b>TMT insights</b> · 접속자·체류시간 대시보드 시안</h1>
+      <p>최종 방향: 에디토리얼(B)의 헤드라인 숫자·헤어라인 구조를 뼈대로, 콘솔(A)의 차트를 전면에. 추이·스파크라인·코호트 히트맵·시간대 히트맵·체류 분포·퍼널·도넛까지 모든 섹션이 시각 요소를 가집니다. 앱 토큰(딥블랙 · 라임 #CFF730 · Pretendard · 입술 로고) 공통, 숫자는 예시.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="시안 선택">
+      <button role="tab" aria-selected="true" data-v="d">최종 · 에디토리얼+차트</button>
+      <button role="tab" aria-selected="false" data-v="a">A 콘솔</button>
+      <button role="tab" aria-selected="false" data-v="b">B 에디토리얼</button>
+      <button role="tab" aria-selected="false" data-v="c">C 벤토</button>
+    </div>
+  </div>
+
+
+  <!-- ===================== D : FINAL ===================== -->
+  <section class="variant" id="v-d">
+    <div class="concept">
+      <div>
+        <h2>최종 · 에디토리얼 + 차트 <span>B 뼈대 + A 시각 요소</span></h2>
+        <p>히어로에서 큰 숫자 옆에 28일 추이 차트를 바로 붙이고, KPI 4칸마다 스파크라인·링을 넣었습니다. 아래로 코호트 히트맵(+곡선), 화면 체류 가로막대, 요일×시간대 접속 히트맵, 체류시간 분포, 에디터 퍼널, 플랫폼 도넛. 라임은 여전히 주 지표 한 줄과 각 차트의 첫 번째 시리즈에만.</p>
+      </div>
+      <span class="tag">hero chart · sparklines · heatmaps · funnel</span>
+    </div>
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>tmt.app/admin/analytics</span></div>
+    <div class="mock d">
+      <header>
+        <div class="lips"><svg viewBox="0 0 26 19" fill="none"><path d="M1 8c3-6 8-7 12-4 4-3 9-2 12 4-3 7-8 10-12 10S4 15 1 8z" fill="#CFF730"/><path d="M4 8h18c-3 3-6 4.5-9 4.5S7 11 4 8z" fill="#0A0A0A"/></svg>TMT insights</div>
+        <nav><b>오버뷰</b><span>리텐션</span><span>화면 분석</span><span>사용자 행동</span><span>데이터 가이드</span></nav>
+        <div style="display:flex;gap:8px"><span class="pill on">전체 앱</span><span class="pill">iOS</span><span class="pill">Android</span><span class="pill">Web</span><span class="pill" style="margin-left:8px">최근 28일 ⌄</span><span class="pill">↓ CSV</span></div>
+      </header>
+
+      <div class="hero">
+        <div>
+          <div class="eyebrow">활성 사용자 · 2026.10.20 – 11.16</div>
+          <div class="big num">1,<em>284</em></div>
+          <div class="rule"></div>
+          <p class="sub"><b class="up">↗ 12.4%</b> 이전 동기간 대비. 신규 412명, 세 명 중 한 명이 7일 안에 다시 돌아왔습니다.</p>
+        </div>
+        <div class="herochart">
+          <div class="legend"><span><i></i>활성 사용자</span><span><i class="dash"></i>세션</span><span style="color:var(--ink-3)">· 이전 동기간 회색</span></div>
+          <svg viewBox="0 0 700 250" id="trendD"></svg>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div><div class="label">신규 사용자</div><div class="v num">412</div><small class="up">↗ 8.1%</small></div><svg id="spD1"></svg></div>
+        <div class="kpi"><div><div class="label">세션</div><div class="v num">3,907</div><small class="up">↗ 15.0%</small></div><svg id="spD2"></svg></div>
+        <div class="kpi"><div><div class="label">평균 체류시간</div><div class="v num">4:38</div><small class="down">↘ 3.2%</small></div><svg id="spD3"></svg></div>
+        <div class="kpi"><div><div class="label">참여율</div><div class="v num">71.3%</div><small class="up">↗ 1.9%p</small></div><div class="ring"><svg viewBox="0 0 52 52" id="ringD"></svg></div></div>
+      </div>
+
+      <div class="sect">
+        <div><h3>코호트 리텐션 <b>가입 주 기준 · 우측은 D-곡선</b></h3><div class="heat" id="cohortD"></div>
+          <p style="margin:14px 0 0;color:var(--ink-3);font-size:12px">가중 평균 D7 <b class="num" style="color:var(--ink)">31.2%</b> · D30 <b class="num" style="color:var(--ink)">14.8%</b> · 빈 칸은 임계값 미달(0% 아님)</p></div>
+        <div><h3>화면별 평균 체류 <b>분:초</b></h3><div class="hbars" id="screensD"></div></div>
+      </div>
+
+      <div class="sect">
+        <div><h3>요일 × 시간대 접속 <b>세션 수 · 진할수록 많음</b></h3><div class="hours" id="hoursD"></div></div>
+        <div class="hist"><h3>세션 체류시간 분포 <b>세션 비율</b></h3><svg viewBox="0 0 420 150" id="histD"></svg></div>
+      </div>
+
+      <div class="sect" style="border-bottom:0">
+        <div><h3>에디터 퍼널 <b>28일 · 사용자</b></h3><div class="funnel" id="funnelD"></div></div>
+        <div><h3>플랫폼 <b>활성 사용자</b></h3><div class="plat"><svg viewBox="0 0 120 120" id="donutD"></svg><ul id="platD"></ul></div>
+          <h3 style="margin-top:26px">사용자 행동 <b>이벤트</b></h3><div class="ev" id="eventsD"></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== A ===================== -->
+  <section class="variant" id="v-a" hidden>
+    <div class="concept">
+      <div>
+        <h2>A · 콘솔 <span>Codex 현재 구조를 다듬은 안</span></h2>
+        <p>왼쪽 레일 + 5칸 KPI 띠 + 큰 추이 차트. 라임은 활성 메뉴·차트 선·코호트 농도에만 쓰고 나머지는 전부 헤어라인. 매일 들어와 숫자를 읽는 관리자에게 가장 빠른 구조입니다.</p>
+      </div>
+      <span class="tag">sidebar · kpi strip · 2-col</span>
+    </div>
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>tmt.app/admin/analytics</span></div>
+    <div class="mock a">
+      <aside>
+        <div class="lips"><svg viewBox="0 0 26 19" fill="none"><path d="M1 8c3-6 8-7 12-4 4-3 9-2 12 4-3 7-8 10-12 10S4 15 1 8z" fill="#CFF730"/><path d="M4 8h18c-3 3-6 4.5-9 4.5S7 11 4 8z" fill="#0A0A0A"/></svg>insights</div>
+        <nav>
+          <a class="on" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>오버뷰</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>리텐션</a>
+          <a href="#"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8"/></svg>화면 분석</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>사용자 행동</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>데이터 가이드</a>
+        </nav>
+        <div class="conn"><b><span class="dot"></span> Firebase Analytics</b>실제 데이터 연결됨 · Asia/Seoul</div>
+      </aside>
+      <main>
+        <div class="top">
+          <div><div class="label">TMT product analytics</div><h1>오버뷰</h1><p>사용자가 머무는 순간부터, 다시 돌아오는 이유까지.</p></div>
+          <div class="ctl"><div class="seg"><span class="on">전체 앱</span><span>iOS</span><span>Android</span><span>Web</span></div><span class="pill">최근 28일 ⌄</span><span class="pill">↓ CSV</span></div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="label">활성 사용자</div><div class="v num">1,284</div><small class="up">↗ 12.4%</small> <small style="color:var(--ink-3)">이전 동기간</small></div>
+          <div class="kpi"><div class="label">신규 사용자</div><div class="v num">412</div><small class="up">↗ 8.1%</small> <small style="color:var(--ink-3)">이전 동기간</small></div>
+          <div class="kpi"><div class="label">세션</div><div class="v num">3,907</div><small class="up">↗ 15.0%</small> <small style="color:var(--ink-3)">이전 동기간</small></div>
+          <div class="kpi"><div class="label">평균 체류시간</div><div class="v num">4분 38초</div><small class="down">↘ 3.2%</small> <small style="color:var(--ink-3)">이전 동기간</small></div>
+          <div class="kpi"><div class="label">참여율</div><div class="v num">71.3%</div><small class="up">↗ 1.9%p</small> <small style="color:var(--ink-3)">이전 동기간</small></div>
+        </div>
+        <div class="grid">
+          <div class="panel trend"><div class="hd"><h3>일별 활성 사용자</h3><div><span class="pill on">활성 사용자</span> <span class="pill">세션</span></div></div><svg viewBox="0 0 760 210" id="trendA"></svg></div>
+          <div class="panel"><div class="hd"><h3>코호트 리텐션</h3><span class="label">가입 주 기준</span></div>
+            <div class="cohort" id="cohortA"></div>
+            <p style="margin:14px 0 0;color:var(--ink-3);font-size:12px">가중 평균 D7 <b class="num" style="color:var(--ink)">31.2%</b> · D30 <b class="num" style="color:var(--ink)">14.8%</b></p>
+          </div>
+          <div class="panel"><div class="hd"><h3>화면별 체류</h3><span class="label">조회 기준 정렬</span></div>
+            <table><thead><tr><th>화면</th><th class="r">사용자</th><th class="r">조회</th><th class="r">평균 체류</th></tr></thead><tbody id="screensA"></tbody></table>
+          </div>
+          <div class="panel"><div class="hd"><h3>사용자 행동</h3><span class="label">이벤트 · 28일</span></div>
+            <div class="b ev" id="eventsA" style="padding:0"></div>
+            <div class="plat"><div><div class="label">iOS</div><div class="v num">842</div></div><div><div class="label">Android</div><div class="v num">331</div></div><div><div class="label">Web</div><div class="v num">111</div></div></div>
+          </div>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <!-- ===================== B ===================== -->
+  <section class="variant" id="v-b" hidden>
+    <div class="concept">
+      <div>
+        <h2>B · 에디토리얼 <span>포트폴리오용으로 가장 강한 안</span></h2>
+        <p>사이드바를 없애고 앱 TOM 카드의 "09 ALBUMS" 숫자 타이포(VinaSans 계열)를 그대로 가져옵니다. 오늘의 활성 사용자 하나를 헤드라인으로 세우고, 나머지는 헤어라인 3단으로 조용히. 색은 라임 한 줄뿐입니다.</p>
+      </div>
+      <span class="tag">no sidebar · display numerals · 3-col strip</span>
+    </div>
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>tmt.app/admin/analytics</span></div>
+    <div class="mock b">
+      <header>
+        <div class="lips"><svg viewBox="0 0 26 19" fill="none"><path d="M1 8c3-6 8-7 12-4 4-3 9-2 12 4-3 7-8 10-12 10S4 15 1 8z" fill="#CFF730"/><path d="M4 8h18c-3 3-6 4.5-9 4.5S7 11 4 8z" fill="#0A0A0A"/></svg>TMT insights</div>
+        <nav><b>오버뷰</b><span>리텐션</span><span>화면 분석</span><span>사용자 행동</span><span>데이터 가이드</span></nav>
+        <div style="display:flex;gap:8px"><span class="pill">전체 앱 ⌄</span><span class="pill">최근 28일 ⌄</span></div>
+      </header>
+      <div class="hero">
+        <div>
+          <div class="eyebrow">활성 사용자 · 2026.10.20 – 11.16 · 중복 방문 제외</div>
+          <div class="big num">1,<em>284</em></div>
+          <div class="rule"></div>
+          <p class="sub"><b class="up">↗ 12.4%</b> 이전 동기간 대비. 신규 412명이 들어왔고, 세 명 중 한 명은 7일 안에 다시 돌아왔습니다.</p>
+        </div>
+        <div class="side">
+          <div class="row"><span>세션</span><b class="num">3,907<small class="up">↗ 15.0%</small></b></div>
+          <div class="row"><span>평균 체류시간</span><b class="num">4:38<small class="down">↘ 3.2%</small></b></div>
+          <div class="row"><span>참여율</span><b class="num">71.3%<small class="up">↗ 1.9%p</small></b></div>
+          <div class="row"><span>지금 접속 중</span><b class="num"><span class="dot" style="vertical-align:middle;margin-right:8px"></span>17<small>실시간</small></b></div>
+        </div>
+      </div>
+      <div class="strip">
+        <div class="trend"><h3>일별 추이 <b>활성 사용자</b></h3><svg viewBox="0 0 360 150" id="trendB"></svg></div>
+        <div><h3>코호트 리텐션 <b>가입 주 기준</b></h3><div class="heat" id="cohortB"></div></div>
+        <div class="screens"><h3>가장 오래 머문 화면 <b>평균 체류</b></h3><ol id="screensB"></ol></div>
+      </div>
+      <div class="strip" style="border-bottom:0">
+        <div><h3>사용자 행동 <b>이벤트 수</b></h3><div class="ev" id="eventsB"></div></div>
+        <div><h3>플랫폼 <b>사용자</b></h3><div class="ev" id="platB"></div></div>
+        <div><h3>데이터 메모 <b>GA4</b></h3><p style="margin:0;color:var(--ink-2);font-size:13px;line-height:1.6">일별 보고서는 최대 48시간 지연 반영됩니다. 코호트 셀이 비어 있으면 개인정보 보호 임계값으로 숨겨진 것이며 0%가 아닙니다.</p></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ===================== C ===================== -->
+  <section class="variant" id="v-c" hidden>
+    <div class="concept">
+      <div>
+        <h2>C · 벤토 <span>깔끔하고 모듈형</span></h2>
+        <p>앱의 라임 틴트 칩(#CFF730 14%)과 r20 라운드를 타일로 확장. 사이드바 없이 상단 바 하나, 각 타일이 스파크라인·도넛·히트맵을 품습니다. 딱 한 타일만 라임으로 채워 시선을 고정합니다.</p>
+      </div>
+      <span class="tag">tiles · one lime tile · sparklines</span>
+    </div>
+    <div class="frame"><div class="chrome"><i></i><i></i><i></i><span>tmt.app/admin/analytics</span></div>
+    <div class="mock c">
+      <div class="bar-top">
+        <div class="brand"><div class="lips"><svg viewBox="0 0 26 19" fill="none"><path d="M1 8c3-6 8-7 12-4 4-3 9-2 12 4-3 7-8 10-12 10S4 15 1 8z" fill="#CFF730"/><path d="M4 8h18c-3 3-6 4.5-9 4.5S7 11 4 8z" fill="#0A0A0A"/></svg>insights</div><span class="ws">Taste My Taste · 오버뷰</span></div>
+        <div class="right"><span class="pill on">전체 앱</span><span class="pill">iOS</span><span class="pill">Android</span><span class="pill">Web</span><span class="pill" style="margin-left:10px">최근 28일 ⌄</span><span class="pill">↓</span></div>
+      </div>
+      <div class="bento">
+        <div class="t lime s2"><div class="label">활성 사용자 · 28일</div><div class="v num">1,284<small>↗ 12.4%</small></div><svg class="spark" viewBox="0 0 300 54" preserveAspectRatio="none" id="sparkC1"></svg></div>
+        <div class="t"><div class="label">신규</div><div class="v num">412</div></div>
+        <div class="t"><div class="label">세션</div><div class="v num">3,907</div></div>
+        <div class="t"><div class="label">평균 체류</div><div class="v num">4:38</div></div>
+        <div class="t tint"><div class="label">지금 접속</div><div class="v num"><span class="dot" style="vertical-align:middle;margin-right:8px"></span>17</div></div>
+        <div class="t s4 r2 trend"><div class="hd"><h4>일별 활성 사용자</h4><div><span class="pill on">사용자</span> <span class="pill">세션</span></div></div><svg viewBox="0 0 740 220" id="trendC"></svg></div>
+        <div class="t s2 r2"><div class="hd"><h4>플랫폼</h4><span class="label">사용자</span></div>
+          <div class="donut"><svg viewBox="0 0 96 96" id="donutC"></svg><ul><li><i style="background:var(--lime)"></i>iOS <b class="num" style="margin-left:auto">842</b></li><li><i style="background:var(--ink)"></i>Android <b class="num" style="margin-left:auto">331</b></li><li><i style="background:var(--ink-3)"></i>Web <b class="num" style="margin-left:auto">111</b></li></ul></div>
+        </div>
+        <div class="t s3 r2"><div class="hd"><h4>코호트 리텐션</h4><span class="label">가입 주</span></div><div class="cohort" id="cohortC"></div></div>
+        <div class="t s3 r2"><div class="hd"><h4>화면별 체류</h4><span class="label">평균 체류 순</span></div><table><thead><tr><th>화면</th><th class="r">조회</th><th class="r">체류</th></tr></thead><tbody id="screensC"></tbody></table></div>
+        <div class="t s3"><div class="hd"><h4>사용자 행동</h4><span class="label">이벤트</span></div><div class="ev" id="eventsC"></div></div>
+        <div class="t s3"><div class="hd"><h4>참여율</h4><span class="label">세션 중 10초 이상</span></div><div class="v num" style="margin-top:auto">71.3%<small class="up">↗ 1.9%p</small></div><div class="bar" style="margin-top:12px"><i style="width:71.3%"></i></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <p class="foot"><b>공통 규칙</b> 라임은 활성 상태·주 지표·차트 선에만 · 의미색(증가 민트 / 감소 로즈)은 앱 verdict 색과 동일 · 숫자는 tabular-nums · 코호트 빈 칸은 "데이터 없음"으로 표기(0%로 보이지 않게) <span style="margin-left:auto">예시 데이터 · 2026-11-17</span></p>
+</div>
+
+<script>
+(function(){
+  // ---- sample data (예시) ----
+  var daily=[31,34,38,36,42,45,41,48,52,47,55,58,54,61,59,63,66,62,70,68,74,71,77,80,76,83,81,88];
+  var cohorts=[['10.20',340,[.46,.33,.28,.20,.15]],['10.27',355,[.44,.31,.27,.19,null]],['11.03',362,[.48,.35,.30,null,null]],['11.10',401,[.49,.36,null,null,null]]];
+  var days=['D1','D3','D7','D14','D30'];
+  var screens=[['탑스터 에디터',412,2130,'6:12'],['앨범 상세',905,3410,'3:48'],['홈',1180,5920,'2:10'],['디깅',640,2880,'4:02'],['탑스터 상세',530,1760,'2:55'],['검색',710,2310,'1:36']];
+  var events=[['탑스터 저장',1203],['에디터 열기',2890],['탑스터 완성',412],['공유 시트 열기',538],['첫 실행',412]];
+  var plats=[['iOS',842],['Android',331],['Web',111]];
+  var lime='#CFF730',ink='#EDE7DB',ink3='rgba(237,231,219,.34)',line='rgba(237,231,219,.10)';
+
+  function trend(id,w,h,pad,showAxis){
+    var s=document.getElementById(id); if(!s) return;
+    var max=100,min=0,n=daily.length,x=function(i){return pad+i*(w-pad*2)/(n-1)},y=function(v){return h-18-(v-min)*(h-40)/(max-min)};
+    var g='';
+    if(showAxis){[0,25,50,75,100].forEach(function(t){g+='<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="'+line+'"/><text x="'+(pad-8)+'" y="'+(y(t)+4)+'" font-size="10" fill="'+ink3+'" text-anchor="end">'+t+'</text>'});}
+    var d='',a='';
+    daily.forEach(function(v,i){d+=(i?'L':'M')+x(i)+' '+y(v)+' '});
+    a=d+'L'+x(n-1)+' '+(h-18)+' L'+x(0)+' '+(h-18)+' Z';
+    g+='<defs><linearGradient id="'+id+'g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+lime+'" stop-opacity=".28"/><stop offset="1" stop-color="'+lime+'" stop-opacity="0"/></linearGradient></defs>';
+    g+='<path d="'+a+'" fill="url(#'+id+'g)"/><path d="'+d+'" fill="none" stroke="'+lime+'" stroke-width="2" stroke-linejoin="round"/>';
+    g+='<circle cx="'+x(n-1)+'" cy="'+y(daily[n-1])+'" r="4" fill="'+lime+'"/><text x="'+(x(n-1)-6)+'" y="'+(y(daily[n-1])-10)+'" font-size="11" fill="'+ink+'" text-anchor="end">'+daily[n-1]+'명</text>';
+    if(showAxis){['10.20','10.27','11.03','11.10','11.16'].forEach(function(l,i){var xi=i<4?i*7:n-1;g+='<text x="'+x(xi)+'" y="'+(h-3)+'" font-size="10" fill="'+ink3+'" text-anchor="middle">'+l+'</text>'});}
+    s.innerHTML=g;
+  }
+  trend('trendA',760,210,34,true); trend('trendB',360,150,26,false); trend('trendC',740,220,34,true);
+
+  function spark(id){var s=document.getElementById(id);if(!s)return;var n=daily.length,d='';daily.forEach(function(v,i){d+=(i?'L':'M')+(i*300/(n-1))+' '+(50-v*0.42)+' '});s.innerHTML='<path d="'+d+' L300 54 L0 54 Z" fill="rgba(20,17,13,.18)"/><path d="'+d+'" fill="none" stroke="#14110D" stroke-width="1.5"/>';}
+  spark('sparkC1');
+
+  function cohort(id,cls){
+    var el=document.getElementById(id); if(!el) return; var h='<div></div>';
+    days.forEach(function(d){h+='<div class="h">'+d+'</div>'});
+    cohorts.forEach(function(c){h+='<div class="k">'+c[0]+' <span style="color:'+ink3+';margin-left:6px">'+c[1]+'</span></div>';
+      c[2].forEach(function(v){ if(v==null){h+='<div class="c" style="background:transparent;border:1px dashed '+line+';color:'+ink3+'" title="데이터 없음">–</div>';}
+        else{var a=.12+v*1.4; h+='<div class="c num" style="background:rgba(207,247,48,'+a.toFixed(2)+');color:'+(v>.3?'#14110D':ink)+'">'+Math.round(v*100)+'%</div>';}});});
+    el.innerHTML=h;
+  }
+  cohort('cohortA'); cohort('cohortB'); cohort('cohortC');
+
+  function screensTable(id,cols){var el=document.getElementById(id);if(!el)return;var h='';screens.forEach(function(r){h+='<tr><td>'+r[0]+'</td>'+(cols===4?'<td class="r num">'+r[1].toLocaleString()+'</td>':'')+'<td class="r num">'+r[2].toLocaleString()+'</td><td class="r num">'+r[3]+'</td></tr>'});el.innerHTML=h;}
+  screensTable('screensA',4); screensTable('screensC',3);
+  var sb=document.getElementById('screensB'); if(sb){var sorted=screens.slice().sort(function(a,b){return b[3].localeCompare(a[3])});sb.innerHTML=sorted.slice(0,5).map(function(r,i){return '<li><span class="n">'+(i+1)+'</span><span>'+r[0]+'<br><span class="t num">'+r[2].toLocaleString()+' 조회</span></span><b class="num">'+r[3]+'</b></li>'}).join('');}
+
+  function bars(id,rows,unit){var el=document.getElementById(id);if(!el)return;var max=Math.max.apply(null,rows.map(function(r){return r[1]}));el.innerHTML=rows.map(function(r,i){return '<div><span>'+r[0]+'</span><div class="bar"><i style="width:'+(r[1]/max*100).toFixed(0)+'%'+(i?';background:'+ink3:'')+'"></i></div><b class="num" style="text-align:right;font-weight:500">'+r[1].toLocaleString()+'</b></div>'}).join('');}
+  bars('eventsA',events); bars('eventsB',events); bars('eventsC',events.slice(0,3)); bars('platB',plats);
+
+  var dn=document.getElementById('donutC'); if(dn){var tot=1284,r=38,c=2*Math.PI*r,off=0,h='',cols=[lime,ink,ink3];plats.forEach(function(p,i){var len=p[1]/tot*c;h+='<circle cx="48" cy="48" r="'+r+'" fill="none" stroke="'+cols[i]+'" stroke-width="12" stroke-dasharray="'+len+' '+(c-len)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 48 48)"/>';off+=len;});h+='<text x="48" y="52" text-anchor="middle" font-size="13" fill="'+ink+'" font-weight="500">66%</text>';dn.innerHTML=h;}
+
+
+  // ---- D : final ----
+  (function(){
+    var prev=[28,30,33,31,36,38,35,41,44,40,46,49,45,52,50,53,56,53,59,57,62,60,64,67,63,69,68,73];
+    var sess=daily.map(function(v){return Math.round(v*3.05)});
+    var s=document.getElementById('trendD'); if(s){
+      var w=700,h=250,pad=36,n=daily.length,max=100,x=function(i){return pad+i*(w-pad-14)/(n-1)},y=function(v){return h-26-v*(h-56)/max},ys=function(v){return h-26-v*(h-56)/(max*3.2)};
+      var g='';[0,25,50,75,100].forEach(function(t){g+='<line x1="'+pad+'" x2="'+(w-14)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="'+line+'"/><text x="'+(pad-8)+'" y="'+(y(t)+4)+'" font-size="10" fill="'+ink3+'" text-anchor="end">'+t+'</text>'});
+      var d='',dp='',ds='';daily.forEach(function(v,i){d+=(i?'L':'M')+x(i)+' '+y(v)+' ';dp+=(i?'L':'M')+x(i)+' '+y(prev[i])+' ';ds+=(i?'L':'M')+x(i)+' '+ys(sess[i])+' '});
+      g+='<defs><linearGradient id="gD" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+lime+'" stop-opacity=".3"/><stop offset="1" stop-color="'+lime+'" stop-opacity="0"/></linearGradient></defs>';
+      g+='<path d="'+d+'L'+x(n-1)+' '+(h-26)+' L'+x(0)+' '+(h-26)+' Z" fill="url(#gD)"/>';
+      g+='<path d="'+dp+'" fill="none" stroke="'+ink3+'" stroke-width="1.5"/>';
+      g+='<path d="'+ds+'" fill="none" stroke="'+ink+'" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      g+='<path d="'+d+'" fill="none" stroke="'+lime+'" stroke-width="2.2" stroke-linejoin="round"/>';
+      g+='<circle cx="'+x(n-1)+'" cy="'+y(daily[n-1])+'" r="4.5" fill="'+lime+'"/><text x="'+(x(n-1)-8)+'" y="'+(y(daily[n-1])-12)+'" font-size="12" fill="'+ink+'" text-anchor="end" font-weight="500">88명</text>';
+      ['10.20','10.27','11.03','11.10','11.16'].forEach(function(l,i){var xi=i<4?i*7:n-1;g+='<text x="'+x(xi)+'" y="'+(h-6)+'" font-size="10" fill="'+ink3+'" text-anchor="middle">'+l+'</text>'});
+      s.innerHTML=g;
+    }
+    function sp(id,arr,col){var e=document.getElementById(id);if(!e)return;e.setAttribute('viewBox','0 0 96 40');var mx=Math.max.apply(null,arr),mn=Math.min.apply(null,arr),n=arr.length,d='';arr.forEach(function(v,i){d+=(i?'L':'M')+(i*96/(n-1)).toFixed(1)+' '+(36-(v-mn)*30/(mx-mn)).toFixed(1)+' '});e.innerHTML='<path d="'+d+'L96 40 L0 40Z" fill="'+col+'" fill-opacity=".12"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.6"/><circle cx="96" cy="'+(36-(arr[n-1]-mn)*30/(mx-mn)).toFixed(1)+'" r="2.5" fill="'+col+'"/>';}
+    sp('spD1',[9,11,10,14,13,16,15,18,17,20,19,22,21,24,23,25,24,27,26,28,27,30,29,31,30,32,31,34],lime);
+    sp('spD2',sess,ink);
+    sp('spD3',[300,296,292,298,290,288,285,283,290,286,282,280,284,279,281,278,276,280,275,279,277,274,278,276,272,275,279,278],'#E1738A');
+    var rg=document.getElementById('ringD'); if(rg){var r=21,c=2*Math.PI*r;rg.innerHTML='<circle cx="26" cy="26" r="'+r+'" fill="none" stroke="'+line+'" stroke-width="6"/><circle cx="26" cy="26" r="'+r+'" fill="none" stroke="'+lime+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(c*.713)+' '+c+'" transform="rotate(-90 26 26)"/>';}
+    var ch=document.getElementById('cohortD'); if(ch){var h='<div></div>';days.forEach(function(d){h+='<div class="h">'+d+'</div>'});h+='<div class="h">곡선</div>';
+      cohorts.forEach(function(c){h+='<div class="k">'+c[0]+'<br><span style="color:'+ink3+'">'+c[1]+'명</span></div>';
+        c[2].forEach(function(v){if(v==null){h+='<div class="c" style="border:1px dashed '+line+';color:'+ink3+'">–</div>';}else{var a=.12+v*1.4;h+='<div class="c num" style="background:rgba(207,247,48,'+a.toFixed(2)+');color:'+(v>.3?'#14110D':ink)+'">'+Math.round(v*100)+'%</div>';}});
+        var pts=c[2].filter(function(v){return v!=null}),d='';pts.forEach(function(v,i){d+=(i?'L':'M')+(6+i*98/4)+' '+(34-v*56)+' '});
+        h+='<div><svg viewBox="0 0 110 38"><path d="'+d+'" fill="none" stroke="'+lime+'" stroke-width="1.6"/>'+pts.map(function(v,i){return '<circle cx="'+(6+i*98/4)+'" cy="'+(34-v*56)+'" r="2" fill="'+lime+'"/>'}).join('')+'</svg></div>';});
+      ch.innerHTML=h;}
+    var sd=document.getElementById('screensD'); if(sd){var rows=screens.slice().sort(function(a,b){return b[3].localeCompare(a[3])});var toS=function(t){var p=t.split(':');return +p[0]*60+ +p[1]};var mx=toS(rows[0][3]);sd.innerHTML=rows.map(function(r){return '<div><span>'+r[0]+'</span><div class="bar"><i style="width:'+(toS(r[3])/mx*100).toFixed(0)+'%"></i></div><b class="num r">'+r[3]+'</b></div>'}).join('');}
+    var ho=document.getElementById('hoursD'); if(ho){var dn=['월','화','수','목','금','토','일'],h='';dn.forEach(function(d,di){h+='<div class="k">'+d+'</div>';for(var hr=0;hr<24;hr++){var base=(hr>=7&&hr<=9?.45:hr>=12&&hr<=13?.5:hr>=19&&hr<=23?.9:hr<6?.08:.3);if(di>=5)base=base*0.8+(hr>=10&&hr<=16?.35:0);var v=Math.min(1,base+((hr*7+di*13)%10)/60);h+='<div class="c" style="background:rgba(207,247,48,'+(0.06+v*.9).toFixed(2)+')" title="'+d+' '+hr+'시"></div>';}});h+='<div></div>';for(var hr=0;hr<24;hr++){h+='<div class="x">'+(hr%6==0?hr:'')+'</div>'}ho.innerHTML=h;}
+    var hi=document.getElementById('histD'); if(hi){var bins=[['~10초',9],['10–30초',14],['30초–1분',17],['1–3분',26],['3–10분',24],['10분+',10]],g='',bw=58,x0=20;bins.forEach(function(b,i){var hh=b[1]*4.2,x=x0+i*(bw+10),y=118-hh;g+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+hh+'" rx="3" fill="'+(i==3?lime:'rgba(237,231,219,.22)')+'"/><text x="'+(x+bw/2)+'" y="'+(y-6)+'" font-size="11" fill="'+ink+'" text-anchor="middle">'+b[1]+'%</text><text x="'+(x+bw/2)+'" y="136" font-size="10.5" fill="'+ink3+'" text-anchor="middle">'+b[0]+'</text>'});hi.innerHTML=g;}
+    var fu=document.getElementById('funnelD'); if(fu){var st=[['에디터 열기',1180],['앨범 추가',864],['탑스터 저장',612],['완성',412]];fu.innerHTML=st.map(function(x,i){return '<div><b class="num">'+x[1].toLocaleString()+'</b><i style="height:'+(x[1]/st[0][1]*96).toFixed(0)+'px"></i><span>'+x[0]+(i?' <span style="color:'+ink3+'">'+Math.round(x[1]/st[i-1][1]*100)+'%</span>':'')+'</span></div>'}).join('');}
+    var dd=document.getElementById('donutD'); if(dd){var tot=1284,r=46,c=2*Math.PI*r,off=0,g='',cols=[lime,ink,ink3];plats.forEach(function(p,i){var len=p[1]/tot*c;g+='<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+cols[i]+'" stroke-width="14" stroke-dasharray="'+len+' '+(c-len)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 60 60)"/>';off+=len;});g+='<text x="60" y="57" text-anchor="middle" font-size="22" fill="'+ink+'" font-family="Anton">66%</text><text x="60" y="73" text-anchor="middle" font-size="10" fill="'+ink3+'">iOS</text>';dd.innerHTML=g;
+      document.getElementById('platD').innerHTML=plats.map(function(p,i){return '<li><i style="background:'+cols[i]+'"></i><span>'+p[0]+'</span><b class="num">'+p[1]+'</b><div class="bar"><i style="width:'+(p[1]/842*100).toFixed(0)+'%;background:'+cols[i]+'"></i></div></li>'}).join('');}
+    bars('eventsD',events.slice(0,4));
+  })();
+
+  var tabs=document.querySelectorAll('.tabs button');
+  tabs.forEach(function(b){b.addEventListener('click',function(){tabs.forEach(function(t){t.setAttribute('aria-selected',t===b)});['d','a','b','c'].forEach(function(k){document.getElementById('v-'+k).hidden=k!==b.dataset.v});});});
+})();
+</script>

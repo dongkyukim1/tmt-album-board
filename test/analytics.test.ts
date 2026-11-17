@@ -17,9 +17,10 @@ describe('real analytics reporting', () => {
   it('does not turn missing or immature retention into zero', () => {
     const range = [{ name: 'test', start: '2026-11-01', end: '2026-11-07' }]
     const row = (day: number, active: number) => ({ dimensionValues: [{ value: 'test_day_0' }, { value: String(day) }], metricValues: [{ value: String(active) }, { value: '100' }] })
-    const [cohort] = parseCohorts({ rows: [row(0, 100), row(1, 0), row(7, 25), row(30, 12)] }, range, '2026-11-16')
+    const [cohort] = parseCohorts({ rows: [row(0, 100), row(1, 0), row(3, 40), row(7, 25), row(30, 12)] }, range, '2026-11-16')
     expect(cohort.days[0]).toBe(1)
     expect(cohort.days[1]).toBe(0)
+    expect(cohort.days[3]).toBe(.4)
     expect(cohort.days[7]).toBe(.25)
     expect(cohort.days[14]).toBeNull()
     expect(cohort.days[30]).toBeNull()

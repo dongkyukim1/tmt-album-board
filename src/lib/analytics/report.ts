@@ -26,7 +26,7 @@ export function parseCohorts(report: GAReport, ranges: ReturnType<typeof cohortR
       return { rows, size }
     })
     const size = daily.reduce((sum, day) => sum + day.size, 0)
-    return { start: range.start, end: range.end, users: size, days: Object.fromEntries([0, 1, 7, 14, 30].map(day => {
+    return { start: range.start, end: range.end, users: size, days: Object.fromEntries([0, 1, 3, 7, 14, 30].map(day => {
       const known = daily.filter(d => d.size > 0)
       const rows = known.map(d => d.rows.find(r => Number(r.dimensionValues?.[1]?.value) === day))
       const immature = dateShift(range.end, day) > end

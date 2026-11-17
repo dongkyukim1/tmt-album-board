@@ -39,16 +39,19 @@ async function queryAnalytics(property: string, days: number, platform: Platform
   const base = { dateRanges: [{ startDate: start, endDate: end }], dimensionFilter: filter, limit: 10000 }
   const named = (names: readonly string[]) => names.map(name => ({ name }))
   const ranges = cohortRanges(end)
+  const previousRange = { startDate: dateShift(start, -days), endDate: dateShift(start, -1) }
   const reportRequests = [
     run({ ...base, metrics: named(metricNames) }),
-    run({ ...base, dateRanges: [{ startDate: dateShift(start, -days), endDate: dateShift(start, -1) }], metrics: named(metricNames) }),
+    run({ ...base, dateRanges: [previousRange], metrics: named(metricNames) }),
     run({ ...base, dimensions: named(['date']), metrics: named(metricNames), orderBys: [{ dimension: { dimensionName: 'date' } }] }),
     run({ ...base, dimensions: named([platform === 'web' ? 'unifiedPageScreen' : 'unifiedScreenName']), metrics: named(['activeUsers', 'screenPageViews', 'userEngagementDuration']), orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }] }),
     run({ ...base, dimensions: named(['eventName']), metrics: named(['eventCount', 'totalUsers']), orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }] }),
     run({ ...base, dimensions: named(['platform']), metrics: named(['activeUsers']) }),
     run({ dimensionFilter: filter, dateRanges: [1, 7, 30].map(n => ({ startDate: dateShift(end, 1 - n), endDate: end, name: `d${n}` })), metrics: named(['activeUsers']) }),
+    run({ ...base, dateRanges: [previousRange], dimensions: named(['date']), metrics: named(metricNames), orderBys: [{ dimension: { dimensionName: 'date' } }] }),
+    run({ ...base, dimensions: named(['dayOfWeek', 'hour']), metrics: named(['sessions']) }),
   ]
-  const [totals, previous, daily, screens, events, platforms, active] = await Promise.all(reportRequests)
+  const [totals, previous, daily, screens, events, platforms, active, previousDaily, hourly] = await Promise.all(reportRequests)
   const cohortReports: GAReport[] = []
   // Seven single-day cohorts per request, two requests at once to respect property concurrency.
   const runCohorts = (range: typeof ranges[number]) => run({
@@ -65,7 +68,7 @@ async function queryAnalytics(property: string, days: number, platform: Platform
     const result = await run({ metrics: named(['activeUsers']), dimensionFilter: filter }, true)
     realtime = Number(result.rows?.[0]?.metricValues?.[0]?.value ?? 0)
   } catch { warnings.push('실시간 보고서를 조회하지 못했습니다. 집계 보고서는 정상적으로 표시합니다.') }
-  if ([totals, previous, daily, screens, events, platforms, cohorts].some(r => r.metadata?.subjectToThresholding)) warnings.push('Google의 개인정보 보호 기준에 따라 일부 소규모 데이터가 제한될 수 있습니다.')
+  if ([totals, previous, daily, previousDaily, hourly, screens, events, platforms, cohorts].some(r => r.metadata?.subjectToThresholding)) warnings.push('Google의 개인정보 보호 기준에 따라 일부 소규모 데이터가 제한될 수 있습니다.')
   if ([screens, events].some(r => r.metadata?.dataLossFromOtherRow || (r.rowCount ?? 0) > 10000)) warnings.push('일부 상세 행이 Google의 집계 또는 응답 한도로 생략되었습니다.')
   const rows = (r: GAReport) => r.rows ?? []
   const d = (r: NonNullable<GAReport['rows']>[number], i = 0) => r.dimensionValues?.[i]?.value ?? ''
@@ -75,6 +78,9 @@ async function queryAnalytics(property: string, days: number, platform: Platform
     source: 'Google Analytics 4', fetchedAt: new Date().toISOString(), timezone, start, end,
     totals: metrics(totals.rows?.[0]), previous: metrics(previous.rows?.[0]),
     daily: rows(daily).map(r => ({ date: d(r).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'), ...metrics(r) })),
+    previousDaily: rows(previousDaily).map(r => ({ date: d(r).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'), ...metrics(r) })),
+    hourly: rows(hourly).map(r => ({ day: Number(d(r)), hour: Number(d(r, 1)), sessions: m(r) })),
+    hourlyRestricted: !!hourly.metadata?.subjectToThresholding, durationDistribution: null,
     screens: rows(screens).map(r => ({ name: d(r), users: m(r), views: m(r, 1), seconds: m(r, 2) })),
     events: rows(events).map(r => ({ name: d(r), count: m(r), users: m(r, 1) })),
     platforms: rows(platforms).map(r => ({ name: d(r), users: m(r) })),
