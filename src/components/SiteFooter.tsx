@@ -1,7 +1,11 @@
+'use client'
+import { usePathname } from 'next/navigation'
 import styles from './site-shell.module.css'
 
 /** 웹 공통 푸터 — index.html `.site-foot`과 동일 구성. */
 export default function SiteFooter() {
+  const pathname = usePathname()
+  if (pathname.startsWith('/admin/analytics')) return null
   return (
     <footer className={styles.foot}>
       <div className={styles.footIn}>

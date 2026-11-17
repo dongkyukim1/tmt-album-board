@@ -95,3 +95,7 @@ next.config.ts          # `/` → SPA 리라이트 등
 ## 📝 라이선스
 
 MIT
+
+## 제품 분석 대시보드
+
+`/admin/analytics`에서 Firebase/GA4의 실제 사용자·체류시간·리텐션을 조회합니다. 설치 및 서버 환경변수, 지표 정의는 [TMT Insights 가이드](docs/analytics.md)를 참고하세요.

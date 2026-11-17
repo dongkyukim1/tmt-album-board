@@ -469,6 +469,7 @@
     <a href="#" data-next="/me">마이</a>
     <!-- 운영자(GET /me isAdmin)에게만 보인다 — 신고 24시간 검토(이용약관 제9조) -->
     <a href="#" data-next="/admin/reports" id="navAdmin" hidden>신고 관리</a>
+    <a href="#" data-next="/admin/analytics" id="navAnalytics" hidden>앱 분석</a>
   </nav>
   <div style="position:relative">
     <button class="btn-auth" id="btnAuth">로그인</button>
@@ -714,6 +715,7 @@
 <script src="env.js"></script>
 <!-- 로컬 목 모드: ?mock=1 일 때만 fetch를 가로챈다 (배포 환경에선 비활성) -->
 <script src="mock.js"></script>
+<script src="analytics.js"></script>
 <script>
 /* ===================== 설정 ===================== */
 const ENV = window.__ENV__ || {};
@@ -1051,6 +1053,7 @@ function renderAuthUI(){
     btn.classList.remove('signed'); btn.textContent='로그인';
   }
   document.getElementById('navAdmin').hidden=!(myProfile&&myProfile.isAdmin);
+  document.getElementById('navAnalytics').hidden=!(myProfile&&myProfile.isAdmin);
 }
 
 async function doLogout(){
@@ -1522,6 +1525,7 @@ async function doSaveChart(){
     if(!res.ok){ const e=await apiError(res,'저장에 실패했어요.'); showToast(e.message); return; }
     const { data }=await res.json();
     savedChart=data;
+    window.tmtAnalytics?.event('chart_save');
     editingChartId=data.id;           // 저장 후에는 편집 잠금 — 제목만 수정 가능
     editingChartName=data.name||'';
     nameInput.value=data.name||body.name;   // 제목을 비웠으면 날짜 제목이 화면에도 반영된다
@@ -1678,6 +1682,7 @@ document.getElementById('pubRail').addEventListener('click',e=>{
 const doneOverlay=document.getElementById('doneOverlay');
 function shareUrl(){ return savedChart?SITE_URL+'/c/'+savedChart.id:''; }
 function openDone(){
+  window.tmtAnalytics?.event('share_open');
   const pv=document.getElementById('donePreview');
   pv.style.gridTemplateColumns='repeat('+gridSize+',1fr)';
   pv.innerHTML=cells.map(c=>'<img src="'+escapeHtml(c.artworkUrl.replace('600x600','100x100'))+'" alt="" />').join('');

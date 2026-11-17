@@ -58,7 +58,8 @@ function useIsAdmin(): boolean {
 export default function SiteHeader() {
   const pathname = usePathname()
   const isAdmin = useIsAdmin()
-  const links = isAdmin ? [...LINKS, ADMIN_LINK] : LINKS
+  const links = isAdmin ? [...LINKS, ADMIN_LINK, { href: '/admin/analytics', label: '앱 분석' }] : LINKS
+  if (pathname.startsWith('/admin/analytics')) return null
   return (
     <header className={styles.nav}>
       <a href="/" className={styles.brand} aria-label="TMT 홈">

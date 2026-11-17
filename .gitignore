@@ -33,3 +33,6 @@ npm-debug.log*
 
 # Claude Code 플러그인(bkit) 런타임 상태 — 커밋 금지
 .bkit/
+
+/public/analytics.js
+.vercel/
